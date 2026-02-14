@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/task/screens/task.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -13,19 +16,6 @@ class _MainWrapperState extends State<MainWrapper> {
 
   List<Widget> _pages = [];
   List<NavigationDestination> _navItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    String role = "caregiver"; // Simulated user role
-
-    if (role == 'caregiver') {
-      _setupCaregiverView();
-    } else {
-      _setupElederView();
-    }
-  }
 
   void _setupCaregiverView() {
     _pages = [
@@ -53,7 +43,7 @@ class _MainWrapperState extends State<MainWrapper> {
     ];
   }
 
-  void _setupElederView() {
+  void _setupElderView() {
     _pages = [
       const Placeholder(), // Home
       const Placeholder(), // Profile
@@ -75,11 +65,18 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+    bool isCaregiver = user?.role == Role.caregiver;
+
+    if (isCaregiver) {
+      _setupCaregiverView();
+    } else {
+      _setupElderView();
+    }
+
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index) {

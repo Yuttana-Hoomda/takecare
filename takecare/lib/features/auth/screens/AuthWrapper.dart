@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // <--- MUST HAVE THIS IMPORT
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/auth/screens/login.dart';
 import 'package:takecare/features/home/screens/main_wrapper.dart';
 
-class Authwrapper extends StatelessWidget {
-  const Authwrapper({super.key});
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authen = true; // Simulated authentication status
+    final authen = Provider.of<AuthProvider>(context);
 
-    if (authen) {
-      return MainWrapper();
+    if (authen.isAuthenticated) {
+      return const MainWrapper();
     } else {
-      return Login();
+      return const Login();
     }
   }
 }
