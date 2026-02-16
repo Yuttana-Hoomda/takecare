@@ -28,17 +28,17 @@ class _MainWrapperState extends State<MainWrapper> {
       const NavigationDestination(
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
-        label: 'Home',
+        label: 'หน้าแรก',
       ),
       const NavigationDestination(
-        icon: Icon(Icons.check_circle_outline),
-        selectedIcon: Icon(Icons.check_circle),
-        label: 'Tasks',
+        icon: Icon(Icons.assignment_outlined),
+        selectedIcon: Icon(Icons.assignment),
+        label: 'รายการ',
       ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
-        label: 'Profile',
+        label: 'โปรไฟล์',
       ),
     ];
   }
@@ -77,15 +77,27 @@ class _MainWrapperState extends State<MainWrapper> {
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: _navItems,
-      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 12,
+              spreadRadius: 1,
+              offset: const Offset(0, -3),
+            )
+          ]
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          destinations: _navItems,
+        ),
+      )
     );
   }
 }

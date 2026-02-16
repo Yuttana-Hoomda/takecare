@@ -9,7 +9,7 @@ class Task {
   final TaskType type;
   final Map<String, dynamic> details;
   final TimeOfDay time;
-  final List<int> repeatDays;
+  final List<int>? repeatDays;
   final bool? requiredPhotos;
   final DateTime createdAt;
 
@@ -21,7 +21,7 @@ class Task {
     required this.type,
     required this.details,
     required this.time,
-    required this.repeatDays,
+    this.repeatDays,
     this.requiredPhotos,
     required this.createdAt,
   });
@@ -40,7 +40,9 @@ class Task {
         hour: json['time']['hour'] as int,
         minute: json['time']['minute'] as int
       ),
-      repeatDays: List<int>.from(json['repeatDays']),
+      repeatDays: json['repeatDays'] != null
+          ? List<int>.from(json['repeatDays'])
+          : [],
         createdAt: DateTime.parse(json['createdAt']),
     );
   }

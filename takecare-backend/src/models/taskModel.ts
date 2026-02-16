@@ -8,10 +8,10 @@ export interface Task {
     type: string;
     details: Map<string, any>;
     time: {
-        hour: int,
-        minute: int
+        hour: number,
+        minute: number
     }
-    repeatDays: number[];
+    repeatDays?: number[];
     requiredPhotos?: boolean;
     createdAt: Timestamp;
 }
