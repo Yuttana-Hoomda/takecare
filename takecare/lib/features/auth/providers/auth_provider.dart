@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
@@ -27,7 +29,7 @@ class AuthProvider with ChangeNotifier {
 
     } catch (e) {
       _errorMessage = "Login failed. Please check your credentials.";
-      print(e);
+      log(e.toString());
     } finally {
       _isLoading = false;
       notifyListeners();

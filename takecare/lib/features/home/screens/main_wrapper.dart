@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
-import 'package:takecare/features/task/screens/task.dart';
+import 'package:takecare/features/task/screens/task_screen.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -20,7 +20,7 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupCaregiverView() {
     _pages = [
       const Placeholder(), // Home
-      const Task(), // Tasks
+      const TaskScreen(), // Tasks
       const Placeholder(), // Profile
     ];
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/task/providers/task_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
@@ -23,7 +24,8 @@ class Main extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => AuthProvider())
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => TaskProvider())
         ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
