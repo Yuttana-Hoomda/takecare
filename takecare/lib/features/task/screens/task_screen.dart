@@ -41,13 +41,20 @@ class _TaskScreenState extends State<TaskScreen> {
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final task = tasks?[index];
+            if (task == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            print("DEBUG: The title is ${task.title} and the date is ${task.date}");
             return TaskCard(
-              title: task!.title,
+              title: task.title,
               time: task.time,
-              type: task.type,
+              date: task.date,
               repeatedDay: task.repeatDays,
-              detail: task.details,
               onTap: () {},
+              icon: task.icon,
+              note: task.note,
             );
           },
         ),

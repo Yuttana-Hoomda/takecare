@@ -6,11 +6,13 @@ class Task {
   final String createdBy;
   final String familyId;
   final String title;
-  final TaskType type;
-  final Map<String, dynamic> details;
+  final String icon;
+  final String? date;
+  final String? note;
   final TimeOfDay time;
   final List<int>? repeatDays;
-  final bool? requiredPhotos;
+  final bool? isRequiredPhoto;
+  final bool? isRepeatByDate;
   final DateTime createdAt;
 
   const Task({
@@ -18,24 +20,25 @@ class Task {
     required this.createdBy,
     required this.familyId,
     required this.title,
-    required this.type,
-    required this.details,
     required this.time,
     this.repeatDays,
-    this.requiredPhotos,
+    this.isRequiredPhoto,
     required this.createdAt,
+    this.date,
+    this.note,
+    this.isRepeatByDate,
+    required this.icon,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      taskId: json['id'] as String,
+      taskId: json['id'] as String? ?? '',
       createdBy: json['createdBy'] as String,
       familyId: json['familyId'] as String,
       title: json['title'] as String,
-      type: TaskType.values.firstWhere(
-            (e) => e.name == json['type']?.toString(),
-      ),
-      details: json['details'] as Map<String, dynamic>,
+      icon: json['icon'] as String? ?? 'assets/task.svg',
+      isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
+      isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']['hour'] as int,
         minute: json['time']['minute'] as int
@@ -43,6 +46,8 @@ class Task {
       repeatDays: json['repeatDays'] != null
           ? List<int>.from(json['repeatDays'])
           : [],
+        note: json['note'] as String? ?? '',
+        date: json['date'] as String? ?? '',
         createdAt: DateTime.parse(json['createdAt']),
     );
   }

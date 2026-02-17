@@ -5,13 +5,14 @@ export interface Task {
     createdBy: string;
     familyId: string;
     title: string;
-    type: string;
-    details: Map<string, any>;
+    date?: Timestamp;
+    note?: string;
     time: {
         hour: number,
         minute: number
     }
     repeatDays?: number[];
-    requiredPhotos?: boolean;
+    isRequiredPhoto?: boolean;
+    isRepeatByDate?: boolean
     createdAt: Timestamp;
 }

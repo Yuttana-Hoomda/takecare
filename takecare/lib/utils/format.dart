@@ -6,27 +6,36 @@ class Format {
   }
 
   String dateToString(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    const List<String> thaiMonths = [
-      '',
-      'ม.ค.',
-      'ก.พ.',
-      'มี.ค.',
-      'เม.ย.',
-      'พ.ค.',
-      'มิ.ย.',
-      'ก.ค.',
-      'ส.ค.',
-      'ก.ย.',
-      'ต.ค.',
-      'พ.ย.',
-      'ธ.ค.',
-    ];
+    try {
+      List<String> parts = date.split('-');
+      int year = int.parse(parts[0]);
+      int month = int.parse(parts[1]);
+      int day = int.parse(parts[2]);
+      DateTime parsedDate = DateTime(year, month, day);
 
-    final int day = parsedDate.day;
-    final String month = thaiMonths[parsedDate.month];
-    final int yearBE = parsedDate.year + 543;
+      const List<String> thaiMonths = [
+        '',
+        'ม.ค.',
+        'ก.พ.',
+        'มี.ค.',
+        'เม.ย.',
+        'พ.ค.',
+        'มิ.ย.',
+        'ก.ค.',
+        'ส.ค.',
+        'ก.ย.',
+        'ต.ค.',
+        'พ.ย.',
+        'ธ.ค.',
+      ];
 
-    return '$day $month $yearBE';
+      final int thaiYear = parsedDate.year + 543;
+      final String thaiMonth = thaiMonths[parsedDate.month];
+      final int thaiDay = parsedDate.day;
+
+      return '$thaiDay $thaiMonth $thaiYear';
+    } catch (e) {
+      return date;
+    }
   }
 }
