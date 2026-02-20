@@ -64,7 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '718246493368',
     projectId: 'takecare-9b3c0',
     storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    iosClientId: '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
+    iosClientId:
+        '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
     iosBundleId: 'com.example.takecare',
   );
 
@@ -74,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '718246493368',
     projectId: 'takecare-9b3c0',
     storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    iosClientId: '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
+    iosClientId:
+        '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
     iosBundleId: 'com.example.takecare',
   );
 

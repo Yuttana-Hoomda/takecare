@@ -26,7 +26,6 @@ class AuthProvider with ChangeNotifier {
 
     try {
       _user = await _authService.login(email, password);
-
     } catch (e) {
       _errorMessage = "Login failed. Please check your credentials.";
       log(e.toString());

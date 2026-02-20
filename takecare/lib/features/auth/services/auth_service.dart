@@ -8,6 +8,8 @@ import '../models/user_model.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "http://10.0.2.2:3000/api/users";
+  // // ถ้าใช้ Flutter Web
+  // final String baseUrl = "http://localhost:3000/api/users";
 
   Future<User> login(String email, String password) async {
     try {
@@ -35,7 +37,6 @@ class AuthService {
         }
       }
       throw Exception("Failed to get Firebase token");
-
     } catch (e) {
       log("failed: $e");
       rethrow;
