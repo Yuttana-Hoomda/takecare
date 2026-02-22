@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:takecare/constants/enum.dart';
 
 class Task {
-  final String taskId;
+  final String? taskId;
   final String createdBy;
   final String familyId;
   final String title;
@@ -12,11 +11,10 @@ class Task {
   final TimeOfDay time;
   final List<int>? repeatDays;
   final bool? isRequiredPhoto;
-  final bool? isRepeatByDate;
   final DateTime createdAt;
 
   const Task({
-    required this.taskId,
+    this.taskId,
     required this.createdBy,
     required this.familyId,
     required this.title,
@@ -26,7 +24,6 @@ class Task {
     required this.createdAt,
     this.date,
     this.note,
-    this.isRepeatByDate,
     required this.icon,
   });
 
@@ -37,7 +34,6 @@ class Task {
       familyId: json['familyId'] as String,
       title: json['title'] as String,
       icon: json['icon'] as String? ?? 'assets/task.svg',
-      isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
       isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']['hour'] as int,
@@ -48,7 +44,30 @@ class Task {
           : [],
         note: json['note'] as String? ?? '',
         date: json['date'] as String? ?? '',
-        createdAt: DateTime.parse(json['createdAt']),
+        createdAt: json['createdAt'] is String
+            ? DateTime.parse(json['createdAt'])
+            : DateTime.fromMillisecondsSinceEpoch(
+            (json['createdAt']['_seconds'] as int) * 1000
+        ),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': taskId,
+      'createdBy': createdBy,
+      'familyId': familyId,
+      'title': title,
+      'icon': icon,
+      'date': date,
+      'note': note,
+      'time': {
+        'hour': time.hour,
+        'minute': time.minute,
+      },
+      'repeatDays': repeatDays,
+      'isRequiredPhoto': isRequiredPhoto,
+      'createdAt': createdAt.toIso8601String(),
+    };
   }
 }

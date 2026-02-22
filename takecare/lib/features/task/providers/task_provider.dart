@@ -31,4 +31,27 @@ class TaskProvider extends ChangeNotifier{
       notifyListeners();
     }
   }
+
+  Future<void> createTask(Task task) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try{
+      final createdTask = await _taskService.createTask(task);
+
+      if (_tasks != null) {
+        _tasks!.insert(0, createdTask);
+      } else {
+        _tasks = [task];
+      }
+    } catch(err) {
+      _errorMessage = 'Failed to create task';
+      log("Error in TaskProvider.createTask: ${err.toString()}");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

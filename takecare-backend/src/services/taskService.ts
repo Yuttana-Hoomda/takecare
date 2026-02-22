@@ -8,7 +8,7 @@ export const createTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
 
     const newTaskPayload = {
         ...taskData,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: new Date().toISOString(),
     };
 
     const docRef = await tasksCollection.add(newTaskPayload);

@@ -4,6 +4,7 @@ import 'package:takecare/components/task_card.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
 import 'package:takecare/features/task/screens/create_task_screen.dart';
+import 'package:takecare/features/task/screens/task_detail_screen.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -52,9 +53,15 @@ class _TaskScreenState extends State<TaskScreen> {
               time: task.time,
               date: task.date,
               repeatedDay: task.repeatDays,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TaskDetailScreen(task: task)
+                    )
+                );
+              },
               icon: task.icon,
-              note: task.note,
             );
           },
         ),

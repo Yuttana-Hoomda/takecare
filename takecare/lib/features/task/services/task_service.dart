@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:http/http.dart' as http;
 import 'package:takecare/features/task/models/task_model.dart';
@@ -27,5 +28,25 @@ class TaskService {
     }
   }
 
+  Future<Task> createTask(Task task) async {
+    try{
+      final response = await http.post(
+        Uri.parse('$url/tasks',),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(task.toJson()),
+      );
+
+      if(response.statusCode == 201) {
+        log('create task succuess: ${task.toJson()}');
+        return Task.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to create task. Status: ${response.statusCode}');
+      }
+    } catch (err) {
+      throw Exception('Error communicating with the server: $err');
+    }
+  }
 
 }
