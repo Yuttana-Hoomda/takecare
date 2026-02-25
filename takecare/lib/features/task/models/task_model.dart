@@ -29,15 +29,15 @@ class Task {
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      taskId: json['id'] as String? ?? '',
-      createdBy: json['createdBy'] as String,
-      familyId: json['familyId'] as String,
-      title: json['title'] as String,
+      taskId: json['id'] as String?,
+      createdBy: json['createdBy'] as String? ?? '',
+      familyId: json['familyId'] as String? ?? '',
+      title: json['title'] as String? ?? 'ไม่มีรายการ',
       icon: json['icon'] as String? ?? 'assets/task.svg',
       isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
-        hour: json['time']['hour'] as int,
-        minute: json['time']['minute'] as int
+        hour: json['time']?['hour'] as int? ?? 0,
+        minute: json['time']?['minute'] as int? ?? 0
       ),
       repeatDays: json['repeatDays'] != null
           ? List<int>.from(json['repeatDays'])
@@ -47,7 +47,7 @@ class Task {
         createdAt: json['createdAt'] is String
             ? DateTime.parse(json['createdAt'])
             : DateTime.fromMillisecondsSinceEpoch(
-            (json['createdAt']['_seconds'] as int) * 1000
+            (json['createdAt']?['_seconds'] as int? ?? 0) * 1000
         ),
     );
   }

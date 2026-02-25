@@ -48,20 +48,20 @@ class Format {
 
     final days = repeatedDay.toSet().toList()..sort();
     const dayMap = {
-      1: 'จันทร์',
-      2: 'อังคาร',
-      3: 'พุธ',
-      4: 'พฤหัสบดี',
-      5: 'ศุกร์',
-      6: 'เสาร์',
-      7: 'อาทิตย์',
+      0: 'จันทร์',
+      1: 'อังคาร',
+      2: 'พุธ',
+      3: 'พฤหัสบดี',
+      4: 'ศุกร์',
+      5: 'เสาร์',
+      6: 'อาทิตย์',
     };
 
     if (days.length == 7) {
       return 'ทุกวัน';
     }
 
-    const weekdays = [1, 2, 3, 4, 5];
+    const weekdays = [0,1,2,3,4];
     if (days.length == 5 && weekdays.every((d) => days.contains(d))) {
       return 'จันทร์-ศุกร์';
     }

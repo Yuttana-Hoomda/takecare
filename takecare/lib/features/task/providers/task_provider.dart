@@ -54,4 +54,48 @@ class TaskProvider extends ChangeNotifier{
       notifyListeners();
     }
   }
+
+  Future<void> updateTask(Task task) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedTask = await _taskService.updateTask(task);
+      if (_tasks != null) {
+        final index = _tasks!.indexWhere((t) => t.taskId == task.taskId);
+
+        if (index != -1) {
+          _tasks![index] = updatedTask;
+        }
+      }
+    } catch (err) {
+      _errorMessage = 'Failed to update task';
+      log("Error in TaskProvider.update: ${err.toString()}");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteTask(Task task) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _taskService.deleteTask(task);
+      if (_tasks != null) {
+        _tasks?.removeWhere((t) => t.taskId == task.taskId);
+      }
+    } catch (err) {
+      _errorMessage = 'Failed to delete task';
+      log("Error in TaskProvider.delete: ${err.toString()}");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

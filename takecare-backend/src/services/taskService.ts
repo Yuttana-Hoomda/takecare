@@ -5,18 +5,17 @@ import { FieldValue } from 'firebase-admin/firestore';
 const tasksCollection = db.collection('tasks');
 
 export const createTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const docRef = tasksCollection.doc(); 
 
-    const newTaskPayload = {
+    const newTaskPayload = {  
         ...taskData,
+        id: docRef.id,
         createdAt: new Date().toISOString(),
     };
 
-    const docRef = await tasksCollection.add(newTaskPayload);
+    await docRef.set(newTaskPayload);
 
-    return {
-        id: docRef.id,
-        ...newTaskPayload
-    };
+    return newTaskPayload;
 }
 
 export const getTasksForFamily = async (familyId: string) => {
@@ -34,13 +33,14 @@ export const getTasksForFamily = async (familyId: string) => {
 
 export const updateTask = async (taskId: string, updatedData: Partial<Task>) => {
    
-    const taskRef = tasksCollection.doc(taskId);
+    const docRef = tasksCollection.doc(taskId);
+    await docRef.update(updatedData);
 
-    await taskRef.update(updatedData);
-
+    
+    const updatedDoc = await docRef.get();
     return {
-        id: taskId,
-        ...updatedData
+        id: updatedDoc.id,
+        ...updatedDoc.data()
     };
 }
 
