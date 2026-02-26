@@ -85,8 +85,8 @@ class _MainWrapperState extends State<MainWrapper> {
               blurRadius: 12,
               spreadRadius: 1,
               offset: const Offset(0, -3),
-            )
-          ]
+            ),
+          ],
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
@@ -97,7 +97,7 @@ class _MainWrapperState extends State<MainWrapper> {
           },
           destinations: _navItems,
         ),
-      )
+      ),
     );
   }
 }

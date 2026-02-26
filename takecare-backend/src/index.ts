@@ -3,6 +3,7 @@ import cors from 'cors'; // 1. import cors เข้ามา
 import userRoutes from './routes/userRoutes.js';
 import familyRoutes from './routes/familyRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import devRoutes from "./routes/dev.routes.js";
 
 const app: Application = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +15,9 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api', familyRoutes);
 app.use('/api', taskRoutes);
+
+// test dev route
+app.use("/api/dev", devRoutes);
 
 app.listen(port, () => {
     console.log(`🚀 Backend server running at http://localhost:${port}`);
