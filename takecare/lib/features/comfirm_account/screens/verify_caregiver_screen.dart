@@ -1,13 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
+import 'package:takecare/features/home/screens/main_wrapper.dart';
 import 'package:takecare/features/comfirm_account/widgets/verify_caregiver_card.dart';
+import 'package:takecare/features/link_family/providers/link_family_provider.dart';
 
 class VerifyCaregiverScreen extends StatelessWidget {
   const VerifyCaregiverScreen({super.key});
 
+  Future<void> _onConfirm(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+    final linkProvider = context.read<LinkFamilyProvider>();
+
+    final elder = linkProvider.foundElder;
+    final token = authProvider.firebaseToken;
+
+    if (elder == null || token == null) return;
+
+    final success = await linkProvider.confirmLink(elder.uid, token);
+
+    if (!context.mounted) return;
+
+    if (success) {
+      // Refresh user profile เพื่ออัปเดต familyId ใน AuthProvider
+      await authProvider.refreshUser();
+
+      if (!context.mounted) return;
+
+      // Navigate ไป CaregiverHomeScreen และเคลียร์ stack ทั้งหมด
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainWrapper()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(linkProvider.errorMessage ?? 'เกิดข้อผิดพลาด'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final linkProvider = context.watch<LinkFamilyProvider>();
+    final elder = linkProvider.foundElder;
+    final isLoading = linkProvider.linkStatus == LinkFamilyStatus.loading;
 
     return Scaffold(
       backgroundColor: AppTheme.bgColorLight,
@@ -37,55 +79,62 @@ class VerifyCaregiverScreen extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Card แสดงข้อมูลผู้ดูแล
-            VerifyCaregiverCard(
-              // imageUrl:
-              //     'https://img.freepik.com/free-photo/cheerful-old-casual-asian-woman_53876-26362.jpg?semt=ais_hybrid&w=740&q=80',
-              imageUrl:
-                  'https://hilight.thaicdn.net/img_cms2/user/thachapol/tah/ee1226.jpg',
-              name: 'ยายสมศรี',
-              phoneNumber: '081-234-5678',
-            ),
+            // Card แสดงข้อมูล elder ที่ดึงมาจาก API
+            if (elder != null)
+              VerifyCaregiverCard(
+                imageUrl: elder.profilePictureUrl,
+                name: elder.displayName,
+                phoneNumber: elder.phoneNumber,
+              )
+            else
+              const CircularProgressIndicator(),
 
             const Spacer(flex: 3),
 
-            // ปุ่ม Yes
+            // ปุ่ม ยืนยัน
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: (isLoading || elder == null)
+                    ? null
+                    : () => _onConfirm(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: AppTheme.subtitle,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: AppTheme.secondary,
                   elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'ยืนยันผู้ดูแล',
-                      style: textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontSize: 17,
+                child: isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'ยืนยันผู้ดูแล',
+                        style: textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontSize: 17,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // ปุ่ม No
+            // ปุ่ม ย้อนกลับ เปลี่ยนเบอร์
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: isLoading ? null : () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.secondary,
                   foregroundColor: AppTheme.subtitle,
@@ -94,14 +143,9 @@ class VerifyCaregiverScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'ไม่ใช่ เปลี่ยนหมายเลข',
-                      style: textTheme.titleLarge?.copyWith(fontSize: 15),
-                    ),
-                  ],
+                child: Text(
+                  'ไม่ใช่ เปลี่ยนหมายเลข',
+                  style: textTheme.titleLarge?.copyWith(fontSize: 15),
                 ),
               ),
             ),

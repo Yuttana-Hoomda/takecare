@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
+import 'package:takecare/features/link_family/providers/link_family_provider.dart';
 import 'package:takecare/features/link_family/widgets/phone_input_card.dart';
 import 'package:takecare/features/link_family/widgets/numeric_keypad.dart';
+import 'package:takecare/features/comfirm_account/screens/verify_caregiver_screen.dart';
 
 class LinkFamilyScreen extends StatefulWidget {
   const LinkFamilyScreen({super.key});
@@ -34,13 +38,42 @@ class _LinkFamilyScreenState extends State<LinkFamilyScreen> {
     return '(${raw.substring(0, 3)}) ${raw.substring(3, 6)} - ${raw.substring(6)}';
   }
 
-  void _onConfirm() {
-    debugPrint('หมายเลขที่กรอก: $_phoneNumber');
+  Future<void> _onConfirm() async {
+    final authProvider = context.read<AuthProvider>();
+    final linkProvider = context.read<LinkFamilyProvider>();
+
+    // ดึง Firebase token จาก AuthProvider
+    final token = authProvider.firebaseToken;
+    if (token == null) return;
+
+    await linkProvider.searchElder(_phoneNumber, token);
+
+    if (!mounted) return;
+
+    if (linkProvider.searchStatus == LinkFamilyStatus.success &&
+        linkProvider.foundElder != null) {
+      // ไปหน้า confirm
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const VerifyCaregiverScreen(),
+        ),
+      );
+    } else if (linkProvider.searchStatus == LinkFamilyStatus.error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(linkProvider.errorMessage ?? 'เกิดข้อผิดพลาด'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final isLoading = context.watch<LinkFamilyProvider>().searchStatus ==
+        LinkFamilyStatus.loading;
 
     return Scaffold(
       backgroundColor: AppTheme.bgColorLight,
@@ -68,19 +101,29 @@ class _LinkFamilyScreenState extends State<LinkFamilyScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton.icon(
-                  onPressed: _phoneNumber.length == 10 ? _onConfirm : null,
-                  icon: const Icon(Icons.check_rounded, size: 20),
+                  onPressed:
+                      (_phoneNumber.length == 10 && !isLoading) ? _onConfirm : null,
+                  icon: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check_rounded, size: 20),
                   label: Text(
-                    'ยืนยันบัญชี',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    isLoading ? 'กำลังค้นหา...' : 'ยืนยันบัญชี',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
                     disabledBackgroundColor: AppTheme.secondary,
                     foregroundColor: Colors.white,
-                    disabledForegroundColor: AppTheme.primaryColor.withOpacity(
-                      0.5,
-                    ),
+                    disabledForegroundColor:
+                        AppTheme.primaryColor.withOpacity(0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

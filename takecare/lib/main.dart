@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
+import 'package:takecare/features/link_family/providers/link_family_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
@@ -24,6 +25,7 @@ class Main extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
