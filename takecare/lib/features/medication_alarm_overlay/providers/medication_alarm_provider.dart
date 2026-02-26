@@ -7,7 +7,13 @@ import '../services/medication_alarm_service.dart';
 enum AlarmActionState { idle, loading, snoozed, completed, error }
 
 class MedicationAlarmProvider extends ChangeNotifier {
-  final MedicationAlarmService _service = MedicationAlarmService();
+  final MedicationAlarmService _service;
+  final MedicationAlarmModel currentAlarm; //   รับจากภายนอก ไม่ hardcode
+
+  MedicationAlarmProvider({
+    required this.currentAlarm,
+    MedicationAlarmService? service, //   injectable สำหรับ test
+  }) : _service = service ?? MedicationAlarmService();
 
   AlarmActionState _actionState = AlarmActionState.idle;
   String? _capturedPhotoPath;
@@ -16,13 +22,6 @@ class MedicationAlarmProvider extends ChangeNotifier {
   AlarmActionState get actionState => _actionState;
   String? get capturedPhotoPath => _capturedPhotoPath;
   String? get errorMessage => _errorMessage;
-
-  final MedicationAlarmModel currentAlarm = const MedicationAlarmModel(
-    id: '1',
-    medicationName: 'Calcium & Vitamin D',
-    scheduledTime: '8:00 AM',
-    dosage: '1 tablet',
-  );
 
   // ─── เปิดกล้อง ────────────────────────────────────
   Future<void> onDoneTakePhoto() async {
@@ -51,6 +50,15 @@ class MedicationAlarmProvider extends ChangeNotifier {
   void onSnooze() {
     _actionState = AlarmActionState.snoozed;
     notifyListeners();
+  }
+
+  //   เรียกหลัง snackbar แสดงแล้ว เพื่อไม่ให้ยิงซ้ำ
+  void clearError() {
+    if (_actionState == AlarmActionState.error) {
+      _actionState = AlarmActionState.idle;
+      _errorMessage = null;
+      notifyListeners();
+    }
   }
 
   void reset() {

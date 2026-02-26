@@ -161,7 +161,7 @@ export default function FirebaseSeedTool() {
 
       const uid: string = authData.localId;
       const token: string = authData.idToken;
-      log("success", `[${user.displayName}] ✅ Auth สร้างสำเร็จ uid: ${uid}`);
+      log("success", `[${user.displayName}]   Auth สร้างสำเร็จ uid: ${uid}`);
 
       // 2. Build profile payload
       const phone = user.phoneNumber.startsWith("0")
@@ -201,7 +201,7 @@ export default function FirebaseSeedTool() {
       }
       log(
         "success",
-        `[${user.displayName}] ✅ Profile บันทึกสำเร็จ (${user.role})`,
+        `[${user.displayName}]   Profile บันทึกสำเร็จ (${user.role})`,
       );
       return true;
     } catch (err: any) {
@@ -664,7 +664,7 @@ export default function FirebaseSeedTool() {
                 }}
               >
                 {entry.type === "success"
-                  ? "✅"
+                  ? " "
                   : entry.type === "error"
                     ? "❌"
                     : "ℹ️"}

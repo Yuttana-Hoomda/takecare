@@ -3,18 +3,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
+import '../models/medication_alarm_model.dart';
 import '../providers/medication_alarm_provider.dart';
 import '../widgets/alarm_action_button.dart';
 import '../widgets/medication_icon_widget.dart';
 import '../widgets/medication_info_widget.dart';
 
 class MedicationAlarmScreen extends StatelessWidget {
-  const MedicationAlarmScreen({super.key});
+  final MedicationAlarmModel alarm; //   รับ alarm จากภายนอก
+
+  const MedicationAlarmScreen({super.key, required this.alarm});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MedicationAlarmProvider(),
+      create: (_) => MedicationAlarmProvider(currentAlarm: alarm),
       child: const _MedicationAlarmView(),
     );
   }
@@ -28,18 +31,19 @@ class _MedicationAlarmView extends StatelessWidget {
     final provider = context.watch<MedicationAlarmProvider>();
     final isLoading = provider.actionState == AlarmActionState.loading;
 
-    // แสดง error ถ้ามี
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (provider.actionState == AlarmActionState.error &&
-          provider.errorMessage != null) {
+    //   แสดง snackbar เฉพาะครั้งแรกที่เข้าสู่ state error แล้ว clearError ทันที
+    if (provider.actionState == AlarmActionState.error &&
+        provider.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(provider.errorMessage!),
             backgroundColor: Colors.red,
           ),
         );
-      }
-    });
+        provider.clearError(); // reset หลังแสดงแล้ว ไม่ยิงซ้ำ
+      });
+    }
 
     return Scaffold(
       body: Container(

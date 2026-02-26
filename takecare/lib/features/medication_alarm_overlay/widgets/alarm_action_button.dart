@@ -8,7 +8,7 @@ enum AlarmButtonType { primary, secondary }
 class AlarmActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
-  final VoidCallback? onPressed; // nullable = disabled
+  final VoidCallback? onPressed;
   final AlarmButtonType type;
   final bool isLoading;
 
@@ -50,7 +50,9 @@ class AlarmActionButton extends StatelessWidget {
               : const Color(0xFFE8EDF2),
           foregroundColor: isPrimary ? Colors.white : const Color(0xFF4A5568),
           disabledBackgroundColor: isPrimary
-              ? AppTheme.primaryColor.withOpacity(0.6)
+              ? AppTheme.primaryColor.withValues(
+                  alpha: 0.1,
+                ) //  ไม่ใช้ withOpacity
               : const Color(0xFFE8EDF2),
           elevation: 2,
           shape: RoundedRectangleBorder(

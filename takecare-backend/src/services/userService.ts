@@ -26,7 +26,7 @@ export const getUserProfileByUid = async (uid: string): Promise<UserProfile | nu
     return doc ? (doc.data() as UserProfile) : null;
 };
 
-// ✅ ใหม่: ค้นหา user จากเบอร์โทร
+//   ใหม่: ค้นหา user จากเบอร์โทร
 export const getUserByPhone = async (phone: string): Promise<UserProfile | null> => {
     const snapshot = await usersCollection
         .where('phoneNumber', '==', phone)

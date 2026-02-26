@@ -43,7 +43,7 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      log("✅ load user success: ${response.body}");
+      log("  load user success: ${response.body}");
       final Map<String, dynamic> data = jsonDecode(response.body);
       return User.fromJson(data['data']);
     } else {

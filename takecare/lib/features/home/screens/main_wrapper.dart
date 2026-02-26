@@ -21,7 +21,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupCaregiverView() {
     _pages = [
-      const CaregiverHomeScreen(), // ✅ Home → CaregiverHomeScreen
+      const CaregiverHomeScreen(), //   Home → CaregiverHomeScreen
       const TaskScreen(), // Tasks
       const Placeholder(), // Profile
     ];

@@ -39,7 +39,7 @@ export const createProfile = async (req: AuthRequest, res: Response): Promise<vo
     }
 };
 
-// ✅ ใหม่: ค้นหา user จากเบอร์โทร (สำหรับ caregiver ค้นหา elder)
+//  ใหม่: ค้นหา user จากเบอร์โทร (สำหรับ caregiver ค้นหา elder)
 export const searchUserByPhone = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const phone = req.query.phone as string;

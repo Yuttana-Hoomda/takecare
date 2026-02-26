@@ -12,7 +12,7 @@ interface FormData {
   profileImgUrl: string;
 }
 
-// ✅ 1. ย้าย Component ย่อยออกมาข้างนอก
+//   1. ย้าย Component ย่อยออกมาข้างนอก
 interface InputFieldProps {
   label: string;
   name: keyof FormData;
@@ -42,8 +42,8 @@ const InputField = ({
       type={type}
       placeholder={placeholder}
       required={required}
-      value={value} // ✅ รับค่าผ่าน props
-      onChange={onChange} // ✅ รับฟังก์ชันผ่าน props
+      value={value} //   รับค่าผ่าน props
+      onChange={onChange} //   รับฟังก์ชันผ่าน props
       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
     />
   </div>
@@ -127,7 +127,7 @@ export default function CreateUserPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-4">
-            {/* ✅ 2. ส่ง value และ onChange เข้าไปแทน */}
+            {/*   2. ส่ง value และ onChange เข้าไปแทน */}
             <InputField
               label="User UID"
               name="uid"

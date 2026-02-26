@@ -78,7 +78,7 @@ class _LoginState extends State<Login> {
                           );
 
                           if (authProvider.isAuthenticated) {
-                            debugPrint("✅ LOGIN SUCCESS: User found!");
+                            debugPrint("  LOGIN SUCCESS: User found!");
                           } else {
                             debugPrint(
                               "⚠️ LOGIN FINISHED: But user is still null (check provider logic)",

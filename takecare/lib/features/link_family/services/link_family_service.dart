@@ -15,7 +15,7 @@ class LinkFamilyService {
       );
 
       if (response.statusCode == 200) {
-        log('✅ searchElderByPhone: ${response.body}');
+        log('  searchElderByPhone: ${response.body}');
         final data = jsonDecode(response.body);
         return ElderModel.fromJson(data['data']);
       } else if (response.statusCode == 404) {
@@ -43,7 +43,7 @@ class LinkFamilyService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        log('✅ linkFamily success: ${response.body}');
+        log('  linkFamily success: ${response.body}');
       } else {
         log('❌ linkFamily [${response.statusCode}]: ${response.body}');
         throw Exception('ไม่สามารถเชื่อมต่อครอบครัวได้ กรุณาลองใหม่');

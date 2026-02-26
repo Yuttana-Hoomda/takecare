@@ -1,7 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
-const familiesCollection = db.collection('family'); // ✅ ตรงกับ Firestore จริง
+const familiesCollection = db.collection('family'); //   ตรงกับ Firestore จริง
 const usersCollection = db.collection('users');
 
 // สร้าง family ใหม่ พร้อม link ทั้ง elder และ caregiver
@@ -13,7 +13,7 @@ export const createFamily = async (elderId: string, caregiverId: string) => {
     const elderSnapshot = await usersCollection.where('uid', '==', elderId).get();
     const caregiverSnapshot = await usersCollection.where('uid', '==', caregiverId).get();
 
-    // ✅ field ชื่อตรงกับ Firestore จริง: elder / caregiver (array)
+    //   field ชื่อตรงกับ Firestore จริง: elder / caregiver (array)
     const newFamily = {
         familyId: newFamilyRef.id,
         elder: elderId,
@@ -51,7 +51,7 @@ export const addCaregiverToExistingFamily = async (familyId: string, caregiverId
     await batch.commit();
 };
 
-// ✅ caregiver กรอกเบอร์ elder → ระบบ link ให้อัตโนมัติ
+//   caregiver กรอกเบอร์ elder → ระบบ link ให้อัตโนมัติ
 // - ถ้า elder ยังไม่มี family → สร้าง family ใหม่ แล้ว link
 // - ถ้า elder มี family อยู่แล้ว → เพิ่ม caregiver เข้าไป
 export const linkCaregiverByElderUid = async (

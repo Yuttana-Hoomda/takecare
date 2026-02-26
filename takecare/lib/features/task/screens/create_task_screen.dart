@@ -88,15 +88,15 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
                 const SizedBox(height: 16),
                 FrequencySetting(
-                    currentValue: dropdownValue,
-                    frequencyOptions: freqList,
-                    onChanged: (String? newValue) {
-                      if(newValue != null) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      }
-                    },
+                  currentValue: dropdownValue,
+                  frequencyOptions: freqList,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        dropdownValue = newValue;
+                      });
+                    }
+                  },
                   selectedDays: selectedDay,
                   onDayTapped: _onSelectedDay,
                 ),
@@ -117,14 +117,11 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             ),
           ),
         ),
-      ), // ✅ Perfectly closed all brackets and added final semicolon
+      ), //   Perfectly closed all brackets and added final semicolon
     );
   }
 }
 
 Widget _labelForm(String label, BuildContext context) {
-  return Text(
-    label,
-    style: Theme.of(context).textTheme.titleMedium,
-  );
+  return Text(label, style: Theme.of(context).textTheme.titleMedium);
 }

@@ -2,7 +2,7 @@ import * as familyService from '../services/familyService.js';
 import type { Response } from 'express';
 import type { AuthRequest } from '../middlewares/middleware.js';
 
-// ✅ ใหม่: caregiver เรียก endpoint นี้พร้อม elderUid → ระบบ link ให้อัตโนมัติ
+//   ใหม่: caregiver เรียก endpoint นี้พร้อม elderUid → ระบบ link ให้อัตโนมัติ
 // POST /api/families/link  body: { elderUid }
 export const linkFamily = async (req: AuthRequest, res: Response): Promise<void> => {
     try {

@@ -10,7 +10,7 @@ router.get('/profile', verifyToken, getProfile);
 // POST /api/users/profile          - สร้าง profile หลัง sign up
 router.post('/profile', verifyToken, createProfile);
 
-// ✅ ใหม่ GET /api/users/search?phone=0812345678  - ค้นหา user จากเบอร์โทร
+//   ใหม่ GET /api/users/search?phone=0812345678  - ค้นหา user จากเบอร์โทร
 router.get('/search', verifyToken, searchUserByPhone);
 
 export default router;
