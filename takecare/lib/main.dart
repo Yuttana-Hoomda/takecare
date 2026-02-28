@@ -5,7 +5,6 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
-
 import 'features/auth/providers/auth_provider.dart';
 
 void main() async {
