@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'package:takecare/features/elderly_home/provider/history_provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +26,8 @@ class Main extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
-          ChangeNotifierProvider(create: (_) => TaskProvider())
+          ChangeNotifierProvider(create: (_) => TaskProvider()),
+          ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -11,6 +11,7 @@ class Task {
   final TimeOfDay time;
   final List<int>? repeatDays;
   final bool? isRequiredPhoto;
+  final bool? isRepeatByDate;
   final DateTime createdAt;
 
   const Task({
@@ -24,16 +25,18 @@ class Task {
     required this.createdAt,
     this.date,
     this.note,
+    this.isRepeatByDate,
     required this.icon,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      taskId: json['id'] as String?,
-      createdBy: json['createdBy'] as String? ?? '',
-      familyId: json['familyId'] as String? ?? '',
-      title: json['title'] as String? ?? 'ไม่มีรายการ',
-      icon: json['icon'] as String? ?? 'assets/task.svg',
+      taskId: json['id'] as String? ?? '',
+      createdBy: json['createdBy'] as String,
+      familyId: json['familyId'] as String,
+      title: json['title'] as String,
+      icon: json['icons'] as String? ?? 'assets/task.svg',
+      isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
       isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']?['hour'] as int? ?? 0,
