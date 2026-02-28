@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_history_screen.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -20,7 +22,7 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupCaregiverView() {
     _pages = [
       const Placeholder(), // Home
-      const TaskScreen(), // Tasks
+      const TaskScreen(),  // Tasks
       const Placeholder(), // Profile
     ];
 
@@ -45,8 +47,10 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupElderView() {
     _pages = [
-      const Placeholder(), // Home
-      const Placeholder(), // Profile
+      const ElderlyHomeScreen(),       // Home
+      const ElderlyCalendarScreen(),   // History
+      const Placeholder(),             // Care
+      const Placeholder(),             // Profile
     ];
 
     _navItems = [
@@ -54,6 +58,16 @@ class _MainWrapperState extends State<MainWrapper> {
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
         label: 'Home',
+      ),
+      const NavigationDestination(
+        icon: Icon(Icons.calendar_month_outlined),
+        selectedIcon: Icon(Icons.calendar_month),
+        label: 'History',
+      ),
+      const NavigationDestination(
+        icon: Icon(Icons.favorite_outline),
+        selectedIcon: Icon(Icons.favorite),
+        label: 'Care',
       ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline),
@@ -67,7 +81,7 @@ class _MainWrapperState extends State<MainWrapper> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
-    bool isCaregiver = user?.role == Role.caregiver;
+    final isCaregiver = user?.role == Role.caregiver;
 
     if (isCaregiver) {
       _setupCaregiverView();
@@ -85,8 +99,8 @@ class _MainWrapperState extends State<MainWrapper> {
               blurRadius: 12,
               spreadRadius: 1,
               offset: const Offset(0, -3),
-            )
-          ]
+            ),
+          ],
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
@@ -97,7 +111,7 @@ class _MainWrapperState extends State<MainWrapper> {
           },
           destinations: _navItems,
         ),
-      )
+      ),
     );
   }
 }
