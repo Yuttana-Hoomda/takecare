@@ -38,7 +38,6 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ดึง DayData ของวันที่เลือก — คืน null ถ้าไม่มีข้อมูล
   DayData? getDataForDate(DateTime date) {
     final key =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

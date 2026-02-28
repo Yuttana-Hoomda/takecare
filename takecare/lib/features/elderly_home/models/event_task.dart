@@ -3,11 +3,11 @@ import 'package:takecare/features/task/models/task_model.dart';
 
 enum DayStatus { complete, missed, partial }
 
-/// Task + สถานะว่าทำเสร็จหรือยัง (wrapper ของ Task model เดิม)
+/// Task + สถานะว่าทำเสร็จห
 class EventTask {
   final Task task;
   final bool isDone;
-  final String? completedAt; // เช่น "Taken at 8:05 AM"
+  final String? completedAt;
 
   const EventTask({
     required this.task,
@@ -24,7 +24,7 @@ class EventTask {
   }
 }
 
-/// ข้อมูลรวมของแต่ละวัน
+// ข้อมูลรวมของแต่ละวัน
 class DayData {
   final DayStatus status;
   final List<EventTask> tasks;
