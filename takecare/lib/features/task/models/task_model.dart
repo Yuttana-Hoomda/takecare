@@ -36,7 +36,7 @@ class Task {
       createdBy: json['createdBy'] as String,
       familyId: json['familyId'] as String,
       title: json['title'] as String,
-      icon: json['icon'] as String? ?? 'assets/task.svg',
+      icon: json['icons'] as String? ?? 'assets/task.svg',
       isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
       isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(

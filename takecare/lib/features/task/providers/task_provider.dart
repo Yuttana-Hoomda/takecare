@@ -31,4 +31,5 @@ class TaskProvider extends ChangeNotifier{
       notifyListeners();
     }
   }
+
 }

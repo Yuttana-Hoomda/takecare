@@ -74,7 +74,6 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: bgColorDark,
-
     fontFamily: 'GoogleSans',
   );
 }
