@@ -13,6 +13,5 @@ export interface Task {
     }
     repeatDays?: number[];
     isRequiredPhoto?: boolean;
-    isRepeatByDate?: boolean
     createdAt: Timestamp;
 }

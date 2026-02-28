@@ -49,7 +49,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
         }
 
         const updated = await taskService.updateTask(taskId, updatedData);
-        res.status(200).json({ success: true, data: updated });
+        res.status(200).json(updated);
     } catch (error: any) {
         res.status(500).json({ success: false, message: error.message });
     }

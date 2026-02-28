@@ -4,7 +4,7 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF007BFF);
   static const Color secondary = Color(0xFFEFF6FF);
   static const Color subtitle = Color(0xFF64748B);
-  static const Color bgColorLight = Color(0xFFF5F7F8);
+  static const Color bgColorLight = Color(0xFFF3F3F3);
   static const Color bgColorDark = Color.fromARGB(255, 37, 37, 37);
 
   static final ThemeData lightTheme = ThemeData(

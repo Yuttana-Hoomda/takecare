@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class Format {
   String timeToString(TimeOfDay time) {
-    return '${time.hour}.${time.minute} น.';
+    final String hour = time.hour.toString().padLeft(2, '0');
+    final String minute = time.minute.toString().padLeft(2, '0');
+    return '$hour.$minute น.';
   }
 
   String dateToString(String date) {
@@ -37,5 +39,59 @@ class Format {
     } catch (e) {
       return date;
     }
+  }
+
+  String repeatedDay(List<int>? repeatedDay) {
+    if (repeatedDay == null || repeatedDay.isEmpty) {
+      return 'ไม่ระบุวัน';
+    }
+
+    final days = repeatedDay.toSet().toList()..sort();
+    const dayMap = {
+      0: 'จันทร์',
+      1: 'อังคาร',
+      2: 'พุธ',
+      3: 'พฤหัสบดี',
+      4: 'ศุกร์',
+      5: 'เสาร์',
+      6: 'อาทิตย์',
+    };
+
+    if (days.length == 7) {
+      return 'ทุกวัน';
+    }
+
+    const weekdays = [0,1,2,3,4];
+    if (days.length == 5 && weekdays.every((d) => days.contains(d))) {
+      return 'จันทร์-ศุกร์';
+    }
+
+    if (days.length == 2 && days.contains(6) && days.contains(7)) {
+      return 'เสาร์-อาทิตย์';
+    }
+
+    bool isConsecutive = true;
+    for (int i = 0; i < days.length - 1; i++) {
+      if (days[i] + 1 != days[i + 1]) {
+        isConsecutive = false;
+        break;
+      }
+    }
+
+    if (isConsecutive && days.length > 1) {
+      return '${dayMap[days.first]}-${dayMap[days.last]}';
+    }
+
+    return days.map((d) => dayMap[d]).join(', ');
+  }
+
+  String createAtToString(DateTime createAt) {
+    final String dateString = '${createAt.year}-${createAt.month}-${createAt.day}';
+    final String formattedDate = dateToString(dateString);
+
+    final TimeOfDay timeOfDay = TimeOfDay(hour: createAt.hour, minute: createAt.minute);
+    final String formattedTime = timeToString(timeOfDay);
+
+    return '$formattedDate $formattedTime';
   }
 }

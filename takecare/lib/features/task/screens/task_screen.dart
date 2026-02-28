@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:takecare/components/task_card.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
-import 'package:takecare/features/task/screens/create_task_screen.dart';
+import 'package:takecare/features/task/screens/task_form_screen.dart';
+import 'package:takecare/features/task/screens/task_detail_screen.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -46,15 +47,21 @@ class _TaskScreenState extends State<TaskScreen> {
                 child: CircularProgressIndicator(),
               );
             }
-            print("DEBUG: The title is ${task.title} and the date is ${task.date}");
+            debugPrint("DEBUG: The title is ${task.title} and the date is ${task.date}");
             return TaskCard(
               title: task.title,
               time: task.time,
               date: task.date,
               repeatedDay: task.repeatDays,
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TaskDetailScreen(taskId: task.taskId!)
+                    )
+                );
+              },
               icon: task.icon,
-              note: task.note,
             );
           },
         ),
@@ -64,7 +71,7 @@ class _TaskScreenState extends State<TaskScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => CreateTaskScreen()
+                  builder: (context) => TaskFormScreen()
               )
           );
         },
