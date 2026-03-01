@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
-import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
-import 'package:takecare/features/food_analysis/screens/test_camera_screen.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
 import '../../auth/providers/auth_provider.dart';
 
@@ -47,8 +45,8 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupElderView() {
     _pages = [
-      const ElderlyHomeScreen(), // Home
-      const TestCameraScreen(), // Profile
+      const Placeholder(), // Home
+      const Placeholder(), // Profile
     ];
 
     _navItems = [

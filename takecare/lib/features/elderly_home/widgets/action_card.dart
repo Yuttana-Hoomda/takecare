@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../food_analysis/screens/camera_scan_food.dart';
 import '../components/action_card.dart';
 import '../components/action_card_landscape.dart';
 
@@ -22,7 +21,7 @@ Widget buildActionCards() {
               title: "Check Food",
               subtitle: "Log Lunch",
               imagePath: 'assets/icons/food.png',
-              onTap: () {}
+              onTap: () {},
             ),
           ),
         ],
