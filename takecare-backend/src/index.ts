@@ -1,14 +1,17 @@
 import express, { type Application } from 'express';
+import cors from 'cors'; // 1. import cors เข้ามา
 import userRoutes from './routes/userRoutes.js';
 import familyRoutes from './routes/familyRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import foodAnalysisRoutes from './routes/foodAnalysisRoutes.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import devRoutes from "./routes/dev.routes.js";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const app: Application = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
@@ -58,6 +61,9 @@ app.get('/api/models', async (req, res) => {
         });
     }
 });
+
+// test dev route
+app.use("/api/dev", devRoutes);
 
 app.listen(port, () => {
     console.log(`🚀 Backend server running at http://localhost:${port}`);

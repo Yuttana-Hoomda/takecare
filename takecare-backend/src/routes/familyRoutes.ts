@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { addCaregiverToFamily, createFamily } from '../controllers/familyController.js';
+import { createFamily, linkFamily } from '../controllers/familyController.js';
+import { verifyToken } from '../middlewares/middleware.js';
 
 const router = Router();
 
-// GET /api/users/profile - Fetches the logged-in user's data
-router.patch('/family/:familyId', addCaregiverToFamily );
+// POST /api/families          - สร้าง family ด้วย elderId + caregiverId (admin use)
+router.post('/families', verifyToken, createFamily);
 
-// POST /api/users/profile - Saves user data (role, conditions, etc.) after they sign up
-router.post('/family', createFamily);
+//   ใหม่: POST /api/families/link  body: { elderUid }
+// caregiver เรียกตัวนี้หลังกรอกเบอร์ elder และยืนยันแล้ว
+router.post('/families/link', verifyToken, linkFamily);
 
 export default router;

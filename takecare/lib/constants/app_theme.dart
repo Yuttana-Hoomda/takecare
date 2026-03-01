@@ -1,3 +1,5 @@
+// lib/constants/app_theme.dart
+
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -20,9 +22,20 @@ class AppTheme {
 
     textTheme: const TextTheme(
       titleSmall: TextStyle(fontSize: 14, color: subtitle),
-      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-      bodyMedium: TextStyle(fontSize: 14, color: Colors.black54), // Good for subtitles
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        color: Colors.black54,
+      ), // Good for subtitles
     ),
 
     navigationBarTheme: NavigationBarThemeData(
@@ -59,14 +72,14 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.white
-      )
+        foregroundColor: Colors.white,
+      ),
     ),
 
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: primaryColor,
-      foregroundColor: Colors.white
-    )
+      foregroundColor: Colors.white,
+    ),
   );
 
   static final ThemeData darkTheme = ThemeData(

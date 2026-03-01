@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; //
+import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
 class Login extends StatefulWidget {
@@ -10,7 +10,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  // ย้าย Controller มาไว้ใน State เพื่อความเสถียร
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -51,31 +50,59 @@ class _LoginState extends State<Login> {
             ),
             const SizedBox(height: 20),
 
-            // แสดง Loading ตามสถานะใน Provider
             authProvider.isLoading
                 ? const CircularProgressIndicator()
                 : SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await authProvider.signIn(
-                      phoneController.text.trim(),
-                      passwordController.text.trim(),
-                    );
-                    Navigator() {
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final phone = phoneController.text.trim();
+                        final pass = passwordController.text.trim();
 
-                    }
-                  } catch (e) {
-                    // แสดง Error ให้ผู้ใช้เห็น
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Login Failed: $e")),
-                    );
-                  }
-                },
-                child: const Text("เข้าสู่ระบบ"),
-              ),
-            ),
+                        // --- DEBUG START ---
+                        debugPrint("======= 🔘 LOGIN BUTTON PRESSED =======");
+                        debugPrint("📍 Phone input: '$phone'");
+                        debugPrint("📍 Password input length: ${pass.length}");
+                        // -------------------
+
+                        try {
+                          await authProvider.signIn(phone, pass);
+
+                          // --- DEBUG AFTER SIGNIN ---
+                          debugPrint("======= 🔍 AFTER signIn() CALL =======");
+                          debugPrint(
+                            "📍 Provider isAuthenticated: ${authProvider.isAuthenticated}",
+                          );
+                          debugPrint(
+                            "📍 Provider user object: ${authProvider.user}",
+                          );
+
+                          if (authProvider.isAuthenticated) {
+                            debugPrint("  LOGIN SUCCESS: User found!");
+                          } else {
+                            debugPrint(
+                              "⚠️ LOGIN FINISHED: But user is still null (check provider logic)",
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "เข้าสู่ระบบไม่สำเร็จ: ไม่พบข้อมูลผู้ใช้",
+                                ),
+                              ),
+                            );
+                          }
+                          debugPrint("======================================");
+                        } catch (e) {
+                          // --- DEBUG ERROR ---
+                          debugPrint("🔥 CRITICAL LOGIN ERROR: $e");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Login Failed: $e")),
+                          );
+                        }
+                      },
+                      child: const Text("เข้าสู่ระบบ"),
+                    ),
+                  ),
           ],
         ),
       ),
