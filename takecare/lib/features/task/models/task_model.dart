@@ -14,6 +14,7 @@ class Task {
   final bool? isRequiredPhoto;
   final bool? isRepeatByDate;
   final DateTime createdAt;
+  final String? photoProofUrl; // ✅ URL รูปถ่ายยืนยันจาก Cloudinary
 
   const Task({
     required this.taskId,
@@ -28,6 +29,7 @@ class Task {
     this.note,
     this.isRepeatByDate,
     required this.icon,
+    this.photoProofUrl,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -41,14 +43,16 @@ class Task {
       isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']['hour'] as int,
-        minute: json['time']['minute'] as int
+        minute: json['time']['minute'] as int,
       ),
       repeatDays: json['repeatDays'] != null
           ? List<int>.from(json['repeatDays'])
           : [],
-        note: json['note'] as String? ?? '',
-        date: json['date'] as String? ?? '',
-        createdAt: DateTime.parse(json['createdAt']),
+      note: json['note'] as String? ?? '',
+      date: json['date'] as String? ?? '',
+      createdAt: DateTime.parse(json['createdAt']),
+      photoProofUrl:
+          json['photoProofUrl'] as String?, // ✅ optional ถ้ายังไม่มีรูป
     );
   }
 }
