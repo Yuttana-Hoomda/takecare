@@ -13,6 +13,13 @@ class TaskTimelineTile extends StatelessWidget {
     this.isLast = false,
   }) : super(key: key);
 
+  bool get _isNow {
+    final now = TimeOfDay.now();
+    final taskMinutes = task.time.hour * 60 + task.time.minute;
+    final nowMinutes = now.hour * 60 + now.minute;
+    return (taskMinutes - nowMinutes).abs() <= 30;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -20,44 +27,41 @@ class TaskTimelineTile extends StatelessWidget {
 
     return IntrinsicHeight(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    task.icon,
-                    width: 30,
-                    height: 30,
+          // Timeline line
+          SizedBox(
+            width: 16,
+            child: Column(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primaryColor.withOpacity(0.4),
                   ),
                 ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: VerticalDivider(
-                    thickness: 2,
-                    color: AppTheme.primaryColor.withOpacity(0.2),
-                    indent: 5,
-                    endIndent: 5,
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: AppTheme.primaryColor.withOpacity(0.15),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
 
+          // Card
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 20),
+              margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -66,20 +70,71 @@ class TaskTimelineTile extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    task.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  // Icon container
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        task.icon,
+                        width: 24,
+                        height: 24,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "$timeStr • ${task.note ?? ''}",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.subtitle,
+                  const SizedBox(width: 12),
+
+                  // Title + time + note
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                task.title,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            if (_isNow)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF4DB887).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'NOW',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF4DB887),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          task.note != null && task.note!.isNotEmpty
+                              ? '$timeStr • ${task.note}'
+                              : timeStr,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.subtitle,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

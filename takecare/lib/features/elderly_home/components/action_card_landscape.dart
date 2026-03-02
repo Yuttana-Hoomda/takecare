@@ -40,7 +40,7 @@ class ActionCardLandscape extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(15),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,8 +55,8 @@ class ActionCardLandscape extends StatelessWidget {
                       borderRadius: BorderRadius.circular(60),
                       child: Image.asset(
                         imagePath,
-                        height: 70,
-                        width: 70,
+                        height: 65,
+                        width: 65,
                         fit: BoxFit.cover,
                       ),
                     ),

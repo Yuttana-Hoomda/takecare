@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:takecare/features/elderly_home/models/event_task.dart';
+import 'package:provider/provider.dart';
+import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/task/models/task_model.dart';
+import 'package:takecare/features/elderly_home/provider/history_provider.dart';
+import 'features/elderly_home/models/event_task.dart';
+import 'features/elderly_home/screens/elderly_history_screen.dart';
 
-final Map<String, DayData> mockEventData = {
+
+
+/// รันด้วย: flutter run -t lib/main_test.dart
+
+void main() {
+  runApp(const TestApp());
+}
+
+// ---------------------------------------------------------------------------
+// Mock Data — ครบทั้ง complete / partial / missed
+// ---------------------------------------------------------------------------
+
+final _mockEventData = <String, DayData>{
   '2024-01-01': DayData.fromEventTasks([
     EventTask(
       task: Task(
@@ -99,3 +115,48 @@ final Map<String, DayData> mockEventData = {
     ),
   ]),
 };
+
+// ---------------------------------------------------------------------------
+
+class TestApp extends StatelessWidget {
+  const TestApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        home: const _MockWrapper(),
+      ),
+    );
+  }
+}
+
+class _MockWrapper extends StatefulWidget {
+  const _MockWrapper();
+
+  @override
+  State<_MockWrapper> createState() => _MockWrapperState();
+}
+
+class _MockWrapperState extends State<_MockWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<HistoryProvider>(context, listen: false)
+          .loadMockData(_mockEventData);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const ElderlyCalendarScreen();
+  }
+}

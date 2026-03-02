@@ -5,12 +5,12 @@ Widget buildScheduleHeader(BuildContext context) {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(
-        "Today's Schedule",
+        "ตารางงานวันนี้",
         style: Theme.of(
           context,
         ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
       ),
-      TextButton(onPressed: () {}, child: const Text("See All")),
+      TextButton(onPressed: () {}, child: const Text("ดูทั้งหมด")),
     ],
   );
 }

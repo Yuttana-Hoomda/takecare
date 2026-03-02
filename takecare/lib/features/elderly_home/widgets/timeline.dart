@@ -4,21 +4,19 @@ import '../components/task_timeline_tile.dart';
 import '/features/task/providers/task_provider.dart';
 import '/features/task/models/task_model.dart';
 
-Widget buildTimelineSection(List<Task> mockTasks) {
+Widget buildTimelineSection(List<Task> tasks) {
   return Consumer<TaskProvider>(
     builder: (context, taskProvider, child) {
-      // Logic การเลือกข้อมูลเหมือนเดิมที่เบียร์เขียนเลยครับ
-      final displayTasks = (taskProvider.tasks != null && taskProvider.tasks!.isNotEmpty)
-          ? taskProvider.tasks!
-          : mockTasks;
+      List<Task> displayTasks = tasks;
+
+      if (taskProvider.tasks != null && taskProvider.tasks!.isNotEmpty) {
+        displayTasks = taskProvider.tasks!;
+      }
 
       return Column(
-        children: displayTasks.take(3).map((task) {
-          return TaskTimelineTile(
-            task: task,
-            isLast: displayTasks.indexOf(task) == displayTasks.length - 1 ||
-                displayTasks.indexOf(task) == 2,
-          );
+        children: displayTasks.map((task) {
+          bool isLast = displayTasks.indexOf(task) == displayTasks.length - 1;
+          return TaskTimelineTile(task: task, isLast: isLast);
         }).toList(),
       );
     },

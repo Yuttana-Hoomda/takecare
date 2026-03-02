@@ -3,7 +3,7 @@ import 'package:takecare/features/task/models/task_model.dart';
 
 enum DayStatus { complete, missed, partial }
 
-/// Task + สถานะว่าทำเสร็จห
+/// Task + สถานะว่าทำเสร็จ
 class EventTask {
   final Task task;
   final bool isDone;

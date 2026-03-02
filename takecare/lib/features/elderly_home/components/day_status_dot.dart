@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:takecare/features/elderly_home/models/event_task.dart';
+import '../models/event_task.dart';
 
 class DayStatusDot extends StatelessWidget {
   final int day;
@@ -42,19 +42,7 @@ class DayStatusDot extends StatelessWidget {
             ),
           ),
 
-          // จุดเล็กๆ ด้านล่างเมื่อมีข้อมูลแต่ยังไม่ได้เลือก
-          if (status != null && !isSelected)
-            Positioned(
-              bottom: 4,
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _statusColor(cs),
-                ),
-              ),
-            ),
+
         ],
       ),
     );
@@ -66,17 +54,30 @@ class DayStatusDot extends StatelessWidget {
   /// partial  → secondary
   /// null     → ไม่มีขอบ
 
+  // complete → เขียว, partial → ส้ม, missed → แดง
+  static const _green       = Color(0xFF4DB887);
+  static const _greenBg     = Color(0xFFEAF7F1);
+  static const _orange      = Color(0xFFFFAA55);
+  static const _orangeBg    = Color(0xFFFFF4E6);
+  static const _red         = Color(0xFFFF7F7F);
+  static const _redBg       = Color(0xFFFFF0F0);
+
   Color _borderColor(ColorScheme cs) {
     if (isSelected) return cs.primary;
-    return _statusColor(cs);
+    switch (status) {
+      case DayStatus.complete: return _green;
+      case DayStatus.partial:  return _orange;
+      case DayStatus.missed:   return _red;
+      case null:               return Colors.transparent;
+    }
   }
 
   Color _bgColor(ColorScheme cs) {
     if (isSelected) return cs.primary;
     switch (status) {
-      case DayStatus.complete: return cs.tertiaryContainer;
-      case DayStatus.missed:   return cs.errorContainer;
-      case DayStatus.partial:  return cs.secondaryContainer;
+      case DayStatus.complete: return _greenBg;
+      case DayStatus.partial:  return _orangeBg;
+      case DayStatus.missed:   return _redBg;
       case null:               return Colors.transparent;
     }
   }
@@ -84,19 +85,10 @@ class DayStatusDot extends StatelessWidget {
   Color _textColor(ColorScheme cs) {
     if (isSelected) return cs.onPrimary;
     switch (status) {
-      case DayStatus.complete: return cs.onTertiaryContainer;
-      case DayStatus.missed:   return cs.onErrorContainer;
-      case DayStatus.partial:  return cs.onSecondaryContainer;
+      case DayStatus.complete: return _green;
+      case DayStatus.partial:  return _orange;
+      case DayStatus.missed:   return _red;
       case null:               return cs.onSurface;
-    }
-  }
-
-  Color _statusColor(ColorScheme cs) {
-    switch (status) {
-      case DayStatus.complete: return cs.tertiary;
-      case DayStatus.missed:   return cs.error;
-      case DayStatus.partial:  return cs.secondary;
-      case null:               return Colors.transparent;
     }
   }
 }
