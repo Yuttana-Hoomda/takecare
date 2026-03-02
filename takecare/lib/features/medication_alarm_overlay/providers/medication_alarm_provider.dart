@@ -1,8 +1,8 @@
-// lib/features/medication_alarm_overlay/providers/medication_alarm_provider.dart
+// lib/features/medication_alarm_overlay/providers/medication_alarm_screen.dart
 
 import 'package:flutter/foundation.dart';
 import '../models/medication_alarm_model.dart';
-import '../services/medication_alarm_service.dart';
+import '../services/task_alarm_service.dart';
 
 enum AlarmActionState { idle, loading, snoozed, completed, error }
 

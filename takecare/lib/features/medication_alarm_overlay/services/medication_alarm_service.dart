@@ -1,8 +1,8 @@
-// lib/features/medication_alarm_overlay/services/medication_alarm_service.dart
+// lib/features/medication_alarm_overlay/services/task_alarm_service.dart
 
 import 'package:image_picker/image_picker.dart';
 
-class MedicationAlarmService {
+class TaskAlarmService {
   final ImagePicker _picker = ImagePicker();
 
   /// เปิดกล้องถ่ายรูป แล้วคืน path ของรูปที่ถ่าย

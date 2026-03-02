@@ -1,34 +1,35 @@
-// lib/features/medication_alarm_overlay/screens/medication_alarm_screen.dart
+// lib/features/medication_alarm_overlay/screens/task_alarm_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
+import 'package:takecare/features/medication_alarm_overlay/screens/camera_screen.dart';
 import '../models/medication_alarm_model.dart';
 import '../providers/medication_alarm_provider.dart';
 import '../widgets/alarm_action_button.dart';
 import '../widgets/medication_icon_widget.dart';
 import '../widgets/medication_info_widget.dart';
 
-class MedicationAlarmScreen extends StatelessWidget {
+class TaskAlarmScreen extends StatelessWidget {
   final MedicationAlarmModel alarm; //   รับ alarm จากภายนอก
 
-  const MedicationAlarmScreen({super.key, required this.alarm});
+  const TaskAlarmScreen({super.key, required this.alarm});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MedicationAlarmProvider(currentAlarm: alarm),
-      child: const _MedicationAlarmView(),
+      create: (_) => TaskAlarmProvider(currentAlarm: alarm),
+      child: const _TaskAlarmView(),
     );
   }
 }
 
-class _MedicationAlarmView extends StatelessWidget {
-  const _MedicationAlarmView();
+class _TaskAlarmView extends StatelessWidget {
+  const _TaskAlarmView();
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<MedicationAlarmProvider>();
+    final provider = context.watch<TaskAlarmProvider>();
     final isLoading = provider.actionState == AlarmActionState.loading;
 
     //   แสดง snackbar เฉพาะครั้งแรกที่เข้าสู่ state error แล้ว clearError ทันที
@@ -79,7 +80,6 @@ class _MedicationAlarmView extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 40.0),
                   child: Column(
                     children: [
-                      // Primary: Done + Take Photo
                       AlarmActionButton(
                         label: isLoading
                             ? 'Opening Camera...'
@@ -87,7 +87,12 @@ class _MedicationAlarmView extends StatelessWidget {
                         icon: Icons.camera_alt_rounded,
                         type: AlarmButtonType.primary,
                         isLoading: isLoading,
-                        onPressed: isLoading ? null : provider.onDoneTakePhoto,
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => CameraScreen())
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 12),
