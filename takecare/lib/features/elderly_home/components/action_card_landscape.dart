@@ -10,14 +10,14 @@ class ActionCardLandscape extends StatelessWidget {
   final Color? textColor;
 
   const ActionCardLandscape({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.imagePath,
     required this.onTap,
     this.bgColor,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:takecare/features/food_alarm/providers/food_analysis_provider.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
 import 'package:takecare/features/link_family/providers/link_family_provider.dart';
 import 'features/elderly_home/provider/history_provider.dart';

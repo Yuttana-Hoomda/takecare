@@ -8,10 +8,10 @@ class TaskTimelineTile extends StatelessWidget {
   final bool isLast;
 
   const TaskTimelineTile({
-    Key? key,
+    super.key,
     required this.task,
     this.isLast = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

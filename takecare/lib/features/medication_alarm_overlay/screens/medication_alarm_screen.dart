@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
-import 'package:takecare/features/food_alarm/screens/camera_screen.dart';
 import '../models/medication_alarm_model.dart';
 import '../providers/medication_alarm_provider.dart';
 import '../widgets/alarm_action_button.dart';

@@ -4,7 +4,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/features/food_alarm/screens/food_analysis_screen.dart';
-import '../models/food_analysis.dart';
 import '../providers/camera_provider.dart';
 import '../providers/food_analysis_provider.dart';
 
