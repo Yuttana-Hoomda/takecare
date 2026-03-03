@@ -1,8 +1,6 @@
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:takecare/features/task/services/task_service.dart';
-
 import '../models/task_model.dart';
 
 class TaskProvider extends ChangeNotifier{

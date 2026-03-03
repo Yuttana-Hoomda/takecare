@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/event_task.dart';
 import 'day_status_dot.dart';
+import 'package:takecare/features/elderly_history/models/event_task.dart';
+
 
 class CalendarWidget extends StatelessWidget {
   final DateTime selectedDate;
@@ -14,23 +15,35 @@ class CalendarWidget extends StatelessWidget {
     required this.onDateSelected,
   });
 
-  static const _dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  static const _dayHeaders = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
   static const _monthNames = [
-    '', 'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    '',
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
   ];
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final daysInMonth =
-        DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
+    final daysInMonth = DateTime(
+      selectedDate.year,
+      selectedDate.month + 1,
+      0,
+    ).day;
     final firstDay =
         DateTime(selectedDate.year, selectedDate.month, 1).weekday % 7;
 
     return Column(
       children: [
-        // Month navigation
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(
@@ -53,11 +66,8 @@ class CalendarWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${selectedDate.year}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: cs.onSurfaceVariant,
-                    ),
+                    '${selectedDate.year + 543}',
+                    style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -75,23 +85,24 @@ class CalendarWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: _dayHeaders
-                .map((d) => Expanded(
-              child: Center(
-                child: Text(
-                  d,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: cs.onSurfaceVariant,
+                .map(
+                  (d) => Expanded(
+                    child: Center(
+                      child: Text(
+                        d,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ))
+                )
                 .toList(),
           ),
         ),
         const SizedBox(height: 8),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: GridView.builder(
@@ -105,17 +116,15 @@ class CalendarWidget extends StatelessWidget {
             itemCount: firstDay + daysInMonth,
             itemBuilder: (context, index) {
               if (index < firstDay) return const SizedBox();
-
               final day = index - firstDay + 1;
-              final date =
-              DateTime(selectedDate.year, selectedDate.month, day);
+              final date = DateTime(selectedDate.year, selectedDate.month, day);
               final key =
                   '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
               final data = eventData[key];
-              final isSelected = date.day == selectedDate.day &&
+              final isSelected =
+                  date.day == selectedDate.day &&
                   date.month == selectedDate.month &&
                   date.year == selectedDate.year;
-
               return DayStatusDot(
                 day: day,
                 status: data?.status,
@@ -134,7 +143,6 @@ class CalendarWidget extends StatelessWidget {
 class _NavButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-
   const _NavButton({required this.icon, required this.onTap});
 
   @override

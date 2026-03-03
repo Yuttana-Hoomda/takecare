@@ -42,13 +42,14 @@ class ActionCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(15
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
                       color: AppTheme.secondary,
                       shape: BoxShape.circle,
@@ -57,20 +58,22 @@ class ActionCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(60),
                       child: Image.asset(
                         imagePath,
-                        height: 70,
-                        width: 70,
+                        height: 65,
+                        width: 65,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
+                Center( child:
                 Text(
                   title,
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: textColor,
                     fontFamily: 'GoogleSans',
                   ),
+                ),
                 ),
                 const SizedBox(height: 4),
                 Text(

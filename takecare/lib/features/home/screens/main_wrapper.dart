@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
-import 'package:takecare/features/elderly_home/screens/elderly_history_screen.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
 import '../../../test_food_alarm.dart';
+import 'package:takecare/features/elderly_history/screens/elderly_history_screen.dart';
 import '../../auth/providers/auth_provider.dart';
+import 'package:takecare/features/caregiver_calendar/screens/caregiver_calendar_screen.dart';
+
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -24,26 +25,26 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupCaregiverView() {
     _pages = [
-      const CaregiverHomeScreen(), //   Home → CaregiverHomeScreen
-      const TaskScreen(), // Tasks
-      const Placeholder(), // Profile
+      const CaregiverHomeScreen(), // Home
+      const TaskScreen(),  // Tasks
+      const CaregiverCalendarScreen(), // Profile
     ];
 
-    _navItems = const [
-      NavigationDestination(
+    _navItems = [
+      const NavigationDestination(
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
         label: 'หน้าแรก',
       ),
-      NavigationDestination(
+      const NavigationDestination(
         icon: Icon(Icons.assignment_outlined),
         selectedIcon: Icon(Icons.assignment),
         label: 'รายการ',
       ),
-      NavigationDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: 'โปรไฟล์',
+      const NavigationDestination(
+        icon: Icon(Icons.calendar_month_outlined),
+        selectedIcon: Icon(Icons.calendar_month),
+        label: 'ประวัติ',
       ),
     ];
   }
@@ -56,16 +57,16 @@ class _MainWrapperState extends State<MainWrapper> {
       const Placeholder(), // Profile
     ];
 
-    _navItems = const [
-      NavigationDestination(
+    _navItems = [
+      const NavigationDestination(
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
-        label: 'Home',
+        label: 'หน้าแรก',
       ),
       NavigationDestination(
         icon: Icon(Icons.calendar_month_outlined),
         selectedIcon: Icon(Icons.calendar_month),
-        label: 'calendar',
+        label: 'ประวัติ',
       ),
       NavigationDestination(
         icon: Icon(Icons.punch_clock_outlined),
@@ -75,7 +76,7 @@ class _MainWrapperState extends State<MainWrapper> {
       NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
-        label: 'Profile',
+        label: 'โปรไฟล์',
       ),
     ];
   }
@@ -93,7 +94,6 @@ class _MainWrapperState extends State<MainWrapper> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.bgColorLight,
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -109,7 +109,9 @@ class _MainWrapperState extends State<MainWrapper> {
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (int index) {
-            setState(() => _currentIndex = index);
+            setState(() {
+              _currentIndex = index;
+            });
           },
           destinations: _navItems,
         ),

@@ -9,8 +9,8 @@ Widget buildActionCards() {
         children: [
           Expanded(
             child: ActionCard(
-              title: "My Tasks",
-              subtitle: "3 Remaining",
+              title: "รายการที่ต้องทำ",
+              subtitle: "เหลืออีก 3 รายการ",
               imagePath: 'assets/icons/list.png',
               onTap: () {},
             ),
@@ -18,8 +18,8 @@ Widget buildActionCards() {
           const SizedBox(width: 16),
           Expanded(
             child: ActionCard(
-              title: "Check Food",
-              subtitle: "Log Lunch",
+              title: "บันทึกอาหาร",
+              subtitle: "",
               imagePath: 'assets/icons/food.png',
               onTap: () {},
             ),
@@ -28,8 +28,8 @@ Widget buildActionCards() {
       ),
       const SizedBox(height: 16),
       ActionCardLandscape(
-        title: "View History",
-        subtitle: "Weekly Progress",
+        title: "ประวัติย้อนหลัง",
+        subtitle: "สรุปรายเดือน",
         imagePath: "assets/icons/history.png",
         onTap: () {},
       ),

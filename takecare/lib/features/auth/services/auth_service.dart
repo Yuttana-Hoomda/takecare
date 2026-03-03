@@ -14,6 +14,7 @@ class LoginResult {
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String baseUrl = "http://10.0.2.2:3000/api/users";
+
   // final String baseUrl = "http://localhost:3000/api/users"; // Flutter Web
 
   Future<LoginResult> loginWithToken(String email, String password) async {
