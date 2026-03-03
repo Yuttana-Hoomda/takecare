@@ -21,10 +21,8 @@ class _ScheduleTileState extends State<ScheduleTile> {
   TaskStatus get _status {
     if (widget.eventTask.isDone || _markedComplete) return TaskStatus.finished;
 
-    final now = DateTime.now(); // เวลาจริงตอนนี้
+    final now = DateTime.now();
     final taskDate = widget.eventTask.task.createdAt; // วันที่ของ Task นี้
-
-    // สร้าง DateTime ของ Task เพื่อเอามาเทียบกับ DateTime.now() ได้ตรงๆ
     final taskDateTime = DateTime(
       taskDate.year,
       taskDate.month,
@@ -34,18 +32,12 @@ class _ScheduleTileState extends State<ScheduleTile> {
     );
 
     final difference = taskDateTime.difference(now).inMinutes;
-
-    // 1. ถ้าเป็นวันที่ในอดีต (เมื่อวานลงไป)
     if (taskDateTime.isBefore(DateTime(now.year, now.month, now.day))) {
       return TaskStatus.missed;
     }
-
-    // 2. ถ้าเป็นวันที่ในอนาคต (พรุ่งนี้เป็นต้นไป)
     if (taskDateTime.isAfter(DateTime(now.year, now.month, now.day, 23, 59))) {
       return TaskStatus.next;
     }
-
-    // 3. ถ้าเป็น "วันนี้" ค่อยเช็คช่วงเวลา (เหมือนเดิมที่คุณทำไว้)
     if (difference < -30) return TaskStatus.missed;
     if (difference.abs() <= 30) return TaskStatus.now;
     return TaskStatus.next;
@@ -54,7 +46,6 @@ class _ScheduleTileState extends State<ScheduleTile> {
   @override
   Widget build(BuildContext context) {
     final status = _status;
-
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

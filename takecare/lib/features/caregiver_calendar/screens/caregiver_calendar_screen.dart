@@ -8,9 +8,6 @@ import '../widgets/date_picker.dart';
 import '../widgets/schedule_tile.dart';
 import 'package:takecare/features/caregiver_home/widgets/caregiver_header.dart';
 import 'package:takecare/features/caregiver_calendar/mock/mock_task.dart';
-import 'package:takecare/constants/app_theme.dart';
-
-// TODO: เปลี่ยนเป็น false เมื่อ backend พร้อม
 const bool _useMock = true;
 
 class CaregiverCalendarScreen extends StatefulWidget {
@@ -29,16 +26,14 @@ class _CaregiverCalendarScreenState extends State<CaregiverCalendarScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _fetchData());
   }
-
   void _fetchData() {
     final historyProvider = Provider.of<HistoryProvider>(
       context,
       listen: false,
     );
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     if (_useMock) {
-      historyProvider.loadMockData(MockEventData as Map<String, DayData>);
+      historyProvider.loadMockData(MockEventData.data);
     } else {
       final familyId = authProvider.user?.familyId;
       if (familyId != null) {

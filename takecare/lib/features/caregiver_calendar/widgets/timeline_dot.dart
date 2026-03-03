@@ -15,7 +15,6 @@ class TimelineDot extends StatelessWidget {
       case TaskStatus.next:     return Theme.of(context).colorScheme.outlineVariant;
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(

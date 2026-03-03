@@ -38,7 +38,6 @@ class CalendarWidget extends StatelessWidget {
           eventData: eventData,
           onDateSelected: onDateSelected,
         ),
-
         const SizedBox(height: 16),
       ],
     );

@@ -6,9 +6,7 @@ import 'task_card.dart';
 class SummarySection extends StatelessWidget {
   final DateTime date;
   final DayData? data;
-
   const SummarySection({super.key, required this.date, required this.data});
-
   static const List<String> _monthNames = [
     '', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
     'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
@@ -16,7 +14,6 @@ class SummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     if (data == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),

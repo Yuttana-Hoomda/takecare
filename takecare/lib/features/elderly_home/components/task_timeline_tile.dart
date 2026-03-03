@@ -17,12 +17,10 @@ class TaskTimelineTile extends StatelessWidget {
         task.createdAt.month == now.month &&
         task.createdAt.day == now.day;
 
-    if (!isToday) return false; // ถ้าไม่ใช่วันนี้เลย return false
-
-    // 2. ถ้าเป็นวันนี้ ค่อยเช็คช่วงเวลา (ห่างไม่เกิน 30 นาที)
+    if (!isToday) return false;
+    //เช็กว่าใช่วันนี้ไหม
     final taskMinutes = task.time.hour * 60 + task.time.minute;
     final nowMinutes = now.hour * 60 + now.minute;
-
     return (taskMinutes - nowMinutes).abs() <= 30;
   }
   @override
@@ -86,14 +84,13 @@ class TaskTimelineTile extends StatelessWidget {
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment
-                    .center, // ปรับให้กึ่งกลางแนวตั้งจะดูสวยขึ้น
+                    .center,
                 children: [
-                  // Icon container (เปลี่ยนสีพื้นหลังตามสถานะ)
                   Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: iconBgColor, // ใช้สีที่คำนวณไว้ข้างบน
+                      color: iconBgColor,
                       borderRadius: BorderRadius.circular(90),
                     ),
                     child: Center(
@@ -101,8 +98,6 @@ class TaskTimelineTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Title + Note (Time ย้ายไปอยู่ขวาบนแล้ว)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +107,6 @@ class TaskTimelineTile extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ชื่อกิจกรรม
                             Expanded(
                               child: Text(
                                 task.title,

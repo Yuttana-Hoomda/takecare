@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:takecare/features/caregiver_home/widgets/caregiver_header.dart';
 
+//ดึงโค้ดที่เพื่อนทำไว้ เพื่อให้ appbar เหมือนกัน
 class CaregiverTopBar extends StatelessWidget {
   const CaregiverTopBar({super.key});
 

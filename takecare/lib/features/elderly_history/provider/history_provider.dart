@@ -31,13 +31,11 @@ class HistoryProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  /// ใช้สำหรับทดสอบ UI โดยไม่ต้องเรียก API
+  //สำหรับทดสอบ ui
   void loadMockData(Map<String, DayData> mockData) {
     _eventData = mockData;
     notifyListeners();
   }
-
   DayData? getDataForDate(DateTime date) {
     final key =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

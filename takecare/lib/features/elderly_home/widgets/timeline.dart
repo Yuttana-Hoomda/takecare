@@ -8,14 +8,12 @@ Widget buildTimelineSection(DateTime selectedDate) {
   return Consumer<TaskProvider>(
     builder: (context, taskProvider, child) {
       final allTasks = taskProvider.tasks ?? [];
-
       // กรองให้เหลือเฉพาะ Task ที่ตรงกับวัน
       List<Task> displayTasks = allTasks.where((task) {
         return task.createdAt.year == selectedDate.year &&
             task.createdAt.month == selectedDate.month &&
             task.createdAt.day == selectedDate.day;
       }).toList();
-
       // ถ้าไม่มีกิจกรรม ให้แสดงข้อความแจ้งเตือน
       if (displayTasks.isEmpty) {
         return Center(
@@ -37,7 +35,6 @@ Widget buildTimelineSection(DateTime selectedDate) {
           ),
         );
       }
-
       // ถ้ามีกิจกรรม ให้ Sort เรียงเวลา
       displayTasks.sort((a, b) {
         final minutesA = a.time.hour * 60 + a.time.minute;

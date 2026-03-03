@@ -9,7 +9,6 @@ class StatusLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     late String label;
     late Color color;
-
     switch (status) {
       case TaskStatus.finished:
         label = 'FINISHED'; color = const Color(0xFF4DB887); break;
@@ -20,7 +19,6 @@ class StatusLabel extends StatelessWidget {
       case TaskStatus.next:
         label = 'NEXT'; color = Colors.grey; break;
     }
-
     return Text(
       label,
       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),

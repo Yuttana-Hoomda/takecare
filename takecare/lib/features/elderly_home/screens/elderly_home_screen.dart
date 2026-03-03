@@ -33,9 +33,6 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final taskProvider = Provider.of<TaskProvider>(context);
-    final tasks = taskProvider.tasks ?? [];
-
     return Scaffold(
       body: SafeArea(
         child: ListView(
