@@ -25,7 +25,7 @@ class MockEventData {
           familyId: 'f1',
           title: 'Lunch',
           icon: 'assets/doctor.svg',
-          time: const TimeOfDay(hour: 12, minute: 0), // แก้จาก 3 เป็น 12 ให้ดูเป็นมื้อเที่ยงจริง
+          time: const TimeOfDay(hour: 12, minute: 0), 
           createdAt: DateTime.now(),
         ),
         isDone: false,
@@ -44,7 +44,6 @@ class MockEventData {
       ),
     ]),
     '2026-03-04': DayData.fromEventTasks([
-      // เพิ่มข้อมูลวันอื่นๆ ได้ที่นี่
     ]),
   };
 }

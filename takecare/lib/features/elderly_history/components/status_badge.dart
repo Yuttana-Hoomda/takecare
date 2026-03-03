@@ -9,7 +9,6 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     late Color bg, border, text;
     late String label;
-
     switch (status) {
       case DayStatus.complete:
         bg = const Color(0xFFEAF7F1);

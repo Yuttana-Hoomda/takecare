@@ -22,7 +22,6 @@ class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
     super.initState();
     Future.microtask(() => _fetchData());
   }
-
   void _fetchData() {
     final historyProvider = Provider.of<HistoryProvider>(
       context,
@@ -38,7 +37,6 @@ class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;

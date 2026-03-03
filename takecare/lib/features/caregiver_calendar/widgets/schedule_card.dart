@@ -51,7 +51,8 @@ class ScheduleCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        // ใช้ border left เพื่อบ่งบอกสถานะ
+
+        // ใช้ border left ข้าง ๆ บอกสถานะ
         border: _isCurrent
             ? null
             : Border(left: BorderSide(color: _leftBorderColor(), width: 4)),
@@ -67,7 +68,7 @@ class ScheduleCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Status label + time
+          // สเตตัสกับเวลา ที่อยู่บรรทัดเดียวกัน
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -102,7 +103,6 @@ class ScheduleCard extends StatelessWidget {
                     task.icon,
                     width: 22,
                     height: 22,
-                    // ถ้าพื้นหลังเป็นสี primary ให้ไอคอนเป็นสีขาว
                     colorFilter: _isCurrent
                         ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
                         : null,

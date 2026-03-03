@@ -54,18 +54,16 @@ class DayData {
   }
 
 }
-// เพิ่ม Helper ใน EventTask
+//สำหรับหน้าของ caregiver ที่แสดงรายการ task ในแต่ละวัน
 extension EventTaskUI on EventTask {
   Color get statusColor {
     if (isDone) return const Color(0xFF4DB887); // สีเขียว Completed
-
     final now = TimeOfDay.now();
     final isPast = (task.time.hour < now.hour) ||
         (task.time.hour == now.hour && task.time.minute < now.minute);
 
     return isPast ? Colors.redAccent : Colors.blueAccent;
   }
-
   String get statusLabel {
     if (isDone) return 'COMPLETED';
     final now = TimeOfDay.now();

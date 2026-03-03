@@ -11,7 +11,7 @@ class WeekDatePicker extends StatelessWidget {
     required this.onDateSelected,
   });
 
-  // เปลี่ยนป้ายชื่อวันเป็นภาษาไทย
+  // ป้ายชื่อวันเป็นภาษาไทย
   static const _dayLabels = ['อา.','จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 
   @override

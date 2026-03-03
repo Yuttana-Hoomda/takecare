@@ -18,7 +18,6 @@ class DayStatusDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onTap: status != null ? onTap : null,
       child: Stack(
