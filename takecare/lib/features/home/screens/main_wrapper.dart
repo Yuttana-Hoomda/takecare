@@ -3,8 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
-import 'package:takecare/features/elderly_home/screens/elderly_history_screen.dart';
+import 'package:takecare/features/elderly_history/screens/elderly_history_screen.dart';
 import '../../auth/providers/auth_provider.dart';
+import 'package:takecare/features/caregiver_calendar/screens/caregiver_calendar_screen.dart';
+import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
+
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -21,9 +24,9 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupCaregiverView() {
     _pages = [
-      const Placeholder(), // Home
+      const CaregiverHomeScreen(), // Home
       const TaskScreen(),  // Tasks
-      const Placeholder(), // Profile
+      const CaregiverCalendarScreen(), // Profile
     ];
 
     _navItems = [
@@ -38,9 +41,9 @@ class _MainWrapperState extends State<MainWrapper> {
         label: 'รายการ',
       ),
       const NavigationDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: 'โปรไฟล์',
+        icon: Icon(Icons.calendar_month_outlined),
+        selectedIcon: Icon(Icons.calendar_month),
+        label: 'ประวัติ',
       ),
     ];
   }
@@ -57,22 +60,17 @@ class _MainWrapperState extends State<MainWrapper> {
       const NavigationDestination(
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
-        label: 'Home',
+        label: 'หน้าแรก',
       ),
       const NavigationDestination(
         icon: Icon(Icons.calendar_month_outlined),
         selectedIcon: Icon(Icons.calendar_month),
-        label: 'History',
-      ),
-      const NavigationDestination(
-        icon: Icon(Icons.favorite_outline),
-        selectedIcon: Icon(Icons.favorite),
-        label: 'Care',
+        label: 'ประวัติ',
       ),
       const NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
-        label: 'Profile',
+        label: 'โปรไฟล์',
       ),
     ];
   }

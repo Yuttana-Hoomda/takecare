@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
-import '../provider/history_provider.dart';
-import '../widgets/calendar_widget.dart';
+import '../../elderly_history/provider/history_provider.dart';
+import '../components/calendar_widget.dart';
 import '../components/summary_section.dart';
-import '../mock_data/mockTask.dart';
+import '../../elderly_history/mock_data/mockTask.dart';
 
 class ElderlyCalendarScreen extends StatefulWidget {
   const ElderlyCalendarScreen({super.key});
@@ -15,7 +15,6 @@ class ElderlyCalendarScreen extends StatefulWidget {
 
 class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
   DateTime _selectedDate = DateTime.now();
-
   bool get _useMock => true;
 
   @override
@@ -30,7 +29,6 @@ class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
       listen: false,
     );
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     if (_useMock) {
       historyProvider.loadMockData(mockEventData);
     } else {
@@ -49,11 +47,12 @@ class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: const Text('ประวัติกิจกรรม'),
-        titleTextStyle: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: cs.onSurface,
+        title: Text(
+          'ประวัติกิจกรรม',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: cs.onSurface,
+            fontSize: 24,
+          ),
         ),
         centerTitle: false,
       ),

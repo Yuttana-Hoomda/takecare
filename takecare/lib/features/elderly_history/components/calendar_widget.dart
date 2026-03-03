@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:takecare/features/elderly_home/models/event_task.dart';
-import '../components/calendarGrid_calendar.dart';
-import '../components/calendarHeader_calendar.dart';
-import '../components/calendarWeekdayLabels_calendar.dart';
+import '../models/event_task.dart';
+import 'calendar_grid_calendar.dart';
+import '../../elderly_home/components/calendarHeader_calendar.dart';
+import 'calendarWeekdayLabels_calendar.dart';
 class CalendarWidget extends StatelessWidget {
   final DateTime selectedDate;
   final Map<String, DayData> eventData;

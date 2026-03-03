@@ -5,7 +5,7 @@ Widget buildScheduleHeader(BuildContext context) {
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(
-        "ตารางงานวันนี้",
+        "ตารางกิจกรรมวันนี้",
         style: Theme.of(
           context,
         ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),

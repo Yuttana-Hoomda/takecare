@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/event_task.dart';
+import '../../elderly_history/models/event_task.dart';
 
 class DayStatusDot extends StatelessWidget {
   final int day;
-  final DayStatus? status; // null = ไม่มีข้อมูลวันนี้
+  final DayStatus? status;
   final bool isSelected;
   final VoidCallback onTap;
 

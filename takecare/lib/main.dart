@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/elderly_home/provider/history_provider.dart';
+import 'package:takecare/features/elderly_history/provider/history_provider.dart';
 import 'package:takecare/features/link_family/providers/link_family_provider.dart';
 
 

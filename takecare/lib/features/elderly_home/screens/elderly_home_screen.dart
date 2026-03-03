@@ -71,7 +71,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
             const SizedBox(height: 20),
             buildScheduleHeader(context),
             const SizedBox(height: 16),
-            buildTimelineSection(tasks),
+            buildTimelineSection(DateTime.now()),
           ],
         ),
       ),

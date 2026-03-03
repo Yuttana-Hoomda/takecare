@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/event_task.dart';
 import 'day_status_dot.dart';
+import 'package:takecare/features/elderly_history/models/event_task.dart';
+
 
 class CalendarWidget extends StatelessWidget {
   final DateTime selectedDate;
