@@ -7,28 +7,67 @@ import type { AnalysisResult, NutrientData, SaveAnalysisRequest } from '../model
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+type Disease = 'เบาหวาน' | 'ความดัน' | null;
+type HealthLevel = 'healthy' | 'moderate' | 'unhealthy';
+
+interface NutritionThreshold {
+    calories: { moderate: number; unhealthy: number };
+    fat: { moderate: number; unhealthy: number };
+    sugar: { moderate: number; unhealthy: number };
+    sodium: { moderate: number; unhealthy: number };
+}
+
+// เกณฑ์ต่อมื้อ (≈ 1/3 ของปริมาณต่อวัน) อ้างอิงกระทรวงสาธารณสุขไทย
+const THRESHOLDS: Record<NonNullable<Disease> | 'none', NutritionThreshold> = {
+    none: {
+        calories: { moderate: 667, unhealthy: 933 }, // วัน: 2000 kcal ÷ 3
+        fat: { moderate: 22, unhealthy: 30 }, // วัน: 65g ÷ 3
+        sugar: { moderate: 8, unhealthy: 17 }, // วัน: 25g ÷ 3
+        sodium: { moderate: 667, unhealthy: 1067 }, // วัน: 2000mg ÷ 3
+    },
+    เบาหวาน: {
+        calories: { moderate: 533, unhealthy: 800 }, // วัน: 1600 kcal ÷ 3
+        fat: { moderate: 18, unhealthy: 25 }, // วัน: 53g ÷ 3
+        sugar: { moderate: 5, unhealthy: 10 }, // วัน: 15g ÷ 3 (เบาหวานจำกัด 15g/วัน)
+        sodium: { moderate: 667, unhealthy: 1067 }, // วัน: 2000mg ÷ 3
+    },
+    ความดัน: {
+        calories: { moderate: 667, unhealthy: 933 }, // วัน: 2000 kcal ÷ 3
+        fat: { moderate: 22, unhealthy: 30 }, // วัน: 65g ÷ 3
+        sugar: { moderate: 8, unhealthy: 17 }, // วัน: 25g ÷ 3
+        sodium: { moderate: 500, unhealthy: 800 }, // วัน: 1500mg ÷ 3 (ความดันจำกัด 1500mg/วัน)
+    },
+};
+
 const calculateHealthLevel = (data: {
     calories: number;
     fat: number;
     sugar: number;
     sodium: number;
-}): 'healthy' | 'moderate' | 'unhealthy' => {
+    disease: Disease;
+}): HealthLevel => {
+    const key = data.disease ?? 'none';
+    const t = THRESHOLDS[key];
+
     let score = 0;
 
-    if (data.calories > 500) score += 2;
-    else if (data.calories > 300) score += 1;
+    const evaluate = (value: number, threshold: { moderate: number; unhealthy: number }) => {
+        if (value > threshold.unhealthy) return 2;
+        if (value > threshold.moderate) return 1;
+        return 0;
+    };
 
-    if (data.fat > 20) score += 2;
-    else if (data.fat > 10) score += 1;
+    score += evaluate(data.calories, t.calories);
+    score += evaluate(data.fat, t.fat);
+    score += evaluate(data.sugar, t.sugar);
+    score += evaluate(data.sodium, t.sodium);
 
-    if (data.sugar > 15) score += 2;
-    else if (data.sugar > 8) score += 1;
+    // โรคเบาหวาน/ความดัน → เกณฑ์ตัดสินเข้มขึ้น 1 ระดับ
+    const moderateThreshold = data.disease ? 1 : 2;
+    const unhealthyThreshold = data.disease ? 4 : 5;
 
-    if (data.sodium > 800) score += 2;
-    else if (data.sodium > 400) score += 1;
-
-    if (score >= 5) return 'unhealthy';
-    if (score >= 2) return 'moderate';
+    if (score >= unhealthyThreshold) return 'unhealthy';
+    if (score >= moderateThreshold) return 'moderate';
     return 'healthy';
 };
 
@@ -111,13 +150,13 @@ const generateSummary = async (
     healthLevel: string
 ): Promise<string> => {
     // ✅ Strong Thai-only instruction
-    const prompt = `คุณคือนักโภชนาการชาวไทย กรุณาเขียนสองประโยคสั้นๆ เป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ อธิบายผลกระทบต่อสุขภาพของการรับประทาน "${foodName}" ซึ่งถูกจัดว่า "${healthLevel}" ให้กระชับและเป็นประโยชน์`;
+    const prompt = `คุณคือนักโภชนาการชาวไทย กรุณาเขียนหนึ่งประโยคสั้นๆ เป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ อธิบายผลกระทบต่อสุขภาพของการรับประทาน "${foodName}" ซึ่งถูกจัดว่า "${healthLevel}" ให้กระชับและเป็นประโยชน์`;
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
 };
 
 // ─── Main Analysis Function ───────────────────────────────────────────────────
-export const analyzeFood = async (base64Image: string): Promise<AnalysisResult> => {
+export const analyzeFood = async (base64Image: string, disease: Disease): Promise<AnalysisResult> => {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const imagePart = {
@@ -155,6 +194,7 @@ Respond with ONLY a JSON object, no markdown, no explanation:
             fat: nutrientData.fat,
             sugar: nutrientData.sugar,
             sodium: nutrientData.sodium,
+            disease: disease
         });
 
         // ✅ Pass Thai name to summary
@@ -165,20 +205,18 @@ Respond with ONLY a JSON object, no markdown, no explanation:
         );
 
         return {
-            foodName: nutrientData.foodNameThai, // ✅ Thai name from CSV
+            foodName: nutrientData.foodNameThai, 
             healthLevel,
             sugar: nutrientData.sugar,
             sodium: nutrientData.sodium,
             fat: nutrientData.fat,
             calories: nutrientData.calories,
-            analysisResult: summary,             // ✅ Thai summary
+            analysisResult: summary,            
         };
     }
 
-    // Step 3: Not in CSV — Gemini estimates everything in Thai
     console.log(`[FoodAnalysis] Not found in CSV, asking Gemini to estimate: ${detectedFoodName}`);
 
-    // ✅ Force Thai in both foodNameThai and analysisResult
     const nutrientPrompt = `Based on general nutritional knowledge, provide estimated nutritional values for "${detectedFoodName}" per serving.
 Respond with ONLY a JSON object in this exact format, no markdown, no explanation.
 IMPORTANT: foodNameThai and analysisResult must be written in Thai language only, absolutely no English:
@@ -189,7 +227,7 @@ IMPORTANT: foodNameThai and analysisResult must be written in Thai language only
   "fat": <number in grams>,
   "calories": <number in kcal>,
   "healthLevel": "<healthy|moderate|unhealthy>",
-  "analysisResult": "<สองประโยคภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ อธิบายผลกระทบต่อสุขภาพของอาหารนี้>"
+  "analysisResult": "<หนึ่งประโยคภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ อธิบายผลกระทบต่อสุขภาพของอาหารนี้>"
 }`;
 
     const nutrientResult = await model.generateContent(nutrientPrompt);

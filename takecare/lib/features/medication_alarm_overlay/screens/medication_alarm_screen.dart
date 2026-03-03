@@ -1,35 +1,35 @@
-// lib/features/medication_alarm_overlay/screens/task_alarm_screen.dart
+// lib/features/medication_alarm_overlay/screens/medication_alarm_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
-import 'package:takecare/features/medication_alarm_overlay/screens/camera_screen.dart';
+import 'package:takecare/features/food_alarm/screens/camera_screen.dart';
 import '../models/medication_alarm_model.dart';
 import '../providers/medication_alarm_provider.dart';
 import '../widgets/alarm_action_button.dart';
 import '../widgets/medication_icon_widget.dart';
 import '../widgets/medication_info_widget.dart';
 
-class TaskAlarmScreen extends StatelessWidget {
+class MedicationAlarmScreen extends StatelessWidget {
   final MedicationAlarmModel alarm; //   รับ alarm จากภายนอก
 
-  const TaskAlarmScreen({super.key, required this.alarm});
+  const MedicationAlarmScreen({super.key, required this.alarm});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => TaskAlarmProvider(currentAlarm: alarm),
-      child: const _TaskAlarmView(),
+      create: (_) => MedicationAlarmProvider(currentAlarm: alarm),
+      child: const _MedicationAlarmView(),
     );
   }
 }
 
-class _TaskAlarmView extends StatelessWidget {
-  const _TaskAlarmView();
+class _MedicationAlarmView extends StatelessWidget {
+  const _MedicationAlarmView();
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<TaskAlarmProvider>();
+    final provider = context.watch<MedicationAlarmProvider>();
     final isLoading = provider.actionState == AlarmActionState.loading;
 
     //   แสดง snackbar เฉพาะครั้งแรกที่เข้าสู่ state error แล้ว clearError ทันที
@@ -87,12 +87,7 @@ class _TaskAlarmView extends StatelessWidget {
                         icon: Icons.camera_alt_rounded,
                         type: AlarmButtonType.primary,
                         isLoading: isLoading,
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CameraScreen())
-                          );
-                        },
+                        onPressed: () {},
                       ),
 
                       const SizedBox(height: 12),

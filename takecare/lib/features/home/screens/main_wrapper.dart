@@ -3,7 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_history_screen.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
+import 'package:takecare/test_medication_alarm_overlay.dart';
+import '../../../test_food_alarm.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -47,7 +51,9 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupElderView() {
     _pages = [
-      const Placeholder(), // Home
+      const ElderlyHomeScreen(),
+      const ElderlyCalendarScreen(),// Home
+      const TestFoodAlarmApp(),
       const Placeholder(), // Profile
     ];
 
@@ -56,6 +62,16 @@ class _MainWrapperState extends State<MainWrapper> {
         icon: Icon(Icons.home_outlined),
         selectedIcon: Icon(Icons.home),
         label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.calendar_month_outlined),
+        selectedIcon: Icon(Icons.calendar_month),
+        label: 'calendar',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.punch_clock_outlined),
+        selectedIcon: Icon(Icons.punch_clock),
+        label: 'test alarm',
       ),
       NavigationDestination(
         icon: Icon(Icons.person_outline),

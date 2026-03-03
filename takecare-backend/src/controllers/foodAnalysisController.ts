@@ -4,6 +4,7 @@ import { analyzeFood, saveAnalysis } from '../services/foodAnalysisService.js';
 export const analyzeFoodImage = async (req: Request, res: Response): Promise<void> => {
     try {
         const { img } = req.body;
+        const { disease } = req.body;
 
         if (!img) {
             res.status(400).json({ success: false, message: 'img (base64) is required' });
@@ -13,12 +14,9 @@ export const analyzeFoodImage = async (req: Request, res: Response): Promise<voi
         // Strip base64 header if present e.g. "data:image/jpeg;base64,..."
         const base64Data = img.includes(',') ? img.split(',')[1] : img;
 
-        const result = await analyzeFood(base64Data);
+        const result = await analyzeFood(base64Data, disease);
 
-        res.status(200).json({
-            success: true,
-            data: result,
-        });
+        res.status(200).json(result);
     } catch (error: any) {
         console.error('[Controller] Food analysis error:', error);
         res.status(500).json({

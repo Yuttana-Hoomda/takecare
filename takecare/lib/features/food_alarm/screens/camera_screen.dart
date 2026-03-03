@@ -1,38 +1,43 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/food_alarm/screens/food_analysis_screen.dart';
+import '../models/food_analysis.dart';
 import '../providers/camera_provider.dart';
+import '../providers/food_analysis_provider.dart';
 
 class CameraScreen extends StatelessWidget {
-  const CameraScreen({super.key, required this.onSaveImage});
-
-  final Function(String) onSaveImage;
+  const CameraScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CameraProvider(
-        camera: context.read<CameraDescription>(),
-      )..initialize(),
-      child: _CameraScreenBody(onSaveImage: onSaveImage,),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) =>
+              CameraProvider(camera: context.read<CameraDescription>())
+                ..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FoodAnalysisProvider(), // ✅ เพิ่มตรงนี้
+        ),
+      ],
+      child: _CameraScreenBody(),
     );
   }
 }
 
 class _CameraScreenBody extends StatelessWidget {
-  const _CameraScreenBody({required this.onSaveImage});
-
-  final Function(String) onSaveImage;
+  const _CameraScreenBody();
 
   @override
   Widget build(BuildContext context) {
     final cameraProvider = context.watch<CameraProvider>();
 
     if (cameraProvider.isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (!cameraProvider.hasPermission) {
@@ -55,9 +60,7 @@ class _CameraScreenBody extends StatelessWidget {
     }
 
     if (cameraProvider.cameraController == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (cameraProvider.capturedImage != null) {
@@ -99,6 +102,8 @@ class _CameraScreenBody extends StatelessWidget {
   }
 
   Widget _buildPreview(BuildContext context, CameraProvider cameraProvider) {
+    final foodProvider = context.watch<FoodAnalysisProvider>();
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -108,48 +113,99 @@ class _CameraScreenBody extends StatelessWidget {
             fit: BoxFit.cover,
             width: double.infinity,
           ),
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Retake button
-                GestureDetector(
-                  onTap: () => cameraProvider.retake(),
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black.withOpacity(0.5),
-                      border: Border.all(color: Colors.white, width: 2),
+          if (foodProvider.isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.6),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 16),
+                    Text(
+                      'กำลังวิเคราะห์อาหาร...',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
-                    child: const Icon(Icons.refresh, color: Colors.white, size: 30),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 48),
-                // Confirm button
-                GestureDetector(
-                  onTap: () {
-                    final imagePath = cameraProvider.capturedImage!.path;
-                    onSaveImage(imagePath);
-                  },
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green.withAlpha(85),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 30),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          if(!foodProvider.isLoading)
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Retake button
+                  GestureDetector(
+                    onTap: () => cameraProvider.retake(),
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black.withOpacity(0.5),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.refresh,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                  GestureDetector(
+                    onTap: () async {
+                      final imageFilePath = cameraProvider.capturedImage!.path;
+                      final bytes = await XFile(imageFilePath).readAsBytes();
+                      final imgBase64 = base64Encode(bytes);
+
+                      await context.read<FoodAnalysisProvider>().analysisFood(
+                        imgBase64,
+                        imageFilePath,
+                        'hypertensiondwWWWWWWW'
+                      );
+
+                      if (!context.mounted) return;
+
+                      final provider = context.read<FoodAnalysisProvider>();
+                      debugPrint('result: ${provider.result}');
+                      debugPrint('error: ${provider.error}');
+
+                      if (provider.result != null) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FoodAnalysisScreen(
+                                  analysisResult: provider.result!,
+                                  img: File(imageFilePath)
+                              ),
+                          ),
+                            (route) => false
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.green.withAlpha(85),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

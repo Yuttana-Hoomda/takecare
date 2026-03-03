@@ -6,3 +6,4 @@ enum CardLayoutType {
   horizontal, // ภาพซ้าย
   imageBottom // ภาพล่าง
 }
+enum FoodAlarmType { breakfast, lunch, dinner}
