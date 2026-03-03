@@ -29,7 +29,6 @@ class EventTask {
 class DayData {
   final DayStatus status;
   final List<EventTask> tasks;
-
   const DayData({required this.status, required this.tasks});
 
   factory DayData.fromEventTasks(List<EventTask> tasks) {

@@ -18,7 +18,7 @@ Widget buildActionCards() {
           const SizedBox(width: 16),
           Expanded(
             child: ActionCard(
-              title: "บันทึกอาหาร",
+              title: "วิเคราะห์อาหาร",
               subtitle: "",
               imagePath: 'assets/icons/food.png',
               onTap: () {},

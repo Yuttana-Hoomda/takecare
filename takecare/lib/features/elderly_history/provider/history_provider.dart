@@ -36,7 +36,6 @@ class HistoryProvider extends ChangeNotifier {
     _eventData = mockData;
     notifyListeners();
   }
-
   DayData? getDataForDate(DateTime date) {
     final key =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
