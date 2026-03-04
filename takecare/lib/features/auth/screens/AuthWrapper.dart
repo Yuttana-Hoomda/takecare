@@ -18,9 +18,13 @@ class AuthWrapper extends StatelessWidget {
     }
 
     final user = authen.user!;
+    debugPrint(
+      '🔍 AuthWrapper user role: ${user.role} familyId: ${user.familyId}',
+    );
 
     // ถ้าเป็น caregiver และยังไม่มี familyId ไปหน้า link_family
-    if (user.role == Role.caregiver && user.familyId == null) {
+    if (user.role == Role.caregiver &&
+        (user.familyId == null || user.familyId!.isEmpty)) {
       return const LinkFamilyScreen();
     }
 

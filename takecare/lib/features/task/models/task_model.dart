@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:takecare/constants/enum.dart';
 
 class Task {
   final String taskId;
