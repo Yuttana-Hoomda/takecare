@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/elderly_history/models/event_task.dart';
 import 'package:takecare/features/elderly_history/provider/history_provider.dart';
 import '../widgets/month_header.dart';
 import '../widgets/date_picker.dart';
 import '../widgets/schedule_tile.dart';
 import 'package:takecare/features/caregiver_home/widgets/caregiver_header.dart';
 import 'package:takecare/features/caregiver_calendar/mock/mock_task.dart';
+
 const bool _useMock = true;
 
 class CaregiverCalendarScreen extends StatefulWidget {
@@ -26,6 +26,7 @@ class _CaregiverCalendarScreenState extends State<CaregiverCalendarScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _fetchData());
   }
+
   void _fetchData() {
     final historyProvider = Provider.of<HistoryProvider>(
       context,
@@ -64,7 +65,8 @@ class _CaregiverCalendarScreenState extends State<CaregiverCalendarScreen> {
               titleSpacing: 20,
               title: const CaregiverHeader(
                 name: 'Mom',
-                avatarUrl: 'https://hilight.thaicdn.net/img_cms2/user/thachapol/tah/ee1226.jpg',
+                avatarUrl:
+                    'https://hilight.thaicdn.net/img_cms2/user/thachapol/tah/ee1226.jpg',
                 isOnline: true,
               ),
             ),
@@ -86,19 +88,16 @@ class _CaregiverCalendarScreenState extends State<CaregiverCalendarScreen> {
             tasks.isEmpty
                 ? const SliverFillRemaining(child: _EmptyState())
                 : SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    return ScheduleTile(
-                      eventTask: tasks[index],
-                      isLast: index == tasks.length - 1,
-                    );
-                  },
-                  childCount: tasks.length,
-                ),
-              ),
-            ),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return ScheduleTile(
+                          eventTask: tasks[index],
+                          isLast: index == tasks.length - 1,
+                        );
+                      }, childCount: tasks.length),
+                    ),
+                  ),
           ],
         ),
       ),

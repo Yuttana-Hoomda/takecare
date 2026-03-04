@@ -28,7 +28,7 @@ class MonthHeader extends StatelessWidget {
         children: [
           Text(
             '${_months[selectedDate.month]} ${selectedDate.year + 543}',
-            style: Theme.of(context).textTheme?.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           Icon(
             Icons.calendar_today_outlined,

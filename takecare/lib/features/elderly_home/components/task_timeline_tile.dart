@@ -7,13 +7,13 @@ class TaskTimelineTile extends StatelessWidget {
   final Task task;
   final bool isLast;
 
-  const TaskTimelineTile({Key? key, required this.task, this.isLast = false})
-    : super(key: key);
+  const TaskTimelineTile({super.key, required this.task, this.isLast = false});
 
   bool get _isNow {
     final now = DateTime.now();
 
-    final isToday = task.createdAt.year == now.year &&
+    final isToday =
+        task.createdAt.year == now.year &&
         task.createdAt.month == now.month &&
         task.createdAt.day == now.day;
 
@@ -23,6 +23,7 @@ class TaskTimelineTile extends StatelessWidget {
     final nowMinutes = now.hour * 60 + now.minute;
     return (taskMinutes - nowMinutes).abs() <= 30;
   }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -83,8 +84,7 @@ class TaskTimelineTile extends StatelessWidget {
                 ],
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment
-                    .center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     width: 50,
