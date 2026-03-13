@@ -22,7 +22,6 @@ class AppTheme {
       titleSmall: TextStyle(fontSize: 14, color: subtitle),
       titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
       titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-      bodyMedium: TextStyle(fontSize: 14, color: Colors.black54), // Good for subtitles
     ),
 
     navigationBarTheme: NavigationBarThemeData(

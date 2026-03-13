@@ -1,7 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:takecare/features/food_alarm/models/food_analysis.dart';
+
+import '../../auth/providers/auth_provider.dart';
+import '../models/ai_analysis_result_model.dart';
+import '../providers/food_analysis_provider.dart';
+import 'package:provider/provider.dart';
 
 class FoodAnalysisScreen extends StatelessWidget {
   const FoodAnalysisScreen({
@@ -10,11 +13,13 @@ class FoodAnalysisScreen extends StatelessWidget {
     required this.img,
   });
 
-  final AnalysisResult analysisResult;
+  final AiAnalysisResult analysisResult;
   final File img;
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
     return Scaffold(
       appBar: AppBar(title: Text('วิเคราะห์อาหาร'), centerTitle: true),
       body: Padding(
@@ -101,7 +106,13 @@ class FoodAnalysisScreen extends StatelessWidget {
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<FoodAnalysisProvider>().saveFoodAnalysis(
+                        elderlyId: user!.uid,
+                        familyId: user!.familyId!,
+                        displayTitle: 'test'
+                    );
+                  },
                   child: Text(
                       'แชร์ให้ครอบครัว',
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(

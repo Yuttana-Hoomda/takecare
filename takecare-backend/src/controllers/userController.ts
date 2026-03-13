@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { AuthRequest } from '../middlewares/middleware.js';
 import * as userService from '../services/userService.js';
+import type { CreateUserDTO, MealSchedule } from '../models/userModel.js';
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -31,7 +32,51 @@ export const createProfile = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
-        const profileData = { ...req.body, uid };
+        const { role, displayName, phoneNumber, profileImgUrl, familyId, ncdConditions, foodTime } = req.body;
+
+        // Validate required base fields
+        if (!role || !displayName || !phoneNumber) {
+            res.status(400).json({ success: false, message: 'role, displayName, and phoneNumber are required' });
+            return;
+        }
+
+        if (role !== 'elder' && role !== 'caregiver') {
+            res.status(400).json({ success: false, message: 'role must be either "elder" or "caregiver"' });
+            return;
+        }
+
+        let profileData: CreateUserDTO;
+
+        if (role === 'elder') {
+            if (!foodTime || !foodTime.breakfast || !foodTime.lunch || !foodTime.dinner) {
+                res.status(400).json({
+                    success: false,
+                    message: 'foodTime (breakfast, lunch, dinner) is required for elder role',
+                });
+                return;
+            }
+
+            profileData = {
+                uid,
+                role: 'elder',
+                displayName,
+                phoneNumber,
+                profileImgUrl: profileImgUrl ?? '',
+                familyId,
+                ncdConditions: ncdConditions ?? [],
+                foodTime: foodTime as MealSchedule,
+            };
+        } else {
+            profileData = {
+                uid,
+                role: 'caregiver',
+                displayName,
+                phoneNumber,
+                profileImgUrl: profileImgUrl ?? '',
+                familyId,
+            };
+        }
+
         const newProfile = await userService.createUserProfile(profileData);
         res.status(201).json({ success: true, data: newProfile });
     } catch (error: any) {

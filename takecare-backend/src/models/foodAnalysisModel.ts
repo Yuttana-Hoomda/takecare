@@ -1,5 +1,4 @@
 export interface NutrientData {
-    foodId: string;
     foodNameThai: string;
     foodNameEnglish: string;
     calories: number;
@@ -13,18 +12,15 @@ export interface NutrientData {
 }
 
 export interface AnalysisResult {
-    foodName: string;
     healthLevel: 'healthy' | 'moderate' | 'unhealthy';
     sugar: number;
     sodium: number;
-    fat: number;
-    calories: number;
     analysisResult: string;
 }
 
 export interface SaveAnalysisRequest {
     elderlyId: string;
     familyId: string;
-    imageUrl: string;
+    imageBase64: string;
     analysisResult: AnalysisResult;
 }

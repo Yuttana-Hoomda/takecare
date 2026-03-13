@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/food_alarm/screens/food_analysis_screen.dart';
 import '../providers/camera_provider.dart';
 import '../providers/food_analysis_provider.dart';
@@ -158,6 +159,7 @@ class _CameraScreenBody extends StatelessWidget {
                   const SizedBox(width: 48),
                   GestureDetector(
                     onTap: () async {
+                      final user = context.read<AuthProvider>().user;
                       final imageFilePath = cameraProvider.capturedImage!.path;
                       final bytes = await XFile(imageFilePath).readAsBytes();
                       final imgBase64 = base64Encode(bytes);
@@ -165,7 +167,7 @@ class _CameraScreenBody extends StatelessWidget {
                       await context.read<FoodAnalysisProvider>().analysisFood(
                         imgBase64,
                         imageFilePath,
-                        'hypertensiondwWWWWWWW'
+                        user!.diseases ?? []
                       );
 
                       if (!context.mounted) return;

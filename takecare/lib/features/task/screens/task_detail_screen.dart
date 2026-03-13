@@ -147,7 +147,12 @@ class TaskDetailScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    label: const Text('แก้ไข'),
+                    label: Text(
+                        'แก้ไข',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelLarge?.copyWith(color: Colors.white, fontSize: 18),
+                    ),
                     icon: Icon(Icons.edit_outlined),
                   ),
                   const SizedBox(height: 16),
@@ -162,7 +167,7 @@ class TaskDetailScreen extends StatelessWidget {
                       'ลบ',
                       style: Theme.of(
                         context,
-                      ).textTheme.labelLarge?.copyWith(color: Colors.red),
+                      ).textTheme.labelLarge?.copyWith(color: Colors.red, fontSize: 18),
                     ),
                     icon: Icon(Icons.delete_outlined),
                   ),
