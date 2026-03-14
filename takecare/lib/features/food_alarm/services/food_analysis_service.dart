@@ -20,7 +20,7 @@ class FoodAnalysisService {
         },
         body: jsonEncode({
           'img': imgBase64,
-          'disease': disease
+          'disease': disease.map((d) => d.name).toList(),
         }),
       );
 
@@ -36,7 +36,7 @@ class FoodAnalysisService {
     }
   }
 
-  Future<void> saveFoodAnalysis(SaveAnalysisFood request) async {
+  Future<Map<String, dynamic>> saveFoodAnalysis(SaveAnalysisFood request) async {
     try {
       final response = await http.post(
         Uri.parse('$url/food-analysis/save'),
@@ -47,6 +47,7 @@ class FoodAnalysisService {
       if (response.statusCode == 201) {
         final Map<String, dynamic> jsonData = jsonDecode(response.body);
         debugPrint(jsonData.toString());
+        return jsonData;
       } else {
         throw Exception('Server error: ${response.statusCode} - ${response.body}');
       }

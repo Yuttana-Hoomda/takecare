@@ -9,24 +9,33 @@ class FoodAnalysisProvider extends ChangeNotifier {
   final FoodAnalysisService _service = FoodAnalysisService();
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   AiAnalysisResult? _result;
+
   AiAnalysisResult? get result => _result;
 
   FoodAnalysis? _foodAnalysis;
+
   FoodAnalysis? get foodAnalysis => _foodAnalysis;
 
   String? _error;
+
   String? get error => _error;
 
   String? _imagePath;
+
   String? get imagePath => _imagePath;
 
   String? _imageBase64;
 
   // ─── Analyze ───────────────────────────────────────────────────────────────
-  Future<void> analysisFood(String imgBase64, String imagePath, List<Disease> disease) async {
+  Future<void> analysisFood(
+    String imgBase64,
+    String imagePath,
+    List<Disease> disease,
+  ) async {
     try {
       _isLoading = true;
       _imagePath = imagePath;
@@ -44,17 +53,13 @@ class FoodAnalysisProvider extends ChangeNotifier {
   }
 
   // ─── Save — returns SaveAnalysisResponse directly to caller ───────────────
-  Future<void> saveFoodAnalysis({
+  Future<String> saveFoodAnalysis({
     required String elderlyId,
     required String familyId,
     required String displayTitle,
+    required AiAnalysisResult analysisResult,
+    required String imageBase64,
   }) async {
-    if (_result == null || _imageBase64 == null) {
-      _error = 'Please analyze food before saving';
-      notifyListeners();
-      return;
-    }
-
     try {
       _isLoading = true;
       _error = null;
@@ -64,15 +69,16 @@ class FoodAnalysisProvider extends ChangeNotifier {
         SaveAnalysisFood(
           elderlyId: elderlyId,
           familyId: familyId,
-          imageBase64: _imageBase64!,
-          analysisResult: _result!,
           displayTitle: displayTitle,
+          imageBase64: imageBase64,
+          analysisResult: analysisResult,
         ),
       );
 
-      return response; // caller can use foodId / eventId if needed
+      return response.toString();
     } catch (err) {
       _error = err.toString();
+      throw Exception(err);
     } finally {
       _isLoading = false;
       notifyListeners();

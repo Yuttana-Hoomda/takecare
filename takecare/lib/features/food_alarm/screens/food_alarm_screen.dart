@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/constants/enum.dart';
-import 'package:takecare/features/food_alarm/screens/camera_screen.dart';
+import 'package:takecare/features/camera/camera_screen.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
+import 'package:takecare/features/food_alarm/screens/food_analysis_screen.dart';
 
+import 'package:provider/provider.dart';
+import '../providers/food_analysis_provider.dart';
 
 class FoodAlarmData {
   final String time;
@@ -22,7 +28,8 @@ FoodAlarmData foodAlarmTypeData(FoodAlarmType foodAlarmType) {
       return const FoodAlarmData(
         time: '07:00',
         title: 'มื้อเช้า',
-        description: 'ถึงเวลากินอาหารเช้าแล้ว!\nเริ่มต้นวันใหม่ด้วยมื้อเช้าที่ดี',
+        description:
+            'ถึงเวลากินอาหารเช้าแล้ว!\nเริ่มต้นวันใหม่ด้วยมื้อเช้าที่ดี',
       );
     case FoodAlarmType.lunch:
       return const FoodAlarmData(
@@ -80,16 +87,19 @@ class FoodAlarmScreen extends StatelessWidget {
                     Text(
                       data.description,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.black
-                      )
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge?.copyWith(color: Colors.black),
                     ),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 children: [
                   SizedBox(
@@ -101,10 +111,36 @@ class FoodAlarmScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CameraScreen(),
+                            builder: (context) => CameraScreen(
+                              onSubmit: (imgBase64, imageFilePath) async {
+                                final user = context.read<AuthProvider>().user;
+
+                                await context.read<FoodAnalysisProvider>().analysisFood(
+                                  imgBase64,
+                                  imageFilePath,
+                                  user!.diseases ?? [],
+                                );
+
+                                if (!context.mounted) return;
+
+                                final provider = context.read<FoodAnalysisProvider>();
+                                if (provider.result != null) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FoodAnalysisScreen(
+                                        analysisResult: provider.result!,
+                                        img: File(imageFilePath),
+                                      ),
+                                    ),
+                                        (route) => false,
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         );
                       },
@@ -114,10 +150,9 @@ class FoodAlarmScreen extends StatelessWidget {
                           Icon(Icons.photo_camera_rounded, size: 25),
                           SizedBox(width: 10),
                           Text(
-                              'กินแล้ว (ถ่ายรูป)',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white
-                            ),
+                            'กินแล้ว (ถ่ายรูป)',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: Colors.white),
                           ),
                         ],
                       ),
@@ -136,11 +171,11 @@ class FoodAlarmScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.access_alarm_rounded, size: 25,),
+                          Icon(Icons.access_alarm_rounded, size: 25),
                           SizedBox(width: 10),
                           Text(
-                              'เลื่อนออกไป 15 นาที',
-                            style: Theme.of(context).textTheme.titleMedium
+                            'เลื่อนออกไป 15 นาที',
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
                       ),
