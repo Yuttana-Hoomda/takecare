@@ -1,14 +1,44 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import type { GenerativeModel, InlineDataPart } from '@google/generative-ai';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as csv from 'csv-parse/sync';
+import { v2 as cloudinary } from 'cloudinary';
 import { db } from '../config/firebase.js';
 import type { AnalysisResult, NutrientData, SaveAnalysisRequest } from '../models/foodAnalysisModel.js';
+import { FieldValue } from 'firebase-admin/firestore';
+import type { NCDisease } from '../models/userModel.js';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-type Disease = 'เบาหวาน' | 'ความดัน' | null;
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+    api_key: process.env.CLOUDINARY_API_KEY!,
+    api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+const uploadImageToCloudinary = async (base64Image: string): Promise<string> => {
+    const dataUri = base64Image.startsWith('data:')
+        ? base64Image
+        : `data:image/jpeg;base64,${base64Image}`;
+
+    const result = await cloudinary.uploader.upload(dataUri, {
+        folder: 'food_analyses',
+        resource_type: 'image',
+    });
+
+    return result.secure_url;
+};
+
+type Diseases = NCDisease[] | null | undefined;
 type HealthLevel = 'healthy' | 'moderate' | 'unhealthy';
+
+// fix #6: map health level to Thai for prompts
+const HEALTH_LEVEL_THAI: Record<HealthLevel, string> = {
+    healthy: 'ดีต่อสุขภาพ',
+    moderate: 'พอรับได้',
+    unhealthy: 'ไม่ดีต่อสุขภาพ',
+};
 
 interface NutritionThreshold {
     calories: { moderate: number; unhealthy: number };
@@ -18,25 +48,32 @@ interface NutritionThreshold {
 }
 
 // เกณฑ์ต่อมื้อ (≈ 1/3 ของปริมาณต่อวัน) อ้างอิงกระทรวงสาธารณสุขไทย
-const THRESHOLDS: Record<NonNullable<Disease> | 'none', NutritionThreshold> = {
+const THRESHOLDS: Record<'none' | 'diabetes' | 'hypertension', NutritionThreshold> = {
     none: {
-        calories: { moderate: 667, unhealthy: 933 }, // วัน: 2000 kcal ÷ 3
-        fat: { moderate: 22, unhealthy: 30 }, // วัน: 65g ÷ 3
-        sugar: { moderate: 8, unhealthy: 17 }, // วัน: 25g ÷ 3
-        sodium: { moderate: 667, unhealthy: 1067 }, // วัน: 2000mg ÷ 3
+        calories: { moderate: 667, unhealthy: 933 },
+        fat: { moderate: 22, unhealthy: 30 },
+        sugar: { moderate: 8, unhealthy: 17 },
+        sodium: { moderate: 667, unhealthy: 1067 },
     },
-    เบาหวาน: {
-        calories: { moderate: 533, unhealthy: 800 }, // วัน: 1600 kcal ÷ 3
-        fat: { moderate: 18, unhealthy: 25 }, // วัน: 53g ÷ 3
-        sugar: { moderate: 5, unhealthy: 10 }, // วัน: 15g ÷ 3 (เบาหวานจำกัด 15g/วัน)
-        sodium: { moderate: 667, unhealthy: 1067 }, // วัน: 2000mg ÷ 3
+    diabetes: {
+        calories: { moderate: 533, unhealthy: 800 },
+        fat: { moderate: 18, unhealthy: 25 },
+        sugar: { moderate: 5, unhealthy: 10 },
+        sodium: { moderate: 667, unhealthy: 1067 },
     },
-    ความดัน: {
-        calories: { moderate: 667, unhealthy: 933 }, // วัน: 2000 kcal ÷ 3
-        fat: { moderate: 22, unhealthy: 30 }, // วัน: 65g ÷ 3
-        sugar: { moderate: 8, unhealthy: 17 }, // วัน: 25g ÷ 3
-        sodium: { moderate: 500, unhealthy: 800 }, // วัน: 1500mg ÷ 3 (ความดันจำกัด 1500mg/วัน)
+    hypertension: {
+        calories: { moderate: 667, unhealthy: 933 },
+        fat: { moderate: 22, unhealthy: 30 },
+        sugar: { moderate: 8, unhealthy: 17 },
+        sodium: { moderate: 500, unhealthy: 800 },
     },
+};
+
+const getThresholdKey = (disease: Diseases): 'none' | 'diabetes' | 'hypertension' => {
+    if (!disease || disease.length === 0) return 'none';
+    if (disease.includes('diabetes')) return 'diabetes';
+    if (disease.includes('hypertension')) return 'hypertension';
+    return 'none';
 };
 
 const calculateHealthLevel = (data: {
@@ -44,11 +81,9 @@ const calculateHealthLevel = (data: {
     fat: number;
     sugar: number;
     sodium: number;
-    disease: Disease;
+    disease: Diseases;
 }): HealthLevel => {
-    const key = data.disease ?? 'none';
-    const t = THRESHOLDS[key];
-
+    const t = THRESHOLDS[getThresholdKey(data.disease)];
     let score = 0;
 
     const evaluate = (value: number, threshold: { moderate: number; unhealthy: number }) => {
@@ -62,12 +97,8 @@ const calculateHealthLevel = (data: {
     score += evaluate(data.sugar, t.sugar);
     score += evaluate(data.sodium, t.sodium);
 
-    // โรคเบาหวาน/ความดัน → เกณฑ์ตัดสินเข้มขึ้น 1 ระดับ
-    const moderateThreshold = data.disease ? 1 : 2;
-    const unhealthyThreshold = data.disease ? 4 : 5;
-
-    if (score >= unhealthyThreshold) return 'unhealthy';
-    if (score >= moderateThreshold) return 'moderate';
+    if (score >= 4) return 'unhealthy';
+    if (score >= 2) return 'moderate';
     return 'healthy';
 };
 
@@ -88,13 +119,15 @@ const getNutrientsMap = (): Map<string, NutrientData> => {
 
     nutrientsMap = new Map<string, NutrientData>();
 
+    // fix #7: use explicit counter instead of map.size / 2
+    let entryCount = 0;
+
     for (const row of records) {
         const englishName = row['English']?.toLowerCase().trim();
         const thaiName = row['Thai']?.toLowerCase().trim();
         if (!englishName) continue;
 
         const entry: NutrientData = {
-            foodId: row['Food ID']?.trim() || '',
             foodNameThai: row['Thai']?.trim() || '',
             foodNameEnglish: row['English']?.trim() || '',
             calories: parseFloat(row['Energy (Energy) (kcal)'] || '0') || 0,
@@ -108,10 +141,11 @@ const getNutrientsMap = (): Map<string, NutrientData> => {
         };
 
         nutrientsMap.set(englishName, entry);
+        entryCount++;
         if (thaiName) nutrientsMap.set(thaiName, entry);
     }
 
-    console.log(`[NutrientsDB] Loaded ${nutrientsMap.size / 2} food entries into cache`);
+    console.log(`[NutrientsDB] Loaded ${entryCount} food entries into cache`);
     return nutrientsMap;
 };
 
@@ -120,50 +154,80 @@ const findNutrientByName = (foodName: string): NutrientData | null => {
     const map = getNutrientsMap();
     const normalized = foodName.toLowerCase().trim();
 
-    // O(1) exact match
+    // 1. Exact match
     if (map.has(normalized)) return map.get(normalized)!;
 
-    // Normalize: strip spaces, commas, hyphens for comparison
     const strip = (s: string) => s.toLowerCase().replace(/[\s\-,().]/g, '');
     const strippedInput = strip(normalized);
 
+    // 2. Stripped exact match
     for (const [key, value] of map) {
-        // Stripped exact match
         if (strip(key) === strippedInput) return value;
+    }
 
-        // All input words found in key
-        const inputWords = normalized.split(' ').filter(w => w.length > 2);
-        if (inputWords.length > 0 && inputWords.every(w => key.includes(w))) return value;
+    // 3. All KEY words found in input (key drives the match, not input)
+    // Require key to have multiple meaningful words to avoid short/generic matches
+    for (const [key, value] of map) {
+        const keyWords = key.split(' ').filter(w => w.length > 3); // stricter: >3 not >2
+        if (keyWords.length >= 2 && keyWords.every(w => normalized.includes(w))) return value;
+    }
 
-        // All key words found in input
-        const keyWords = key.split(' ').filter(w => w.length > 2);
-        if (keyWords.length > 0 && keyWords.every(w => normalized.includes(w))) return value;
+    // 4. Input words match — only if MOST input words match the key (>= 60%)
+    for (const [key, value] of map) {
+        const inputWords = normalized.split(' ').filter(w => w.length > 3);
+        if (inputWords.length === 0) continue;
+
+        const matchCount = inputWords.filter(w => key.includes(w)).length;
+        const matchRatio = matchCount / inputWords.length;
+
+        if (matchRatio >= 0.6) return value;
     }
 
     return null;
 };
 
-// ─── Generate 2-sentence health summary (Thai only) ──────────────────────────
+// ─── Generate health summary (Thai only) ─────────────────────────────────────
 const generateSummary = async (
-    model: any,
-    foodName: string,
-    healthLevel: string
+    model: GenerativeModel,
+    detectedName: string,       // full dish name from image
+    csvFoodName: string,        // matched CSV entry name
+    healthLevel: HealthLevel
 ): Promise<string> => {
-    // ✅ Strong Thai-only instruction
-    const prompt = `คุณคือนักโภชนาการชาวไทย กรุณาเขียนหนึ่งประโยคสั้นๆ เป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ อธิบายผลกระทบต่อสุขภาพของการรับประทาน "${foodName}" ซึ่งถูกจัดว่า "${healthLevel}" ให้กระชับและเป็นประโยชน์`;
+    const healthLevelThai = HEALTH_LEVEL_THAI[healthLevel];
+    const prompt = `คุณคือนักโภชนาการชาวไทย กรุณาเขียนหนึ่งประโยคสั้นๆ เป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอังกฤษ 
+อาหารที่ตรวจพบคือ "${detectedName}" (ส่วนประกอบหลักจากฐานข้อมูล: "${csvFoodName}") 
+ถูกจัดว่า "${healthLevelThai}" อธิบายผลกระทบต่อสุขภาพให้กระชับและเป็นประโยชน์`;
+
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
 };
 
 // ─── Main Analysis Function ───────────────────────────────────────────────────
-export const analyzeFood = async (base64Image: string, disease: Disease): Promise<AnalysisResult> => {
+export const analyzeFood = async (base64Image: string, disease: Diseases | undefined): Promise<AnalysisResult> => {
+    const raw = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
+
+    // ✅ guard: ensure base64Data is a defined string
+    if (!raw) {
+        throw new Error('Invalid image data: base64 string is empty');
+    }
+
+    const base64Data: string = raw; // now narrowed to string, not string | undefined
+
+    // size guard (~10MB)
+    if (base64Data.length > 10 * 1024 * 1024 * (4 / 3)) {
+        throw new Error('Image too large. Please use an image under 10MB.');
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    const imagePart = {
-        inlineData: { data: base64Image, mimeType: 'image/jpeg' },
+    const mimeType = base64Image.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+
+    // ✅ explicitly typed as InlineDataPart to satisfy the union
+    const imagePart: InlineDataPart = {
+        inlineData: { data: base64Data, mimeType },
     };
 
-    // Step 1: Identify food — prompt to match CSV naming style
+    // Step 1: Identify food
     const identifyPrompt = `Look at this food image and identify the main food item or dish.
 Use descriptive english naming style like "Noodle, stir fried, with shrimp" or "Rice, steamed" not brand or slang names like "pad thai".
 Respond with ONLY a JSON object, no markdown, no explanation:
@@ -194,30 +258,34 @@ Respond with ONLY a JSON object, no markdown, no explanation:
             fat: nutrientData.fat,
             sugar: nutrientData.sugar,
             sodium: nutrientData.sodium,
-            disease: disease
+            disease,
         });
 
-        // ✅ Pass Thai name to summary
         const summary = await generateSummary(
             model,
+            detectedFoodName,  // use the actual detected dish name as primary
             nutrientData.foodNameThai || nutrientData.foodNameEnglish,
             healthLevel
         );
 
+        const thresholds = THRESHOLDS[getThresholdKey(disease)];
         return {
-            foodName: nutrientData.foodNameThai, 
             healthLevel,
             sugar: nutrientData.sugar,
             sodium: nutrientData.sodium,
-            fat: nutrientData.fat,
-            calories: nutrientData.calories,
-            analysisResult: summary,            
+            analysisResult: summary,
         };
     }
 
     console.log(`[FoodAnalysis] Not found in CSV, asking Gemini to estimate: ${detectedFoodName}`);
 
+    // fix #8: pass disease context to Gemini for correct health scoring
+    const diseaseContext = disease
+        ? `ผู้ใช้มีโรค${disease} กรุณาปรับระดับสุขภาพให้เหมาะสมกับโรคนี้`
+        : '';
+
     const nutrientPrompt = `Based on general nutritional knowledge, provide estimated nutritional values for "${detectedFoodName}" per serving.
+${diseaseContext}
 Respond with ONLY a JSON object in this exact format, no markdown, no explanation.
 IMPORTANT: foodNameThai and analysisResult must be written in Thai language only, absolutely no English:
 {
@@ -237,41 +305,62 @@ IMPORTANT: foodNameThai and analysisResult must be written in Thai language only
         const cleaned = nutrientText.replace(/```json|```/g, '').trim();
         const nutrients = JSON.parse(cleaned);
         return {
-            foodName: nutrients.foodNameThai || detectedFoodName,  // ✅ Thai name
             healthLevel: nutrients.healthLevel || 'moderate',
             sugar: Number(nutrients.sugar) || 0,
             sodium: Number(nutrients.sodium) || 0,
-            fat: Number(nutrients.fat) || 0,
-            calories: Number(nutrients.calories) || 0,
-            analysisResult: nutrients.analysisResult || 'ไม่สามารถวิเคราะห์ได้', // ✅ Thai fallback
+            analysisResult: nutrients.analysisResult || 'ไม่สามารถวิเคราะห์ได้',
         };
     } catch {
         return {
-            foodName: detectedFoodName,
             healthLevel: 'moderate',
             sugar: 0,
             sodium: 0,
-            fat: 0,
-            calories: 0,
-            analysisResult: 'ไม่สามารถวิเคราะห์อาหารนี้ได้', // ✅ Thai fallback
+            analysisResult: 'ไม่สามารถวิเคราะห์อาหารนี้ได้',
         };
     }
 };
 
 // ─── Save to Firestore ────────────────────────────────────────────────────────
-export const saveAnalysis = async (data: SaveAnalysisRequest): Promise<string> => {
-    const docRef = await db.collection('food_analyses').add({
+export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: string): Promise<{ foodId: string, eventId: string }> => {
+    console.log('[Cloudinary] Uploading image...');
+    const imageUrl = await uploadImageToCloudinary(data.imageBase64);
+    console.log('[Cloudinary] Upload success:', imageUrl)
+    
+    const foodDocRef = await db.collection('food_analyses').add({
         elderlyId: data.elderlyId,
         familyId: data.familyId,
-        imageUrl: data.imageUrl,
-        foodName: data.analysisResult.foodName,
+        imageUrl: imageUrl,
         healthLevel: data.analysisResult.healthLevel,
         sugar: data.analysisResult.sugar,
         sodium: data.analysisResult.sodium,
-        fat: data.analysisResult.fat,
-        calories: data.analysisResult.calories,
         analysisResult: data.analysisResult.analysisResult,
-        createdAt: new Date(),
     });
-    return docRef.id;
+
+
+    const eventDocRef = await db.collection('events').add({
+        date: new Date().toISOString().slice(0, 10),
+        elderlyId: data.elderlyId,
+        familyId: data.familyId,
+        referenceId: foodDocRef.id,       
+        type: 'foodAnalysis',
+        referenceCollection: 'food_analyses',
+        displayTitle, 
+        displaySubtitle: data.analysisResult.analysisResult,
+        thumbnailUrl: imageUrl,
+        status: 'completed',
+        createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { foodId: foodDocRef.id, eventId: eventDocRef.id };
+};
+
+export const getFoodAnalysisById = async (foodId: string) => {
+    const doc = await db.collection('food_analyses').doc(foodId).get();
+
+    if (!doc.exists) return null;
+
+    return {
+        foodId: doc.id,
+        ...doc.data(),
+    };
 };

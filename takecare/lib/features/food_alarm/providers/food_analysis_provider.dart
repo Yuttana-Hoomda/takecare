@@ -1,26 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/food_alarm/models/food_analysis.dart';
 import 'package:takecare/features/food_alarm/services/food_analysis_service.dart';
+import '../models/ai_analysis_result_model.dart';
+import '../models/save_analysis_food_model.dart';
 
 class FoodAnalysisProvider extends ChangeNotifier {
   final FoodAnalysisService _service = FoodAnalysisService();
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
-  AnalysisResult? _result;
-  AnalysisResult? get result => _result;
+  AiAnalysisResult? _result;
+
+  AiAnalysisResult? get result => _result;
+
+  FoodAnalysis? _foodAnalysis;
+
+  FoodAnalysis? get foodAnalysis => _foodAnalysis;
 
   String? _error;
+
   String? get error => _error;
 
   String? _imagePath;
+
   String? get imagePath => _imagePath;
 
-  Future<void> analysisFood(String imgBase64, String imagePath, String disease) async {
+  String? _imageBase64;
+
+  // ─── Analyze ───────────────────────────────────────────────────────────────
+  Future<void> analysisFood(
+    String imgBase64,
+    String imagePath,
+    List<Disease> disease,
+  ) async {
     try {
       _isLoading = true;
       _imagePath = imagePath;
+      _imageBase64 = imgBase64;
       _error = null;
       notifyListeners();
 
@@ -33,10 +52,62 @@ class FoodAnalysisProvider extends ChangeNotifier {
     }
   }
 
+  // ─── Save — returns SaveAnalysisResponse directly to caller ───────────────
+  Future<String> saveFoodAnalysis({
+    required String elderlyId,
+    required String familyId,
+    required String displayTitle,
+    required AiAnalysisResult analysisResult,
+    required String imageBase64,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final response = await _service.saveFoodAnalysis(
+        SaveAnalysisFood(
+          elderlyId: elderlyId,
+          familyId: familyId,
+          displayTitle: displayTitle,
+          imageBase64: imageBase64,
+          analysisResult: analysisResult,
+        ),
+      );
+
+      return response.toString();
+    } catch (err) {
+      _error = err.toString();
+      throw Exception(err);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ─── Get by Firestore doc ID ───────────────────────────────────────────────
+  Future<void> getFoodAnalysisById(String foodId) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      _foodAnalysis = await _service.getFoodAnalysisById(foodId);
+    } catch (err) {
+      _error = err.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ─── Reset ─────────────────────────────────────────────────────────────────
   void reset() {
     _result = null;
+    _foodAnalysis = null;
     _error = null;
     _imagePath = null;
+    _imageBase64 = null;
     _isLoading = false;
     notifyListeners();
   }

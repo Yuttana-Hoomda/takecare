@@ -1,21 +1,39 @@
 import type { Request, Response } from 'express';
-import { analyzeFood, saveAnalysis } from '../services/foodAnalysisService.js';
+import { analyzeFood, getFoodAnalysisById, saveAnalysis } from '../services/foodAnalysisService.js';
+import type { SaveAnalysisRequest } from '../models/foodAnalysisModel.js';
+import type { NCDisease } from '../models/userModel.js';
 
 export const analyzeFoodImage = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { img } = req.body;
-        const { disease } = req.body;
+        const { img, disease } = req.body;
 
         if (!img) {
             res.status(400).json({ success: false, message: 'img (base64) is required' });
             return;
         }
 
-        // Strip base64 header if present e.g. "data:image/jpeg;base64,..."
-        const base64Data = img.includes(',') ? img.split(',')[1] : img;
+        // Validate disease array
+        if (disease !== undefined && disease !== null) {
+            if (!Array.isArray(disease)) {
+                res.status(400).json({
+                    success: false,
+                    message: 'disease must be an array e.g. ["diabetes", "hypertension"]',
+                });
+                return;
+            }
 
-        const result = await analyzeFood(base64Data, disease);
+            const validDiseases: NCDisease[] = ['diabetes', 'hypertension'];
+            const invalid = disease.filter((d: any) => !validDiseases.includes(d));
+            if (invalid.length > 0) {
+                res.status(400).json({
+                    success: false,
+                    message: `Invalid disease values: ${invalid.join(', ')}. Must be "diabetes" or "hypertension"`,
+                });
+                return;
+            }
+        }
 
+        const result = await analyzeFood(img, disease ?? null);
         res.status(200).json(result);
     } catch (error: any) {
         console.error('[Controller] Food analysis error:', error);
@@ -26,29 +44,49 @@ export const analyzeFoodImage = async (req: Request, res: Response): Promise<voi
     }
 };
 
-export const saveFoodAnalysis = async (req: Request, res: Response): Promise<void> => {
+export const saveFoodAnalysis = async (req: Request, res: Response) => {
     try {
-        const { elderlyId, familyId, imageUrl, analysisResult } = req.body;
+        const { elderlyId, familyId, imageBase64, analysisResult, displayTitle } = req.body;
 
-        if (!elderlyId || !familyId || !imageUrl || !analysisResult) {
-            res.status(400).json({
-                success: false,
-                message: 'Missing required fields: elderlyId, familyId, imageUrl, analysisResult',
-            });
+        const data: SaveAnalysisRequest = {
+            elderlyId,
+            familyId,
+            imageBase64,
+            analysisResult,
+        };
+
+        const { foodId, eventId } = await saveAnalysis(data, displayTitle);
+
+        res.status(201).json({ foodId, eventId });
+
+    } catch (error) {
+        console.error('[analyzeFood] Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save analysis',
+        });
+    }
+};
+
+export const getFoodAnalysis = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const foodId = req.params.foodId as string;
+
+        if (!foodId) {
+            res.status(400).json({ success: false, message: 'foodId is required' });
             return;
         }
 
-        const analysisId = await saveAnalysis({ elderlyId, familyId, imageUrl, analysisResult });
+        const result = await getFoodAnalysisById(foodId);
 
-        res.status(201).json({
-            success: true,
-            data: { analysisId },
-        });
-    } catch (error: any) {
-        console.error('[Controller] Save analysis error:', error);
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Save failed',
-        });
+        if (!result) {
+            res.status(404).json({ success: false, message: 'Food analysis not found' });
+            return;
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('[getFoodAnalysis] Error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get food analysis' });
     }
 };

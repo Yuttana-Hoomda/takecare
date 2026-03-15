@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:takecare/features/food_alarm/models/food_analysis.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
+
+import '../../auth/providers/auth_provider.dart';
+import '../models/ai_analysis_result_model.dart';
+import '../providers/food_analysis_provider.dart';
+import 'package:provider/provider.dart';
 
 class FoodAnalysisScreen extends StatelessWidget {
   const FoodAnalysisScreen({
@@ -10,11 +15,13 @@ class FoodAnalysisScreen extends StatelessWidget {
     required this.img,
   });
 
-  final AnalysisResult analysisResult;
+  final AiAnalysisResult analysisResult;
   final File img;
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
     return Scaffold(
       appBar: AppBar(title: Text('วิเคราะห์อาหาร'), centerTitle: true),
       body: Padding(
@@ -34,7 +41,7 @@ class FoodAnalysisScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _healthLevelBuild(analysisResult.healthLevel ,context),
+                  _healthLevelBuild(analysisResult.healthLevel, context),
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -87,9 +94,8 @@ class FoodAnalysisScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Ai อาจจะแสดงข้อมูลผิดพลาดได้',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.black45,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.black45),
                         ),
                       ),
                     ],
@@ -101,16 +107,34 @@ class FoodAnalysisScreen extends StatelessWidget {
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                  onPressed: () {},
-                  child: Text(
-                      'แชร์ให้ครอบครัว',
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: Colors.white,
-                      fontSize: 20
-                    ),
-                  )
+                onPressed: () async {
+                  final test = await context
+                      .read<FoodAnalysisProvider>()
+                      .saveFoodAnalysis(
+                        elderlyId: user!.uid,
+                        familyId: user.familyId!,
+                        displayTitle: 'test',
+                        analysisResult: analysisResult,
+                        imageBase64: base64Encode(img.readAsBytesSync()),
+                      );
+                  if (!context.mounted) return;
+                  debugPrint(test.toString());
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => ElderlyHomeScreen()),
+                        (route) => false,
+                  );
+                },
+                child: Text(
+                  'แชร์ให้ครอบครัว',
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -118,30 +142,32 @@ class FoodAnalysisScreen extends StatelessWidget {
   }
 
   Widget _nutrientInfo(
-      String label,
-      double value,
-      IconData icon,
-      String nutrientType,
-      String? disease,
-      BuildContext context,
-      ) {
+    String label,
+    double value,
+    IconData icon,
+    String nutrientType,
+    String? disease,
+    BuildContext context,
+  ) {
     final thresholds = {
       'none': {
-        'sugar':  (moderate: 8.0,   unhealthy: 17.0),
+        'sugar': (moderate: 8.0, unhealthy: 17.0),
         'sodium': (moderate: 667.0, unhealthy: 1067.0),
       },
       'diabetes': {
-        'sugar':  (moderate: 5.0,   unhealthy: 10.0),
+        'sugar': (moderate: 5.0, unhealthy: 10.0),
         'sodium': (moderate: 667.0, unhealthy: 1067.0),
       },
       'Hypertension': {
-        'sugar':  (moderate: 8.0,   unhealthy: 17.0),
+        'sugar': (moderate: 8.0, unhealthy: 17.0),
         'sodium': (moderate: 500.0, unhealthy: 800.0),
       },
     };
 
     final key = disease ?? 'none';
-    final threshold = thresholds[key]?[nutrientType] ?? (moderate: double.infinity, unhealthy: double.infinity);
+    final threshold =
+        thresholds[key]?[nutrientType] ??
+        (moderate: double.infinity, unhealthy: double.infinity);
     final maxValue = threshold.moderate;
 
     final Color levelColor;
@@ -169,9 +195,9 @@ class FoodAnalysisScreen extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                  color: Colors.black54,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(color: Colors.black54),
               ),
             ],
           ),
@@ -204,18 +230,16 @@ class FoodAnalysisScreen extends StatelessWidget {
 
   Widget _healthLevelBuild(String healthLevel, BuildContext context) {
     final Map<String, (Color, String)> config = {
-      'healthy':   (Colors.green,  'ดีต่อสุขภาพ'),
-      'moderate':  (Colors.orange, 'ปานกลาง'),
-      'unhealthy': (Colors.red,    'ไม่ดีต่อสุขภาพ'),
+      'healthy': (Colors.green, 'ดีต่อสุขภาพ'),
+      'moderate': (Colors.orange, 'ปานกลาง'),
+      'unhealthy': (Colors.red, 'ไม่ดีต่อสุขภาพ'),
     };
 
     final (color, label) = config[healthLevel] ?? (Colors.grey, 'ไม่ทราบ');
 
     return Text(
       label,
-      style: Theme.of(context).textTheme.displaySmall!.copyWith(
-        color: color,
-      ),
+      style: Theme.of(context).textTheme.displaySmall!.copyWith(color: color),
     );
   }
 }

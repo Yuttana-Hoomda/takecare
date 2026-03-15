@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../services/camera_service.dart';
+import 'camera_service.dart';
 
 class CameraProvider extends ChangeNotifier{
   final CameraService _cameraService;

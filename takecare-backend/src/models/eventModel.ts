@@ -1,26 +1,13 @@
-import type { Timestamp } from "firebase-admin/firestore";
-
 export interface Event {
-    id?: string;
-    date: string;
+    date: string; // Format: YYYY-MM-DD
     elderlyId: string;
     familyId: string;
-    type: string;                    // "task" | "foodAnalysis"
-    referenceCollection: string;     // "task_submission" | "food_analyses"
-    referenceId: string;
-    displayTitle: string;
-    displaySubtitle?: string | null;
-    icon: string;
-    status: string;                  // "completed" | "missed"
-    createdAt: Timestamp | string;
-}
-
-export interface EventCalendar {
-    id?: string;
-    date: string;                    // "yyyy-MM-dd"
-    elderlyId: string;
-    familyId: string;
-    completedCount: number;
-    missedCount: number;
-    totalCount: number;
+    referenceId: String;
+    referenceCollection: 'task_submission' | 'food_analyses';
+    displayTitle: String,
+    displaySubtitle: String | null,
+    thumbnailUrl: String | null,
+    type: 'task' | 'foodAnalysis';
+    status: 'missed' | 'completed';
+    createdAt: Date;
 }

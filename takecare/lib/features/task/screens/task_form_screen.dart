@@ -293,7 +293,12 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         minimumSize: const Size(double.infinity, 50),
       ),
       onPressed: _saveTask,
-      child: Text(isEditing ? 'อัปเดตรายการ' : 'สร้างรายการ'),
+      child: Text(
+          isEditing ? 'อัปเดตรายการ' : 'สร้างรายการ',
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(color: Colors.white, fontSize: 18),
+      ),
     );
   }
 }
