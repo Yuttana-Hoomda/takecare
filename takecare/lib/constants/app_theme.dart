@@ -7,6 +7,12 @@ class AppTheme {
   static const Color bgColorLight = Color(0xFFF3F3F3);
   static const Color bgColorDark = Color.fromARGB(255, 37, 37, 37);
 
+  //สำหรับปฎิทิน
+  static const Color error = Color(0xFFFF7F7F);
+  static const Color success = Color(0xFF4DB887);
+  static const Color warning = Color(0xFFFFC107);
+
+
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     primaryColor: primaryColor,

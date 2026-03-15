@@ -3,11 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
+import 'package:takecare/features/history/screens/history_screen.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
 import '../../../test_food_alarm.dart';
-import 'package:takecare/features/elderly_history/screens/elderly_history_screen.dart';
 import '../../auth/providers/auth_provider.dart';
-import 'package:takecare/features/caregiver_calendar/screens/caregiver_calendar_screen.dart';
 
 
 class MainWrapper extends StatefulWidget {
@@ -27,7 +26,7 @@ class _MainWrapperState extends State<MainWrapper> {
     _pages = [
       const CaregiverHomeScreen(), // Home
       const TaskScreen(),  // Tasks
-      const CaregiverCalendarScreen(), // Profile
+      const HistoryScreen(), // Profile
     ];
 
     _navItems = [
@@ -52,7 +51,7 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupElderView() {
     _pages = [
       const ElderlyHomeScreen(),
-      const ElderlyCalendarScreen(),// Home
+      const HistoryScreen(),// Home
       const TestFoodAlarmApp(),
       const Placeholder(), // Profile
     ];

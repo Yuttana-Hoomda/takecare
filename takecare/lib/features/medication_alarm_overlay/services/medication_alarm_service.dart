@@ -12,7 +12,6 @@ class MedicationAlarmService {
       source: ImageSource.camera,
       imageQuality: 80,
     );
-
     return photo?.path;
   }
 }

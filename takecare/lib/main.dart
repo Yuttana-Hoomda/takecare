@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/elderly_history/provider/history_provider.dart';
+import 'package:takecare/features/history/providers/history_provider.dart';
 
 
 void main() async {
@@ -31,10 +31,14 @@ class Main extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
-        Provider.value(value: cameras.firstWhere(
+        Provider<CameraDescription?>.value(
+          value: cameras.isNotEmpty
+              ? cameras.firstWhere(
                 (c) => c.lensDirection == CameraLensDirection.back,
-            orElse: () => cameras.first
-        ))
+            orElse: () => cameras.first,
+          )
+              : null,
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

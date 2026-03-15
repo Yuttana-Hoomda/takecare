@@ -6,6 +6,7 @@ import taskRoutes from './routes/taskRoutes.js';
 import foodAnalysisRoutes from './routes/foodAnalysisRoutes.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import devRoutes from "./routes/dev.routes.js";
+import eventRoutes from './routes/eventRoutes.js';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const app: Application = express();
@@ -20,6 +21,8 @@ app.use('/api/users', userRoutes);
 app.use('/api', familyRoutes);
 app.use('/api', taskRoutes);
 app.use('/api/food-analysis', foodAnalysisRoutes);
+app.use('/api', eventRoutes);
+
 
 // Add this inside your index.ts where you define your routes
 

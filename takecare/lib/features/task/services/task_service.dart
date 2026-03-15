@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:takecare/features/task/models/task_model.dart';
 
 class TaskService {
-  final String url = "http://10.0.2.2:3000/api";
+  //final String url = "http://10.0.2.2:3000/api";
+  final String url = Platform.isAndroid //เพื่อรองรับ ios
+      ? "http://10.0.2.2:3000/api"
+      : "http://localhost:3000/api";
 
   Future<List<Task>> getTasks(String familyId) async {
     try {

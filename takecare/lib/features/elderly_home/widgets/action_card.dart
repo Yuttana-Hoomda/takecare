@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
-import '../components/action_card.dart';
-import '../components/action_card_landscape.dart';
+import 'package:takecare/features/elderly_home/components/action_button.dart';
+import '';
 
-Widget buildActionCards() {
-  return Column(
-    children: [
-      Row(
-        children: [
-          Expanded(
-            child: ActionCard(
-              title: "รายการที่ต้องทำ",
-              subtitle: "เหลืออีก 3 รายการ",
-              imagePath: 'assets/icons/list.png',
-              onTap: () {},
-            ),
+class ActionButtons extends StatelessWidget {
+  const ActionButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ActionButton(
+            label: 'งานของฉัน',
+            icon: 'assets/icons/history.png',
+            iconColor: const Color(0xFFFF8C42),
+            bgColor: const Color(0xFFFFF0E6),
+            onTap: () {},
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: ActionCard(
-              title: "วิเคราะห์อาหาร",
-              subtitle: "",
-              imagePath: 'assets/icons/food.png',
-              onTap: () {},
-            ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ActionButton(
+            label: 'เช็คอาหาร',
+            icon:'assets/icons/food.png',
+            iconColor: const Color(0xFF4DB887),
+            bgColor: const Color(0xFFE8F8EE),
+            onTap: () {},
           ),
-        ],
-      ),
-      const SizedBox(height: 16),
-      ActionCardLandscape(
-        title: "ประวัติย้อนหลัง",
-        subtitle: "สรุปรายเดือน",
-        imagePath: "assets/icons/history.png",
-        onTap: () {},
-      ),
-    ],
-  );
+        ),
+      ],
+    );
+  }
 }
+

@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 
 class FoodAnalysisService {
   final String url = "http://10.0.2.2:3000/api";
-
   Future<AnalysisResult> analysisFood(String imgBase64, String disease) async {
     try{
       final response = await http.post(
