@@ -1,5 +1,3 @@
-// lib/features/medication_alarm_overlay/widgets/alarm_action_button.dart
-
 import 'package:flutter/material.dart';
 import 'package:takecare/constants/app_theme.dart';
 
@@ -34,30 +32,15 @@ class AlarmActionButton extends StatelessWidget {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
               )
             : Icon(icon, size: 22),
-        label: Text(
-          label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
+        label: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary
-              ? AppTheme.primaryColor
-              : const Color(0xFFE8EDF2),
+          backgroundColor: isPrimary ? AppTheme.primaryColor : const Color(0xFFE8EDF2),
           foregroundColor: isPrimary ? Colors.white : const Color(0xFF4A5568),
-          disabledBackgroundColor: isPrimary
-              ? AppTheme.primaryColor.withValues(
-                  alpha: 0.1,
-                ) //  ไม่ใช้ withOpacity
-              : const Color(0xFFE8EDF2),
           elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         ),
       ),
     );

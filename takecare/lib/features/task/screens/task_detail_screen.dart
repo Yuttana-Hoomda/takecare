@@ -104,7 +104,7 @@ class TaskDetailScreen extends StatelessWidget {
                               : Format().repeatedDay(task.repeatDays),
                         ),
 
-                        if (task.isRequiredPhoto == true) ...[
+                        if (task.requirePhoto == true) ...[
                           const SizedBox(height: 28),
                           _infoSection(
                             context,
@@ -148,10 +148,11 @@ class TaskDetailScreen extends StatelessWidget {
                       );
                     },
                     label: Text(
-                        'แก้ไข',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.labelLarge?.copyWith(color: Colors.white, fontSize: 18),
+                      'แก้ไข',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
                     ),
                     icon: Icon(Icons.edit_outlined),
                   ),
@@ -165,9 +166,10 @@ class TaskDetailScreen extends StatelessWidget {
                     onPressed: () => _showDialog(context, task),
                     label: Text(
                       'ลบ',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.labelLarge?.copyWith(color: Colors.red, fontSize: 18),
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Colors.red,
+                        fontSize: 18,
+                      ),
                     ),
                     icon: Icon(Icons.delete_outlined),
                   ),

@@ -1,9 +1,10 @@
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:takecare/features/automated_alarm/services/alarm_scheduler.dart';
 import 'package:takecare/features/task/services/task_service.dart';
 import '../models/task_model.dart';
 
-class TaskProvider extends ChangeNotifier{
+class TaskProvider extends ChangeNotifier {
   final TaskService _taskService = TaskService();
 
   bool _isLoading = false;
@@ -21,8 +22,10 @@ class TaskProvider extends ChangeNotifier{
 
     try {
       _tasks = await _taskService.getTasks(familyId);
+      // ✅ ส่ง tasks ให้ AlarmScheduler หลัง load
+      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
     } catch (e) {
-      _errorMessage = "load tasks failed.";
+      _errorMessage = 'load tasks failed.';
       log(e.toString());
     } finally {
       _isLoading = false;
@@ -35,17 +38,17 @@ class TaskProvider extends ChangeNotifier{
     _errorMessage = null;
     notifyListeners();
 
-    try{
+    try {
       final createdTask = await _taskService.createTask(task);
-
       if (_tasks != null) {
         _tasks!.insert(0, createdTask);
       } else {
-        _tasks = [task];
+        _tasks = [createdTask];
       }
-    } catch(err) {
+      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
+    } catch (err) {
       _errorMessage = 'Failed to create task';
-      log("Error in TaskProvider.createTask: ${err.toString()}");
+      log('Error in TaskProvider.createTask: ${err.toString()}');
       rethrow;
     } finally {
       _isLoading = false;
@@ -62,14 +65,12 @@ class TaskProvider extends ChangeNotifier{
       final updatedTask = await _taskService.updateTask(task);
       if (_tasks != null) {
         final index = _tasks!.indexWhere((t) => t.taskId == task.taskId);
-
-        if (index != -1) {
-          _tasks![index] = updatedTask;
-        }
+        if (index != -1) _tasks![index] = updatedTask;
       }
+      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
     } catch (err) {
       _errorMessage = 'Failed to update task';
-      log("Error in TaskProvider.update: ${err.toString()}");
+      log('Error in TaskProvider.update: ${err.toString()}');
       rethrow;
     } finally {
       _isLoading = false;
@@ -84,12 +85,11 @@ class TaskProvider extends ChangeNotifier{
 
     try {
       await _taskService.deleteTask(task);
-      if (_tasks != null) {
-        _tasks?.removeWhere((t) => t.taskId == task.taskId);
-      }
+      _tasks?.removeWhere((t) => t.taskId == task.taskId);
+      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
     } catch (err) {
       _errorMessage = 'Failed to delete task';
-      log("Error in TaskProvider.delete: ${err.toString()}");
+      log('Error in TaskProvider.delete: ${err.toString()}');
       rethrow;
     } finally {
       _isLoading = false;

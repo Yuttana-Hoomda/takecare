@@ -10,7 +10,7 @@ class Task {
   final String? note;
   final TimeOfDay time;
   final List<int>? repeatDays;
-  final bool? isRequiredPhoto;
+  final bool? requirePhoto; // Firestore field "requirePhoto"
   final bool? isRepeatByDate;
   final DateTime createdAt;
 
@@ -21,37 +21,37 @@ class Task {
     required this.title,
     required this.time,
     this.repeatDays,
-    this.isRequiredPhoto,
+    this.requirePhoto,
+    this.isRepeatByDate,
     required this.createdAt,
     this.date,
     this.note,
-    this.isRepeatByDate,
     required this.icon,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       taskId: json['id'] as String? ?? '',
-      createdBy: json['createdBy'] as String,
-      familyId: json['familyId'] as String,
-      title: json['title'] as String,
+      createdBy: json['createdBy'] as String? ?? '',
+      familyId: json['familyId'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       icon: json['icons'] as String? ?? 'assets/task.svg',
+      requirePhoto: json['requirePhoto'] as bool? ?? false, // ✅ ตรง Firestore
       isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
-      isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']?['hour'] as int? ?? 0,
-        minute: json['time']?['minute'] as int? ?? 0
+        minute: json['time']?['minute'] as int? ?? 0,
       ),
       repeatDays: json['repeatDays'] != null
           ? List<int>.from(json['repeatDays'])
           : [],
-        note: json['note'] as String? ?? '',
-        date: json['date'] as String? ?? '',
-        createdAt: json['createdAt'] is String
-            ? DateTime.parse(json['createdAt'])
-            : DateTime.fromMillisecondsSinceEpoch(
-            (json['createdAt']?['_seconds'] as int? ?? 0) * 1000
-        ),
+      note: json['note'] as String? ?? '',
+      date: json['date'] as String? ?? '',
+      createdAt: json['createdAt'] is String
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.fromMillisecondsSinceEpoch(
+              (json['createdAt']?['_seconds'] as int? ?? 0) * 1000,
+            ),
     );
   }
 
@@ -61,15 +61,13 @@ class Task {
       'createdBy': createdBy,
       'familyId': familyId,
       'title': title,
-      'icon': icon,
+      'icons': icon,
       'date': date,
       'note': note,
-      'time': {
-        'hour': time.hour,
-        'minute': time.minute,
-      },
+      'time': {'hour': time.hour, 'minute': time.minute},
       'repeatDays': repeatDays,
-      'isRequiredPhoto': isRequiredPhoto,
+      'requirePhoto': requirePhoto,
+      'isRepeatByDate': isRepeatByDate,
       'createdAt': createdAt.toIso8601String(),
     };
   }

@@ -1,13 +1,11 @@
-// lib/features/medication_alarm_overlay/widgets/medication_info_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:takecare/constants/app_theme.dart';
-import '../models/medication_alarm_model.dart';
+import '../models/automated_alarm_model.dart';
 
-class MedicationInfoWidget extends StatelessWidget {
-  final MedicationAlarmModel alarm;
+class AlarmInfoWidget extends StatelessWidget {
+  final AutomatedAlarmModel alarm;
 
-  const MedicationInfoWidget({super.key, required this.alarm});
+  const AlarmInfoWidget({super.key, required this.alarm});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +13,8 @@ class MedicationInfoWidget extends StatelessWidget {
 
     return Column(
       children: [
-        // Title
         Text(
-          'Time for your\nMedication',
+          'ถึงเวลาทำรายการ',
           textAlign: TextAlign.center,
           style: textTheme.titleLarge?.copyWith(
             fontSize: 28,
@@ -26,25 +23,15 @@ class MedicationInfoWidget extends StatelessWidget {
             height: 1.3,
           ),
         ),
-
         const SizedBox(height: 12),
-
-        // Subtitle: Time · Medication Name
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.access_alarm_rounded,
-              size: 16,
-              color: AppTheme.subtitle,
-            ),
+            Icon(Icons.access_alarm_rounded, size: 16, color: AppTheme.subtitle),
             const SizedBox(width: 4),
             Text(
-              '${alarm.scheduledTime} · ${alarm.medicationName}',
-              style: textTheme.titleSmall?.copyWith(
-                color: AppTheme.subtitle,
-                fontSize: 14,
-              ),
+              '${alarm.scheduledTime} · ${alarm.title}',
+              style: textTheme.titleSmall?.copyWith(color: AppTheme.subtitle, fontSize: 14),
             ),
           ],
         ),

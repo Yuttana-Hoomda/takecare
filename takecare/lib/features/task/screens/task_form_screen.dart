@@ -33,7 +33,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   int selectedIcon = 0;
   String selectedDate = '';
   TimeOfDay? selectedTime;
-  bool isRequiredPhoto = false;
+  bool requirePhoto = false;
 
   bool get isEditing => widget.taskToEdit != null;
 
@@ -58,7 +58,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     selectedDay = List<int>.from(task.repeatDays ?? []);
     selectedDate = task.date ?? '';
     selectedTime = task.time;
-    isRequiredPhoto = task.isRequiredPhoto ?? false;
+    requirePhoto = task.requirePhoto ?? false;
 
     int iconIndex = icons.indexOf(task.icon);
     selectedIcon = iconIndex != -1 ? iconIndex : 0;
@@ -128,7 +128,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         time: selectedTime!,
         date: selectedDate.isNotEmpty ? selectedDate : null,
         repeatDays: selectedDay,
-        isRequiredPhoto: isRequiredPhoto,
+        requirePhoto: requirePhoto,
         icon: icons[selectedIcon],
         createdAt: isEditing ? widget.taskToEdit!.createdAt : DateTime.now(),
       );
@@ -278,9 +278,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ),
           ),
           Switch(
-            value: isRequiredPhoto,
+            value: requirePhoto,
             activeThumbColor: AppTheme.primaryColor,
-            onChanged: (bool value) => setState(() => isRequiredPhoto = value),
+            onChanged: (bool value) => setState(() => requirePhoto = value),
           ),
         ],
       ),
