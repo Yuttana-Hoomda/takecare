@@ -12,7 +12,7 @@ import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/elderly_history/provider/history_provider.dart';
 
-// ✅ navigatorKey สำหรับ push AlarmScreen จากนอก widget tree
+//  navigatorKey สำหรับ push AlarmScreen จากนอก widget tree
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
