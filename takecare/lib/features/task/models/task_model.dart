@@ -36,7 +36,8 @@ class Task {
       familyId: json['familyId'] as String? ?? '',
       title: json['title'] as String? ?? '',
       icon: json['icons'] as String? ?? 'assets/task.svg',
-      requirePhoto: json['requirePhoto'] as bool? ?? false, // ✅ ตรง Firestore
+      requirePhoto:
+          (json['requirePhoto'] ?? json['isRequiredPhoto']) as bool? ?? false,
       isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
       time: TimeOfDay(
         hour: json['time']?['hour'] as int? ?? 0,
@@ -67,6 +68,7 @@ class Task {
       'time': {'hour': time.hour, 'minute': time.minute},
       'repeatDays': repeatDays,
       'requirePhoto': requirePhoto,
+      'isRequiredPhoto': requirePhoto,
       'isRepeatByDate': isRepeatByDate,
       'createdAt': createdAt.toIso8601String(),
     };

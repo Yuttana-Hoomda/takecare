@@ -34,7 +34,10 @@ class _MainWrapperState extends State<MainWrapper> {
     if (!_taskLoaded && user?.role == Role.elder && user?.familyId != null) {
       _taskLoaded = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<TaskProvider>().getTasks(user!.familyId!);
+        context.read<TaskProvider>().getTasks(
+          user!.familyId!,
+          elderlyId: user.uid, // ✅ ส่ง elderlyId ด้วย
+        );
       });
     }
   }

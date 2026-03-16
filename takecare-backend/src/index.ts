@@ -6,6 +6,8 @@ import taskRoutes from './routes/taskRoutes.js';
 import foodAnalysisRoutes from './routes/foodAnalysisRoutes.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import devRoutes from "./routes/dev.routes.js";
+import { startMissingTaskJob } from "./missing-task/missingTaskJob.js";
+import taskSubmissionRoutes from "./routes/taskSubmissionRoutes.js";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const app: Application = express();
@@ -64,6 +66,10 @@ app.get('/api/models', async (req, res) => {
 
 // test dev route
 app.use("/api/dev", devRoutes);
+app.use("/api", taskSubmissionRoutes);
+
+// ✅ start missing task job
+startMissingTaskJob();
 
 app.listen(port, () => {
     console.log(`🚀 Backend server running at http://localhost:${port}`);

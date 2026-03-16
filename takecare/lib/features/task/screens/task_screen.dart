@@ -23,7 +23,11 @@ class _TaskScreenState extends State<TaskScreen> {
         listen: false,
       ).user?.familyId;
       if (familyId != null) {
-        Provider.of<TaskProvider>(context, listen: false).getTasks(familyId);
+        // caregiver screen — elderlyId ไม่จำเป็น ส่ง empty string
+        Provider.of<TaskProvider>(
+          context,
+          listen: false,
+        ).getTasks(familyId, elderlyId: '');
       }
     });
   }
@@ -43,11 +47,8 @@ class _TaskScreenState extends State<TaskScreen> {
           itemBuilder: (context, index) {
             final task = tasks?[index];
             if (task == null) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
-            debugPrint("DEBUG: The title is ${task.title} and the date is ${task.date}");
             return TaskCard(
               title: task.title,
               time: task.time,
@@ -55,10 +56,11 @@ class _TaskScreenState extends State<TaskScreen> {
               repeatedDay: task.repeatDays,
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TaskDetailScreen(taskId: task.taskId!)
-                    )
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        TaskDetailScreen(taskId: task.taskId!),
+                  ),
                 );
               },
               icon: task.icon,
@@ -69,10 +71,8 @@ class _TaskScreenState extends State<TaskScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => TaskFormScreen()
-              )
+            context,
+            MaterialPageRoute(builder: (context) => TaskFormScreen()),
           );
         },
         child: const Icon(Icons.add),

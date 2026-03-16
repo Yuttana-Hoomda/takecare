@@ -15,15 +15,19 @@ class TaskProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   List<Task>? get tasks => _tasks;
 
-  Future<void> getTasks(String familyId) async {
+  Future<void> getTasks(String familyId, {required String elderlyId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       _tasks = await _taskService.getTasks(familyId);
-      // ✅ ส่ง tasks ให้ AlarmScheduler หลัง load
-      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
+      // ✅ ส่ง elderlyId และ familyId ไปด้วย
+      AlarmScheduler.instance.scheduleTasks(
+        _tasks ?? [],
+        elderlyId: elderlyId,
+        familyId: familyId,
+      );
     } catch (e) {
       _errorMessage = 'load tasks failed.';
       log(e.toString());
@@ -45,7 +49,11 @@ class TaskProvider extends ChangeNotifier {
       } else {
         _tasks = [createdTask];
       }
-      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
+      AlarmScheduler.instance.scheduleTasks(
+        _tasks ?? [],
+        elderlyId: AlarmScheduler.instance.elderlyId,
+        familyId: task.familyId,
+      );
     } catch (err) {
       _errorMessage = 'Failed to create task';
       log('Error in TaskProvider.createTask: ${err.toString()}');
@@ -67,7 +75,11 @@ class TaskProvider extends ChangeNotifier {
         final index = _tasks!.indexWhere((t) => t.taskId == task.taskId);
         if (index != -1) _tasks![index] = updatedTask;
       }
-      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
+      AlarmScheduler.instance.scheduleTasks(
+        _tasks ?? [],
+        elderlyId: AlarmScheduler.instance.elderlyId,
+        familyId: task.familyId,
+      );
     } catch (err) {
       _errorMessage = 'Failed to update task';
       log('Error in TaskProvider.update: ${err.toString()}');
@@ -86,7 +98,11 @@ class TaskProvider extends ChangeNotifier {
     try {
       await _taskService.deleteTask(task);
       _tasks?.removeWhere((t) => t.taskId == task.taskId);
-      AlarmScheduler.instance.scheduleTasks(_tasks ?? []);
+      AlarmScheduler.instance.scheduleTasks(
+        _tasks ?? [],
+        elderlyId: AlarmScheduler.instance.elderlyId,
+        familyId: task.familyId,
+      );
     } catch (err) {
       _errorMessage = 'Failed to delete task';
       log('Error in TaskProvider.delete: ${err.toString()}');

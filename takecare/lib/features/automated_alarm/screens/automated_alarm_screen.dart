@@ -16,7 +16,11 @@ class AutomatedAlarmScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AutomatedAlarmProvider(currentAlarm: alarm),
+      create: (_) => AutomatedAlarmProvider(
+        currentAlarm: alarm,
+        elderlyId:    alarm.elderlyId,
+        familyId:     alarm.familyId,
+      ),
       child: const _AutomatedAlarmView(),
     );
   }
@@ -27,9 +31,9 @@ class _AutomatedAlarmView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AutomatedAlarmProvider>();
-    final state    = provider.actionState;
-    final isLoading   = state == AlarmActionState.loading;
+    final provider  = context.watch<AutomatedAlarmProvider>();
+    final state     = provider.actionState;
+    final isBusy    = state == AlarmActionState.loading || state == AlarmActionState.submitting;
     final isCompleted = state == AlarmActionState.completed;
 
     if (state == AlarmActionState.error && provider.errorMessage != null) {
@@ -41,7 +45,6 @@ class _AutomatedAlarmView extends StatelessWidget {
       });
     }
 
-    // ถ่ายรูปเสร็จ → pop กลับหน้าเดิม
     if (isCompleted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) Navigator.of(context).pop();
@@ -76,6 +79,21 @@ class _AutomatedAlarmView extends StatelessWidget {
                         const SizedBox(height: 32),
                         AlarmInfoWidget(alarm: provider.currentAlarm),
                       ],
+                      if (isBusy && provider.statusMessage.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 14, height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(provider.statusMessage,
+                              style: const TextStyle(fontSize: 13, color: AppTheme.subtitle)),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -84,18 +102,18 @@ class _AutomatedAlarmView extends StatelessWidget {
                   child: Column(
                     children: [
                       AlarmActionButton(
-                        label: isLoading ? 'กำลังเปิดกล้อง...' : 'ทำเสร็จแล้ว (ถ่ายรูป)',
+                        label: isBusy ? provider.statusMessage : 'ทำเสร็จแล้ว (ถ่ายรูป)',
                         icon: Icons.camera_alt_rounded,
                         type: AlarmButtonType.primary,
-                        isLoading: isLoading,
-                        onPressed: isLoading ? null : provider.onDoneTakePhoto,
+                        isLoading: isBusy,
+                        onPressed: isBusy ? null : provider.onDoneTakePhoto,
                       ),
                       const SizedBox(height: 12),
                       AlarmActionButton(
                         label: 'เลื่อน 15 นาที',
                         icon: Icons.access_alarm_rounded,
                         type: AlarmButtonType.secondary,
-                        onPressed: isLoading ? null : () {
+                        onPressed: isBusy ? null : () {
                           provider.onSnooze();
                           Navigator.of(context).pop();
                         },

@@ -21,12 +21,12 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final familyId = Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      ).user?.familyId;
-      if (familyId != null) {
-        Provider.of<TaskProvider>(context, listen: false).getTasks(familyId);
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      if (user?.familyId != null) {
+        Provider.of<TaskProvider>(context, listen: false).getTasks(
+          user!.familyId!,
+          elderlyId: user.uid, // ✅ ส่ง elderlyId
+        );
       }
     });
   }
