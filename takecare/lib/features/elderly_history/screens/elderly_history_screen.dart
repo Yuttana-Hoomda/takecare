@@ -16,7 +16,6 @@ class ElderlyCalendarScreen extends StatefulWidget {
 class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
   DateTime _selectedDate = DateTime.now();
   bool get _useMock => true;
-
   @override
   void initState() {
     super.initState();
@@ -41,7 +40,6 @@ class _ElderlyCalendarScreenState extends State<ElderlyCalendarScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final history = context.watch<HistoryProvider>();
-
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(

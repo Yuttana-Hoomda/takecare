@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:takecare/features/link_family/models/elder_model.dart';
+import 'dart:io';
 
 class LinkFamilyService {
-  final String baseUrl = "http://10.0.2.2:3000/api";
+  //final String baseUrl = "http://10.0.2.2:3000/api";
+  final String baseUrl = Platform.isAndroid
+      ? "http://10.0.2.2:3000/api"
+      : "http://localhost:3000/api";
 
   /// ค้นหา elder จากเบอร์โทร
   Future<ElderModel> searchElderByPhone(String phone, String token) async {

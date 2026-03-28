@@ -1,38 +1,31 @@
 import 'package:flutter/material.dart';
-import '../components/action_card.dart';
-import '../components/action_card_landscape.dart';
+import 'package:takecare/features/caregiver_home/widgets/progress_card.dart';
+import 'package:takecare/features/elderly_home/components/action_button.dart';
+import 'package:takecare/features/caregiver_home/widgets/progress_card.dart';
+import 'package:takecare/constants/app_theme.dart';
 
-Widget buildActionCards() {
-  return Column(
-    children: [
-      Row(
-        children: [
-          Expanded(
-            child: ActionCard(
-              title: "รายการที่ต้องทำ",
-              subtitle: "เหลืออีก 3 รายการ",
-              imagePath: 'assets/icons/list.png',
-              onTap: () {},
-            ),
+class ActionButtons extends StatelessWidget {
+  const ActionButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ProgressCard(
+            label: 'Progress',
+            valueText: '50%',
+            sublabel: '4/5 doses taken',
+            progress: 0.5,
+            color: AppTheme.primaryColor,
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: ActionCard(
-              title: "วิเคราะห์อาหาร",
-              subtitle: "",
-              imagePath: 'assets/icons/food.png',
-              onTap: () {},
-            ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child:
+            ActionButton(label: "เช็กอาหาร", icon: "assets/icons/food.png", iconColor: AppTheme.primaryColor, bgColor: Colors.white, onTap: () => {} )
           ),
-        ],
-      ),
-      const SizedBox(height: 16),
-      ActionCardLandscape(
-        title: "ประวัติย้อนหลัง",
-        subtitle: "สรุปรายเดือน",
-        imagePath: "assets/icons/history.png",
-        onTap: () {},
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

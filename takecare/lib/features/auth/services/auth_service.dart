@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../constants/enum.dart';
 import '../models/user_model.dart';
+import 'dart:io';
+
+
 
 // Return class ที่มีทั้ง user และ token
 class LoginResult {
@@ -14,7 +17,10 @@ class LoginResult {
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final String baseUrl = "http://10.0.2.2:3000/api/users";
+  //final String baseUrl = "http://10.0.2.2:3000/api/users";
+  final String baseUrl = Platform.isAndroid //เพื่อให้รันใน iphone ได้
+      ? "http://10.0.2.2:3000/api/users"
+      : "http://localhost:3000/api/users";
 
   Future<String> registerWithEmail(String email, String password) async {
     try {

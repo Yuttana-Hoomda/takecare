@@ -3,12 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
-import 'package:takecare/features/task/providers/task_provider.dart';
+import 'package:takecare/features/history/screens/history_screen.dart';
 import 'package:takecare/features/task/screens/task_screen.dart';
-import 'package:takecare/features/elderly_history/screens/elderly_history_screen.dart';
-import '../../auth/providers/auth_provider.dart';
-import 'package:takecare/features/caregiver_calendar/screens/caregiver_calendar_screen.dart';
 import '../../../test_food_alarm.dart';
+import '../../auth/providers/auth_provider.dart';
+
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -44,9 +43,15 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupCaregiverView() {
     _pages = [
+<<<<<<< HEAD
       const CaregiverHomeScreen(),
       const TaskScreen(),
       const CaregiverCalendarScreen(),
+=======
+      const CaregiverHomeScreen(), // Home
+      const TaskScreen(),  // Tasks
+      const HistoryScreen(), // Profile
+>>>>>>> origin/feature/history-page-and-event-api
     ];
 
     _navItems = const [
@@ -71,7 +76,11 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupElderView() {
     _pages = [
       const ElderlyHomeScreen(),
+<<<<<<< HEAD
       const ElderlyCalendarScreen(),
+=======
+      const HistoryScreen(),// Home
+>>>>>>> origin/feature/history-page-and-event-api
       const TestFoodAlarmApp(),
       const Placeholder(),
     ];

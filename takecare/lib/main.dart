@@ -11,7 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/elderly_history/provider/history_provider.dart';
+import 'package:takecare/features/history/providers/history_provider.dart';
 
 //  navigatorKey สำหรับ push AlarmScreen จากนอก widget tree
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -41,11 +41,13 @@ class Main extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
         ChangeNotifierProvider(create: (_) => FoodAnalysisProvider()),
-        Provider.value(
-          value: cameras.firstWhere(
-            (c) => c.lensDirection == CameraLensDirection.back,
-            orElse: () => cameras.first,
-          ),
+        Provider<CameraDescription?>.value(
+          value: cameras.isNotEmpty
+              ? cameras.firstWhere(
+                  (c) => c.lensDirection == CameraLensDirection.back,
+                  orElse: () => cameras.first,
+                )
+              : null,
         ),
       ],
       child: MaterialApp(
