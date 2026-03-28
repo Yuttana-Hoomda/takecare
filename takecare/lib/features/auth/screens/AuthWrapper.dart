@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // <--- MUST HAVE THIS IMPORT
 import 'package:takecare/features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/auth/screens/login.dart';
+import 'package:takecare/features/auth/screens/login_screen.dart';
 import 'package:takecare/features/home/screens/main_wrapper.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -14,7 +14,7 @@ class AuthWrapper extends StatelessWidget {
     if (authen.isAuthenticated) {
       return const MainWrapper();
     } else {
-      return const Login();
+      return const LoginScreen();
     }
   }
 }

@@ -1,5 +1,5 @@
-enum Role { elder, caregiver }
-enum Disease { diabetes, hypertension}
+enum Role { elder, caregiver, pending }
+enum Diseases { diabetes, hypertension}
 enum TaskType { medicine, doctor, custom }
 enum CardLayoutType {
   vertical,   // ภาพบน

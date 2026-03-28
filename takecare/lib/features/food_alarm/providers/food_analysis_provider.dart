@@ -34,7 +34,7 @@ class FoodAnalysisProvider extends ChangeNotifier {
   Future<void> analysisFood(
     String imgBase64,
     String imagePath,
-    List<Disease> disease,
+    List<Diseases> disease,
   ) async {
     try {
       _isLoading = true;

@@ -8,6 +8,7 @@ import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/food_alarm/screens/food_analysis_screen.dart';
 
 import 'package:provider/provider.dart';
+import '../../auth/models/user_model.dart';
 import '../providers/food_analysis_provider.dart';
 
 class FoodAlarmData {
@@ -115,13 +116,15 @@ class FoodAlarmScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => CameraScreen(
+                              isLoading: false,
                               onSubmit: (imgBase64, imageFilePath) async {
                                 final user = context.read<AuthProvider>().user;
+                                final diseases = user is ElderUser ? user.ncdConditions ?? <Diseases>[] : <Diseases>[];
 
                                 await context.read<FoodAnalysisProvider>().analysisFood(
                                   imgBase64,
                                   imageFilePath,
-                                  user!.diseases ?? [],
+                                  diseases,
                                 );
 
                                 if (!context.mounted) return;

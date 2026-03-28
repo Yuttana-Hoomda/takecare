@@ -11,7 +11,7 @@ import '../models/save_analysis_food_model.dart';
 class FoodAnalysisService {
   final String url = "http://10.0.2.2:3000/api";
 
-  Future<AiAnalysisResult> analysisFood(String imgBase64, List<Disease> disease) async {
+  Future<AiAnalysisResult> analysisFood(String imgBase64, List<Diseases> disease) async {
     try{
       final response = await http.post(
           Uri.parse('$url/food-analysis/analyze'),

@@ -149,7 +149,6 @@ class _CameraScreenBody extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (isLoading)
                 Positioned(
                   bottom: 40,
                   left: 0,
