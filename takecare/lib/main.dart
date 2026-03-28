@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/auth/providers/on_boarding_provider.dart';
 import 'package:takecare/features/food_alarm/providers/food_analysis_provider.dart';
 import 'package:takecare/features/automated_alarm/services/alarm_scheduler.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
@@ -36,6 +37,7 @@ class Main extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (_) => OnBoardingProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
         ChangeNotifierProvider(create: (_) => FoodAnalysisProvider()),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/auth/screens/login.dart';
+import 'package:takecare/features/auth/screens/login_screen.dart';
 import 'package:takecare/features/home/screens/main_wrapper.dart';
 import 'package:takecare/features/link_family/screens/link_family_screen.dart';
 
@@ -13,8 +13,15 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authen = Provider.of<AuthProvider>(context);
 
+<<<<<<< HEAD
     if (!authen.isAuthenticated) {
       return const Login();
+=======
+    if (authen.isAuthenticated) {
+      return const MainWrapper();
+    } else {
+      return const LoginScreen();
+>>>>>>> main
     }
 
     final user = authen.user!;

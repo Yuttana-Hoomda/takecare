@@ -5,6 +5,7 @@ import 'package:takecare/features/task/models/task_model.dart';
 import 'package:takecare/features/task/screens/frequency_setting.dart';
 import 'package:takecare/features/task/screens/task_icon_picker.dart';
 
+import '../../../components/build_text_field.dart';
 import '../../../constants/app_theme.dart';
 import '../providers/task_provider.dart';
 
@@ -50,7 +51,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     super.dispose();
   }
 
-
   void _initializeFormData() {
     final task = widget.taskToEdit!;
     _titleController.text = task.title;
@@ -66,7 +66,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _toggleDaySelection(int index) {
@@ -92,7 +94,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
     if (pickedDate != null) {
       setState(() {
-        selectedDate = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        selectedDate =
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
         selectedDay.clear();
       });
     }
@@ -113,7 +116,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   Future<void> _saveTask() async {
     if (!_formKey.currentState!.validate()) return;
-    if (selectedTime == null) return _showMessage('กรุณาเลือกเวลา (Please select a time)');
+    if (selectedTime == null)
+      return _showMessage('กรุณาเลือกเวลา (Please select a time)');
 
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     if (user == null) return _showMessage('ไม่พบข้อมูลผู้ใช้ (User not found)');
@@ -122,7 +126,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       final taskData = Task(
         taskId: isEditing ? widget.taskToEdit!.taskId : '',
         createdBy: isEditing ? widget.taskToEdit!.createdBy : user.uid,
-        familyId: isEditing ? widget.taskToEdit!.familyId : (user.familyId ?? ''),
+        familyId: isEditing
+            ? widget.taskToEdit!.familyId
+            : (user.familyId ?? ''),
         title: _titleController.text.trim(),
         note: _noteController.text.trim(),
         time: selectedTime!,
@@ -142,12 +148,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       }
 
       if (mounted) Navigator.pop(context);
-
     } catch (e) {
       _showMessage('เกิดข้อผิดพลาด: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +176,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 const SizedBox(height: 20),
 
                 _buildSectionLabel('ชื่อรายการ'),
-                _buildTextField(_titleController, 'ชื่อรายการ', isRequired: true),
+                BuildTextField(
+                  isRequired: true,
+                  controller: _titleController,
+                  hint: 'ชื่อรายการ',
+                ),
                 const SizedBox(height: 20),
 
                 _buildFrequencySettings(),
@@ -182,7 +190,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 const SizedBox(height: 20),
 
                 _buildSectionLabel('หมายเหตุ'),
-                _buildTextField(_noteController, 'หมายเหตุ', maxLines: 3),
+                BuildTextField(
+                  controller: _noteController,
+                  hint: 'หมายเหตุ',
+                  maxLines: 3,
+                ),
                 const SizedBox(height: 32),
 
                 _buildSubmitButton(),
@@ -206,34 +218,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       icons: icons,
       selectedIcon: selectedIcon,
       onTapIcon: (int index) => setState(() => selectedIcon = index),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hint, {bool isRequired = false, int maxLines = 1}) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1,
-          ),
-        ),
-      ),
-      validator: (value) {
-        if (isRequired && (value == null || value.isEmpty)) {
-          return 'กรุณากรอก$hint'; // "Please enter [hint]"
-        }
-        return null;
-      },
     );
   }
 
@@ -271,10 +255,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('รูปภาพ'),
-                Text('ถ่ายรูปเพื่อบันทึกรายการ'),
-              ],
+              children: [Text('รูปภาพ'), Text('ถ่ายรูปเพื่อบันทึกรายการ')],
             ),
           ),
           Switch(
@@ -294,7 +275,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       ),
       onPressed: _saveTask,
       child: Text(
-          isEditing ? 'อัปเดตรายการ' : 'สร้างรายการ',
+        isEditing ? 'อัปเดตรายการ' : 'สร้างรายการ',
         style: Theme.of(
           context,
         ).textTheme.labelLarge?.copyWith(color: Colors.white, fontSize: 18),
