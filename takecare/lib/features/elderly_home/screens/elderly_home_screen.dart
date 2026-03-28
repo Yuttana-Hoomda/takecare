@@ -25,12 +25,16 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
   }
 
   void _fetchTasks() {
-    final familyId = Provider.of<AuthProvider>(
-      context,
-      listen: false,
-    ).user?.familyId;
-    if (familyId != null) {
-      Provider.of<TaskProvider>(context, listen: false).getTasks(familyId);
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+
+    final familyId = user?.familyId;
+    final elderlyId = user?.uid;
+
+    if (familyId != null && elderlyId != null) {
+      Provider.of<TaskProvider>(context, listen: false).getTasks(
+        familyId,
+        elderlyId: elderlyId, // ✅ ใส่ตรงนี้
+      );
     }
   }
 

@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:takecare/constants/enum.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
+
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
-import 'package:takecare/features/history/screens/history_screen.dart';
-import 'package:takecare/features/task/screens/task_screen.dart';
-import '../../../test_food_alarm.dart';
-import '../../auth/providers/auth_provider.dart';
 
+import 'package:takecare/features/task/screens/task_screen.dart';
+import 'package:takecare/features/history/screens/history_screen.dart';
+
+import 'package:takecare/features/task/providers/task_provider.dart';
+
+import '../../../test_food_alarm.dart';
+
+// 👇 ถ้ามีจริงค่อย import
+// import 'package:takecare/features/calendar/screens/caregiver_calendar_screen.dart';
+// import 'package:takecare/features/calendar/screens/elderly_calendar_screen.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -27,15 +36,17 @@ class _MainWrapperState extends State<MainWrapper> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final user = context.read<AuthProvider>().user;
+    final auth = context.read<AuthProvider>();
+    final user = auth.user;
 
-    // ✅ fetch tasks ตอน elder login เพื่อให้ AlarmScheduler ทำงาน
+    // ✅ โหลด task สำหรับ elder เพื่อใช้ alarm
     if (!_taskLoaded && user?.role == Role.elder && user?.familyId != null) {
       _taskLoaded = true;
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<TaskProvider>().getTasks(
           user!.familyId!,
-          elderlyId: user.uid, // ✅ ส่ง elderlyId ด้วย
+          elderlyId: user.uid,
         );
       });
     }
@@ -43,15 +54,9 @@ class _MainWrapperState extends State<MainWrapper> {
 
   void _setupCaregiverView() {
     _pages = [
-<<<<<<< HEAD
       const CaregiverHomeScreen(),
       const TaskScreen(),
-      const CaregiverCalendarScreen(),
-=======
-      const CaregiverHomeScreen(), // Home
-      const TaskScreen(),  // Tasks
-      const HistoryScreen(), // Profile
->>>>>>> origin/feature/history-page-and-event-api
+      const HistoryScreen(), // หรือ CaregiverCalendarScreen()
     ];
 
     _navItems = const [
@@ -76,11 +81,7 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupElderView() {
     _pages = [
       const ElderlyHomeScreen(),
-<<<<<<< HEAD
-      const ElderlyCalendarScreen(),
-=======
-      const HistoryScreen(),// Home
->>>>>>> origin/feature/history-page-and-event-api
+      const HistoryScreen(), // หรือ ElderlyCalendarScreen()
       const TestFoodAlarmApp(),
       const Placeholder(),
     ];
@@ -111,10 +112,10 @@ class _MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.user;
+    final user = context.watch<AuthProvider>().user;
     final isCaregiver = user?.role == Role.caregiver;
 
+    // ✅ setup view ตาม role
     if (isCaregiver) {
       _setupCaregiverView();
     } else {

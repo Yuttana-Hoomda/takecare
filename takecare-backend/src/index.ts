@@ -6,12 +6,9 @@ import taskRoutes from './routes/taskRoutes.js';
 import foodAnalysisRoutes from './routes/foodAnalysisRoutes.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import devRoutes from "./routes/dev.routes.js";
-<<<<<<< HEAD
 import { startMissingTaskJob } from "./missing-task/missingTaskJob.js";
 import taskSubmissionRoutes from "./routes/taskSubmissionRoutes.js";
-=======
 import eventRoutes from './routes/eventRoutes.js';
->>>>>>> origin/feature/history-page-and-event-api
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const app: Application = express();
