@@ -44,7 +44,6 @@ export const updateTask = async (taskId: string, updatedData: Partial<Task>) => 
     };
 }
 
-
 export const deleteTask = async (taskId: string): Promise<void> => {
     await tasksCollection.doc(taskId).delete();
 }

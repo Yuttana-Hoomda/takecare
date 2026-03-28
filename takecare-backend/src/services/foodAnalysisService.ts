@@ -119,7 +119,6 @@ const getNutrientsMap = (): Map<string, NutrientData> => {
 
     nutrientsMap = new Map<string, NutrientData>();
 
-    // fix #7: use explicit counter instead of map.size / 2
     let entryCount = 0;
 
     for (const row of records) {
@@ -325,6 +324,8 @@ export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: stri
     console.log('[Cloudinary] Uploading image...');
     const imageUrl = await uploadImageToCloudinary(data.imageBase64);
     console.log('[Cloudinary] Upload success:', imageUrl)
+
+    const dateString = new Date().toISOString().slice(0, 10);
     
     const foodDocRef = await db.collection('food_analyses').add({
         elderlyId: data.elderlyId,
@@ -350,6 +351,16 @@ export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: stri
         status: 'completed',
         createdAt: FieldValue.serverTimestamp(),
     });
+
+    const calendarDocId = `${data.elderlyId}_${dateString}`;
+
+    await db.collection('event_calendar').doc(calendarDocId).set({
+        Date: dateString,
+        elderlyId: data.elderlyId,
+        familyId: data.familyId,
+        completedCount: FieldValue.increment(1),
+        totalCount: FieldValue.increment(1)
+    }, { merge: true });
 
     return { foodId: foodDocRef.id, eventId: eventDocRef.id };
 };
