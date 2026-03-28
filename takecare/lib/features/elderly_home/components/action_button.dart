@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takecare/constants/app_theme.dart';
 
 class ActionButton extends StatelessWidget {
   final String label;
@@ -28,13 +29,15 @@ class ActionButton extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDarkMode ? 0.4 : 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 6),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-        border: isDarkMode
-            ? Border.all(color: Colors.white.withOpacity(0.05))
-            : null,
+        border: Border.all(
+          color: isDarkMode 
+              ? Colors.white.withOpacity(0.05) 
+              :  AppTheme.secondary ,
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -45,37 +48,47 @@ class ActionButton extends StatelessWidget {
             splashColor: iconColor.withOpacity(0.1),
             highlightColor: iconColor.withOpacity(0.05),
             child: Padding(
-              // ย้าย Padding มาไว้ที่นี่เพื่อให้พื้นที่กดครอบคลุมทั้งการ์ด
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              // ปรับ Padding ให้เท่ากับ ProgressCard (vertical: 20, horizontal: 12)
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // ปรับขนาดไอคอนให้ใกล้เคียงกับวงกลม Progress (90x90)
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 90,
+                    height: 90,
                     decoration: BoxDecoration(
                       color: bgColor,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: iconColor.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
+                          color: iconColor.withOpacity(0.15),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Image.asset(icon, color: iconColor),
+                    child: Center(
+                      child: Image.asset(
+                        icon, 
+                        width: 45,
+                        height: 45,
+                        color: iconColor
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Text(
                     label,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: isDarkMode ? Colors.white : const Color(0xFF2D2D2D),
+                      color: isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
+                  // เพิ่มพื้นที่ด้านล่างเพื่อให้ความสูงรวมเท่ากับ ProgressCard ที่มี sublabel
+                  const SizedBox(height: 18), 
                 ],
               ),
             ),
@@ -83,4 +96,5 @@ class ActionButton extends StatelessWidget {
         ),
       ),
     );
-  }}
+  }
+}

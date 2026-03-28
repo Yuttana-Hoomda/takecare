@@ -20,20 +20,20 @@ class MonthHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final buddhistYear = selectedDate.year + 543;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             '${_thaiMonths[selectedDate.month]} $buddhistYear',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          GestureDetector(
-            onTap: onCalendarTap,
-            child: Icon(
+          IconButton(
+            icon: Icon(
               Icons.calendar_today_outlined,
               color: Theme.of(context).colorScheme.primary,
             ),
+            onPressed: onCalendarTap,
           ),
         ],
       ),

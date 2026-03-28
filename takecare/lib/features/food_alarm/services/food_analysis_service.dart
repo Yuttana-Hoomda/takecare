@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:takecare/constants/enum.dart';
@@ -9,7 +9,10 @@ import '../models/food_analysis.dart';
 import '../models/save_analysis_food_model.dart';
 
 class FoodAnalysisService {
-  final String url = "http://10.0.2.2:3000/api";
+  //final String url = "http://10.0.2.2:3000/api";
+  final String url = Platform.isAndroid
+      ? "http://10.0.2.2:3000/api"
+      : "http://localhost:3000/api";
 
   Future<AiAnalysisResult> analysisFood(String imgBase64, List<Disease> disease) async {
     try{

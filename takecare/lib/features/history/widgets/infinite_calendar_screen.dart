@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/providers/history_provider.dart';
 import '/constants/app_theme.dart';
 import 'month_grid.dart';
@@ -52,6 +53,29 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
     super.initState();
     _monthPageController = PageController(initialPage: _initialIndex);
     _yearPageController = PageController(initialPage: _initialIndex);
+    
+    // โหลดเดือนปัจจุบันทันทีที่เปิดหน้าจอ
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAdjacentMonths(_initialIndex);
+    });
+  }
+
+  void _loadAdjacentMonths(int index) {
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    final familyId = user?.familyId ?? '';
+    if (familyId.isEmpty) return;
+
+    final provider = Provider.of<HistoryProvider>(context, listen: false);
+    
+    // โหลดเดือนปัจจุบัน
+    final current = _monthAtIndex(index);
+    provider.loadMonth(month: current.month, year: current.year, familyId: familyId);
+    
+    // โหลดเดือนก่อนหน้าและถัดไป (Preload)
+    final next = _monthAtIndex(index + 1);
+    final prev = _monthAtIndex(index - 1);
+    provider.loadMonth(month: next.month, year: next.year, familyId: familyId);
+    provider.loadMonth(month: prev.month, year: prev.year, familyId: familyId);
   }
 
   @override
@@ -80,7 +104,7 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: _ModeToggle(
               mode: _mode,
               onChanged: (m) => setState(() => _mode = m),
@@ -91,33 +115,16 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
                 ? PageView.builder(
               controller: _monthPageController,
               scrollDirection: Axis.vertical,
-              onPageChanged: (index) {
-                // โหลด adjacent months ล่วงหน้า
-                final month = _monthAtIndex(index);
-                final provider = Provider.of<HistoryProvider>(
-                    context, listen: false);
-                provider.loadMonth(
-                    month: month.month, year: month.year);
-                // preload เดือนถัดไปและก่อนหน้า
-                final next = _monthAtIndex(index + 1);
-                final prev = _monthAtIndex(index - 1);
-                provider.loadMonth(
-                    month: next.month, year: next.year);
-                provider.loadMonth(
-                    month: prev.month, year: prev.year);
-              },
+              onPageChanged: _loadAdjacentMonths,
               itemBuilder: (context, index) {
                 final month = _monthAtIndex(index);
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
-                    child: MonthGrid(
-                      month: month,
-                      selectedDate: null,
-                      onDateSelected: (date) =>
-                          Navigator.pop(context, date),
-                    ),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: MonthGrid(
+                    month: month,
+                    selectedDate: null,
+                    onDateSelected: (date) =>
+                        Navigator.pop(context, date),
                   ),
                 );
               },
@@ -127,14 +134,11 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) {
                 final year = _yearAtIndex(index);
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 20),
-                    child: YearView(
-                      year: year,
-                      onMonthSelected: _switchToMonth,
-                    ),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: YearView(
+                    year: year,
+                    onMonthSelected: _switchToMonth,
                   ),
                 );
               },
@@ -154,10 +158,11 @@ class _ModeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 48, // เพิ่มความสูงให้ดูไม่อึดอัด
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0xFFF0F0F5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
@@ -191,16 +196,15 @@ class _ToggleBtn extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isActive ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             boxShadow: isActive
                 ? [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1))
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
             ]
                 : [],
           ),
@@ -208,10 +212,10 @@ class _ToggleBtn extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight:
-                isActive ? FontWeight.w700 : FontWeight.normal,
-                color: isActive ? AppTheme.primaryColor : Colors.grey,
+                isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? AppTheme.primaryColor : Colors.grey[600],
               ),
             ),
           ),

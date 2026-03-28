@@ -22,16 +22,22 @@ export const getEventsByDateHandler = async (req: Request, res: Response) => {
 
 export const getEventCalendarHandler = async (req: Request, res: Response) => {
     try {
-        const { month, year } = req.query;
+        // ดึง familyId มาจาก query parameters
+        const { month, year, familyId } = req.query;
 
-        if (!month || !year) {
-            return res.status(400).json({ error: 'month and year query params are required (e.g. ?month=03&year=2026)' });
+        if (!month || !year || !familyId) {
+            return res.status(400).json({ 
+                error: 'month, year, and familyId query params are required' 
+            });
         }
 
+        // ส่ง familyId เข้าไป
         const data = await getEventCalendarByMonth(
             month as string,
-            year as string
+            year as string,
+            familyId as string
         );
+        
         return res.status(200).json(data);
     } catch (error) {
         console.error('getEventCalendar error:', error);

@@ -6,6 +6,7 @@ import 'package:takecare/features/history/widgets/month_header.dart';
 import 'package:takecare/features/history/widgets/date_picker.dart';
 import 'package:takecare/features/history/widgets/infinite_calendar_screen.dart';
 import 'package:takecare/features/history/widgets/event_tile.dart';
+import '/constants/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
   final DateTime? initialDate;
@@ -22,15 +23,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     _selectedDate = widget.initialDate ?? DateTime.now();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDay(_selectedDate));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDay(_selectedDate);
+      _loadMonth(_selectedDate);
+    });
   }
 
-  void _loadDay(DateTime date) {
+  void _loadMonth(DateTime date, {bool force = false}) {
+    final familyId =
+        Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+    if (familyId == null || familyId.isEmpty) return;
+    Provider.of<HistoryProvider>(context, listen: false)
+        .loadMonth(
+          month: date.month, 
+          year: date.year, 
+          familyId: familyId,
+          force: force,
+        );
+  }
+
+  void _loadDay(DateTime date, {bool force = false}) {
     final dateStr =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final familyId =
-        Provider.of<AuthProvider>(context, listen: false).user?.familyId ?? '';
-    Provider.of<HistoryProvider>(context, listen: false).loadDay(dateStr, familyId);
+        Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+    if (familyId == null || familyId.isEmpty) return;
+    Provider.of<HistoryProvider>(context, listen: false).loadDay(dateStr, familyId, force: force);
+  }
+
+  Future<void> _onRefresh() async {
+    _loadDay(_selectedDate, force: true);
+    _loadMonth(_selectedDate, force: true);
+    await Future.delayed(const Duration(milliseconds: 800));
   }
 
   Future<void> _openCalendar() async {
@@ -50,58 +74,78 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
     final events = provider.dayEvents;
-
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgColorLight,
+      appBar: AppBar(
+        title: const Text(
+          'ประวัติกิจกรรม',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        foregroundColor: Colors.black,
+      ),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MonthHeader(
-                    selectedDate: _selectedDate,
-                    onCalendarTap: _openCalendar,
-                  ),
-                  WeekDatePicker(
-                    selectedDate: _selectedDate,
-                    onDateSelected: (date) {
-                      setState(() => _selectedDate = date);
-                      _loadDay(date);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-            if (provider.isDayLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (provider.errorMessage != null)
-              SliverFillRemaining(
-                child: _ErrorView(
-                  message: provider.errorMessage!,
-                  onRetry: () => _loadDay(_selectedDate),
-                ),
-              )
-            else if (events.isEmpty)
-                const SliverFillRemaining(child: _EmptyState())
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) => EventTile(
-                        event: events[index],
-                        isLast: index == events.length - 1,
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          edgeOffset: 120,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Container(
+                  color: AppTheme.bgColorLight, 
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MonthHeader(
+                        selectedDate: _selectedDate,
+                        onCalendarTap: _openCalendar,
                       ),
-                      childCount: events.length,
+                      WeekDatePicker(
+                        selectedDate: _selectedDate,
+                        onDateSelected: (date) {
+                          setState(() => _selectedDate = date);
+                          _loadDay(date);
+                          _loadMonth(date); 
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      Text("Timeline")
+                    ],
+                  ),
+                ),
+              ),
+              if (provider.isDayLoading && events.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (provider.errorMessage != null)
+                SliverFillRemaining(
+                  child: _ErrorView(
+                    message: provider.errorMessage!,
+                    onRetry: () => _loadDay(_selectedDate, force: true),
+                  ),
+                )
+              else if (events.isEmpty)
+                  const SliverFillRemaining(child: _EmptyState())
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) => EventTile(
+                          event: events[index],
+                          isLast: index == events.length - 1,
+                        ),
+                        childCount: events.length,
+                      ),
                     ),
                   ),
-                ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -114,10 +158,17 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        'ไม่มีรายการในวันนี้',
-        style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Center(
+            child: Text(
+              'ไม่มีรายการในวันนี้',
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+          ),
+        ],
       ),
     );
   }

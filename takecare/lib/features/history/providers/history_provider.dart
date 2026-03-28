@@ -7,15 +7,13 @@ import '../services/history_service.dart';
 class HistoryProvider extends ChangeNotifier {
   final HistoryService _service = HistoryService();
 
-  // --- Calendar layer (dot status) ---
   // key: "yyyy-MM-dd"
-  Map<String, EventCalendar> _calendarData = {};
+  final Map<String, EventCalendar> _calendarData = {};
   bool _isCalendarLoading = false;
 
-  // --- Daily events ---
   List<Event> _dayEvents = [];
   bool _isDayLoading = false;
-  String? _loadedDate; // วันที่โหลดล่าสุด (cache ไม่ fetch ซ้ำ)
+  String? _loadedDate;
 
   String? _errorMessage;
 
@@ -25,34 +23,45 @@ class HistoryProvider extends ChangeNotifier {
   bool get isDayLoading => _isDayLoading;
   String? get errorMessage => _errorMessage;
 
-  /// โหลด dot status ทั้งเดือน — เรียกเมื่อ scroll ไปเดือนใหม่
-  Future<void> loadMonth({required int month, required int year}) async {
-    // ถ้าเดือนนี้มีข้อมูลแล้วไม่ต้อง fetch ซ้ำ
+  Future<void> loadMonth({
+    required int month,
+    required int year,
+    required String familyId,
+    bool force = false,
+  }) async {
     final monthKey = '$year-${month.toString().padLeft(2, '0')}';
-    final alreadyLoaded = _calendarData.keys.any((k) => k.startsWith(monthKey));
-    if (alreadyLoaded) return;
+    
+    // ถ้าไม่บังคับโหลด และเคยโหลดเดือนนี้ไปแล้ว ให้ข้าม
+    if (!force) {
+      final alreadyLoaded = _calendarData.keys.any((k) => k.startsWith(monthKey));
+      if (alreadyLoaded) return;
+    }
 
     _isCalendarLoading = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
-      final list = await _service.getEventCalendar(month: month, year: year);
+      final list = await _service.getEventCalendar(month: month, year: year, familyId: familyId);
+      
+      // ถ้า force ให้เคลียร์ข้อมูลเก่าของเดือนนั้นออกก่อน
+      if (force) {
+        _calendarData.removeWhere((key, value) => key.startsWith(monthKey));
+      }
+
       for (final ec in list) {
         _calendarData[ec.date] = ec;
       }
     } catch (e) {
-      _errorMessage = 'โหลดปฏิทินล้มเหลว';
-      log(e.toString());
+      log("❌ LoadMonth Error: $e");
     } finally {
       _isCalendarLoading = false;
       notifyListeners();
     }
   }
 
-  /// โหลด event list ของวันที่เลือก
-  Future<void> loadDay(String date, String familyId) async {
-    if (_loadedDate == date) return; // cache
+  Future<void> loadDay(String date, String familyId, {bool force = false}) async {
+    // ถ้าไม่บังคับโหลด และเป็นวันที่เดิม ให้ข้าม
+    if (!force && _loadedDate == date) return;
 
     _isDayLoading = true;
     _errorMessage = null;
@@ -61,6 +70,23 @@ class HistoryProvider extends ChangeNotifier {
     try {
       _dayEvents = await _service.getEventsByDate(date, familyId);
       _loadedDate = date;
+      
+      // อัปเดตข้อมูลจุดสี (Dot) ทันทีจากข้อมูลรายวันที่เพิ่งโหลดมา
+      if (_dayEvents.isNotEmpty) {
+        final completed = _dayEvents.where((e) => e.isCompleted || e.status == 'completed').length;
+        final missed = _dayEvents.where((e) => e.status == 'missed').length;
+        
+        _calendarData[date] = EventCalendar(
+          date: date,
+          familyId: familyId,
+          completedCount: completed,
+          missedCount: missed,
+          totalCount: _dayEvents.length,
+        );
+      } else {
+        // ถ้าโหลดมาแล้วไม่มีงาน ให้เอาจุดออก (ถ้ามี)
+        _calendarData.remove(date);
+      }
     } catch (e) {
       _errorMessage = 'โหลดรายการล้มเหลว';
       _dayEvents = [];
@@ -71,14 +97,13 @@ class HistoryProvider extends ChangeNotifier {
     }
   }
 
-  /// ดึง DayStatus สำหรับแสดง dot
   DayStatus? getStatusForDate(DateTime date) {
-    final key =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    return _calendarData[key]?.status;
+    final key = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    final data = _calendarData[key];
+    if (data == null) return null;
+    return data.status;
   }
 
-  /// clear cache วันที่ (ใช้เมื่อ refresh)
   void clearDayCache() {
     _loadedDate = null;
     _dayEvents = [];

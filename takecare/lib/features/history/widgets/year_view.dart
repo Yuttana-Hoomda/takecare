@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/models/event_calendar_model.dart';
 import 'package:takecare/features/history/providers/history_provider.dart';
 import '/constants/app_theme.dart';
 
+//หน้าปี -
 class YearView extends StatefulWidget {
   final int year;
   final void Function(DateTime) onMonthSelected;
@@ -22,12 +24,12 @@ class _YearViewState extends State<YearView> {
   @override
   void initState() {
     super.initState();
-    // โหลดทุกเดือนในปีนี้
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider =
-      Provider.of<HistoryProvider>(context, listen: false);
+      final provider = Provider.of<HistoryProvider>(context, listen: false);
+      final familyId = Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+      if (familyId == null || familyId.isEmpty) return;
       for (int m = 1; m <= 12; m++) {
-        provider.loadMonth(month: m, year: widget.year);
+        provider.loadMonth(month: m, year: widget.year, familyId: familyId);
       }
     });
   }
@@ -50,16 +52,6 @@ class _YearViewState extends State<YearView> {
     return DayStatus.missed;
   }
 
-  Color _statusColor(DayStatus status) {
-    switch (status) {
-      case DayStatus.complete:
-        return const Color(0xFF4DB887);
-      case DayStatus.partial:
-        return const Color(0xFFFFAA55);
-      case DayStatus.missed:
-        return const Color(0xFFFF7F7F);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +68,7 @@ class _YearViewState extends State<YearView> {
       children: [
         const SizedBox(height: 24),
         Text(
-          '$buddhistYear พ.ศ.',
+          'พ.ศ. $buddhistYear',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 16),
@@ -125,18 +117,6 @@ class _YearViewState extends State<YearView> {
                             : null,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    if (summary != null)
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _statusColor(summary),
-                        ),
-                      )
-                    else
-                      const SizedBox(height: 8),
                   ],
                 ),
               ),

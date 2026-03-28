@@ -3,13 +3,14 @@ class Event {
   final String date;
   final String elderlyId;
   final String familyId;
-  final String type; // "task" | "food_analysis"
+  final String type;                // "task" | "foodAnalysis"
   final String referenceCollection; // "task_submission" | "food_analyses"
   final String referenceId;
   final String displayTitle;
   final String? displaySubtitle;
+  final String? thumbnailUrl;
   final String icon;
-  final String status; // "completed" | "missed"
+  final String status;              // "completed" | "missed"
   final DateTime createdAt;
 
   const Event({
@@ -21,12 +22,14 @@ class Event {
     required this.referenceId,
     required this.displayTitle,
     this.displaySubtitle,
+    this.thumbnailUrl,
     required this.icon,
     required this.status,
     required this.createdAt,
   });
 
   bool get isCompleted => status == 'completed';
+  bool get isFoodAnalysis => type == 'foodAnalysis'; // ← ตรงกับ backend แล้ว
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -38,6 +41,7 @@ class Event {
       referenceId: json['referenceId'] as String,
       displayTitle: json['displayTitle'] as String,
       displaySubtitle: json['displaySubtitle'] as String?,
+      thumbnailUrl: json['thumbnailUrl'] as String?,
       icon: json['icon'] as String? ?? 'assets/task.svg',
       status: json['status'] as String,
       createdAt: json['createdAt'] is String

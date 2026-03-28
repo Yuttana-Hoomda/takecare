@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
+import 'package:takecare/features/history/models/event_calendar_model.dart';
+import 'package:takecare/features/history/providers/history_provider.dart';
+import '/constants/app_theme.dart';
 
 class WeekDatePicker extends StatefulWidget {
   final DateTime selectedDate;
@@ -16,12 +21,9 @@ class WeekDatePicker extends StatefulWidget {
 
 class _WeekDatePickerState extends State<WeekDatePicker> {
   late PageController _pageController;
-
-  // index 500 = สัปดาห์ปัจจุบัน
   static const int _initialIndex = 500;
 
   DateTime _startOfWeek(DateTime date) {
-    // จันทร์เป็นวันแรก
     return date.subtract(Duration(days: date.weekday - 1));
   }
 
@@ -40,17 +42,47 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
     return _initialIndex + diff;
   }
 
+  Color _dotColor(DayStatus status) {
+    switch (status) {
+      case DayStatus.complete:
+        return AppTheme.success;
+      case DayStatus.partial:
+        return AppTheme.warning;
+      case DayStatus.missed:
+        return AppTheme.error;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    final initialPage = _indexOfDate(widget.selectedDate);
-    _pageController = PageController(initialPage: initialPage);
+    _pageController =
+        PageController(initialPage: _indexOfDate(widget.selectedDate));
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMonthForIndex(_pageController.initialPage);
+    });
+  }
+
+  void _loadMonthForIndex(int index) {
+    if (!mounted) return;
+    final familyId = Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+    if (familyId == null || familyId.isEmpty) return;
+
+    final provider = Provider.of<HistoryProvider>(context, listen: false);
+    final weekStart = _weekAtIndex(index);
+    
+    provider.loadMonth(month: weekStart.month, year: weekStart.year, familyId: familyId);
+    
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    if (weekEnd.month != weekStart.month) {
+      provider.loadMonth(month: weekEnd.month, year: weekEnd.year, familyId: familyId);
+    }
   }
 
   @override
   void didUpdateWidget(WeekDatePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // ถ้า selectedDate เปลี่ยนจากภายนอก (จาก InfiniteCalendar) ให้ jump ไปสัปดาห์นั้น
     if (oldWidget.selectedDate != widget.selectedDate) {
       final targetPage = _indexOfDate(widget.selectedDate);
       if (_pageController.hasClients) {
@@ -71,66 +103,107 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    const dayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
+    final provider = context.watch<HistoryProvider>();
+    final dayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
 
     return SizedBox(
-      height: 80,
+      height: 105,
       child: PageView.builder(
         controller: _pageController,
+        onPageChanged: _loadMonthForIndex,
         itemBuilder: (context, index) {
           final weekStart = _weekAtIndex(index);
-          final dates = List.generate(7, (i) => weekStart.add(Duration(days: i)));
+          final dates =
+              List.generate(7, (i) => weekStart.add(Duration(days: i)));
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: dates.asMap().entries.map((e) {
+                final i = e.key;
+                final date = e.value;
+                final isSelected =
+                    DateUtils.isSameDay(date, widget.selectedDate);
+                final isToday = DateUtils.isSameDay(date, DateTime.now());
+                final isFuture = date.isAfter(DateTime.now());
+                final status = provider.getStatusForDate(date);
 
-          return Row(
-            children: dates.asMap().entries.map((e) {
-              final i = e.key;
-              final date = e.value;
-              final isSelected = date.year == widget.selectedDate.year &&
-                  date.month == widget.selectedDate.month &&
-                  date.day == widget.selectedDate.day;
-              final isToday = date.year == DateTime.now().year &&
-                  date.month == DateTime.now().month &&
-                  date.day == DateTime.now().day;
-
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => widget.onDateSelected(date),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? cs.primary : cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
-                      border: isToday && !isSelected
-                          ? Border.all(color: cs.primary, width: 1.5)
-                          : null,
-                    ),
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () => widget.onDateSelected(date),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
                           dayLabels[i],
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: isSelected ? cs.onPrimary : cs.onSurfaceVariant,
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : Colors.grey[500],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${date.day}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: isSelected ? cs.onPrimary : cs.onSurface,
+                        const SizedBox(height: 6),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 45,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            // เปลี่ยนจาก Colors.transparent เป็น Colors.white เมื่อไม่ได้ถูกเลือก
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: isToday && !isSelected
+                                ? Border.all(
+                                    color: AppTheme.primaryColor, width: 1.5)
+                                : null,
+                            boxShadow: [
+                              BoxShadow(
+                                color: isSelected
+                                    ? AppTheme.primaryColor.withOpacity(0.3)
+                                    : Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${date.day}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color:
+                                      isSelected ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              if (!isFuture)
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: status != null 
+                                        ? _dotColor(status) 
+                                        : (isSelected ? Colors.white.withOpacity(0.4) : Colors.grey[300]),
+                                  ),
+                                )
+                              else
+                                const SizedBox(height: 6),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           );
         },
       ),

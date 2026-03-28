@@ -33,13 +33,13 @@ class Main extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
         ChangeNotifierProvider(create: (_) => FoodAnalysisProvider()),
-        Provider.value(value: cameras.firstWhere(
+        Provider<CameraDescription?>.value(
+          value: cameras.isNotEmpty
+              ? cameras.firstWhere(
                 (c) => c.lensDirection == CameraLensDirection.back,
             orElse: () => cameras.first,
           )
-    ),
-        Provider.value(
-          value: null,
+              : null,
         ),
       ],
       child: MaterialApp(

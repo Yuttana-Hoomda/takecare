@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:takecare/features/caregiver_home/widgets/progress_card.dart';
 import 'package:takecare/features/elderly_home/components/action_button.dart';
-import '';
+import 'package:takecare/features/caregiver_home/widgets/progress_card.dart';
+import 'package:takecare/constants/app_theme.dart';
 
 class ActionButtons extends StatelessWidget {
   const ActionButtons({super.key});
@@ -10,26 +12,20 @@ class ActionButtons extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: ActionButton(
-            label: 'งานของฉัน',
-            icon: 'assets/icons/history.png',
-            iconColor: const Color(0xFFFF8C42),
-            bgColor: const Color(0xFFFFF0E6),
-            onTap: () {},
+          child: ProgressCard(
+            label: 'Progress',
+            valueText: '50%',
+            sublabel: '4/5 doses taken',
+            progress: 0.5,
+            color: AppTheme.primaryColor,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: ActionButton(
-            label: 'เช็คอาหาร',
-            icon:'assets/icons/food.png',
-            iconColor: const Color(0xFF4DB887),
-            bgColor: const Color(0xFFE8F8EE),
-            onTap: () {},
+          child:
+            ActionButton(label: "เช็กอาหาร", icon: "assets/icons/food.png", iconColor: AppTheme.primaryColor, bgColor: Colors.white, onTap: () => {} )
           ),
-        ),
       ],
     );
   }
 }
-

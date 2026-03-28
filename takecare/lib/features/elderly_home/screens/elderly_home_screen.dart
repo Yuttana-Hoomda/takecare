@@ -116,7 +116,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
           : RefreshIndicator(
         onRefresh: () async => _fetchTasks(),
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           children: [
             Text(
               'กิจกรรมที่กำลังจะมาถึง',
