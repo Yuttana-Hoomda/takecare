@@ -1,7 +1,7 @@
 import { checkMissingTasks } from './missingTaskService.js';
 
-//const INTERVAL_MS = 60 * 60 * 1000; // 1 ชั่วโมง
-const INTERVAL_MS = 60 * 1000; // 1 นาที
+const INTERVAL_MS = 60 * 60 * 1000; // 1 ชั่วโมง
+// const INTERVAL_MS = 60 * 1000; // 1 นาที
 
 export const startMissingTaskJob = (): void => {
   console.log('⏰ MissingTaskJob started — runs every 1 hour');
