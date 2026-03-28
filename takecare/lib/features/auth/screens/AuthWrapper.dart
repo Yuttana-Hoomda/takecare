@@ -13,25 +13,20 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authen = Provider.of<AuthProvider>(context);
 
-<<<<<<< HEAD
+    // 1. ยังไม่ login
     if (!authen.isAuthenticated) {
-      return const Login();
-=======
-    if (authen.isAuthenticated) {
-      return const MainWrapper();
-    } else {
       return const LoginScreen();
->>>>>>> main
     }
 
     final user = authen.user!;
 
-    // caregiver ที่ยังไม่มี familyId ไปหน้า link_family ก่อน
+    // 2. caregiver แต่ยังไม่มี family
     if (user.role == Role.caregiver &&
         (user.familyId == null || user.familyId!.isEmpty)) {
       return const LinkFamilyScreen();
     }
 
+    // 3. กรณีอื่น
     return const MainWrapper();
   }
 }
