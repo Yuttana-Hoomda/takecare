@@ -3,7 +3,11 @@ import { db } from '../config/firebase.js';
 const submissionsCollection = db.collection('task_submissions');
 const eventsCollection      = db.collection('events');
 
-const toDateString = (date: Date): string => date.toISOString().split('T')[0];
+const toDateString = (date: Date): string => {
+  // ✅ Bangkok timezone (UTC+7)
+  const bkk = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  return `${bkk.getUTCFullYear()}-${String(bkk.getUTCMonth() + 1).padStart(2, '0')}-${String(bkk.getUTCDate()).padStart(2, '0')}`;
+};
 
 export const createSubmission = async (data: {
   taskId: string;
@@ -12,7 +16,7 @@ export const createSubmission = async (data: {
   proofImgUrl: string | null;
   taskTitle: string;
 }) => {
-  const now = new Date();
+  const now      = new Date();
   const todayStr = toDateString(now);
 
   // save task_submission
@@ -28,12 +32,13 @@ export const createSubmission = async (data: {
   };
   await docRef.set(submission);
 
-  // save event status: completed
+  // save event — เพิ่ม taskId field เพื่อให้ missingTaskJob check duplicate ได้ถูกต้อง
   await eventsCollection.add({
     date:                todayStr,
     elderlyId:           data.elderlyId,
     familyId:            data.familyId,
-    referenceId:         docRef.id,
+    taskId:              data.taskId,        // ✅ [FIX] เพิ่ม taskId
+    referenceId:         docRef.id,          // submission id (ไว้ trace กลับ)
     referenceCollection: 'task_submissions',
     displayTitle:        data.taskTitle,
     displaySubtitle:     'ทำเสร็จแล้ว',

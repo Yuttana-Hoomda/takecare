@@ -3,91 +3,111 @@ import { db } from '../config/firebase.js';
 const tasksCollection       = db.collection('tasks');
 const submissionsCollection = db.collection('task_submissions');
 const eventsCollection      = db.collection('events');
+const familiesCollection    = db.collection('family');
 
-const getJsWeekday = (date: Date): number => date.getDay();
-const toDateString = (date: Date): string => date.toISOString().split('T')[0];
+// ✅ Bangkok timezone helper (UTC+7)
+const getBangkokNow = (): Date => {
+  const utc = new Date();
+  return new Date(utc.getTime() + 7 * 60 * 60 * 1000);
+};
 
-export const checkMissingTasks = async (): Promise<void> => {
-  const now = new Date();
-  const todayStr = toDateString(now);
-  const jsWeekday = getJsWeekday(now);
+const toDateString = (date: Date): string =>
+  `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
 
-  console.log(`🔍 checkMissingTasks: ${todayStr} weekday=${jsWeekday}`);
+const getJsWeekday = (date: Date): number => date.getUTCDay();
 
-  const taskSnapshot = await tasksCollection
-    .where('isRequiredPhoto', '==', true)
+// [FIX 2] cache elderlyId ต่อ familyId เพื่อไม่ต้อง query ซ้ำทุก task
+const familyElderCache: Record<string, string> = {};
+
+const getElderlyIdByFamilyId = async (familyId: string): Promise<string> => {
+  if (familyElderCache[familyId]) return familyElderCache[familyId];
+
+  const snapshot = await familiesCollection
+    .where('familyId', '==', familyId)
+    .limit(1)
     .get();
 
-  console.log(`📋 Found ${taskSnapshot.size} isRequiredPhoto tasks`);
-
-  if (taskSnapshot.empty) {
-    console.log('No requirePhoto tasks found');
-    return;
+  // ลอง doc id ด้วย เผื่อ familyId คือ doc id
+  if (snapshot.empty) {
+    const docSnap = await familiesCollection.doc(familyId).get();
+    if (docSnap.exists) {
+      const elderlyId = docSnap.data()?.elder ?? '';
+      familyElderCache[familyId] = elderlyId;
+      return elderlyId;
+    }
+    return '';
   }
 
+  const elderlyId = snapshot.docs[0]!.data().elder ?? '';
+  familyElderCache[familyId] = elderlyId;
+  return elderlyId;
+};
+
+const shouldRunToday = (task: FirebaseFirestore.DocumentData, todayStr: string, jsWeekday: number): boolean => {
+  if (task.date && task.date !== '') {
+    return task.date === todayStr;
+  }
+  const repeatDays: number[] = task.repeatDays ?? [];
+  if (repeatDays.length === 0) return true;
+  return repeatDays.includes(jsWeekday);
+};
+
+export const checkMissingTasks = async (): Promise<void> => {
+  const now        = getBangkokNow();
+  const todayStr   = toDateString(now);
+  const jsWeekday  = getJsWeekday(now);
+  const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+  console.log(`checkMissingTasks: ${todayStr} weekday=${jsWeekday} time=${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')} BKK`);
+
+  const taskSnapshot = await tasksCollection.get();
+  console.log(`Found ${taskSnapshot.size} total tasks`);
+  if (taskSnapshot.empty) return;
+
   for (const taskDoc of taskSnapshot.docs) {
-    const task = taskDoc.data();
+    const task   = taskDoc.data();
     const taskId = taskDoc.id;
 
-    console.log(`\n🔎 task: ${task.title} | hour:${task.time?.hour} min:${task.time?.minute} | repeatDays:${JSON.stringify(task.repeatDays)}`);
+    if (!shouldRunToday(task, todayStr, jsWeekday)) continue;
 
-    // เช็ค repeatDays
-    const repeatDays: number[] = task.repeatDays ?? [];
-    if (repeatDays.length > 0 && !repeatDays.includes(jsWeekday)) {
-      console.log(`   ⏭️ skip: วันนี้ไม่ใช่วันที่ต้องทำ (jsWeekday=${jsWeekday})`);
-      continue;
-    }
-
-    // เช็คว่าเลยเวลามา 1 นาที (เทส)
     const taskHour: number   = task.time?.hour ?? 0;
     const taskMinute: number = task.time?.minute ?? 0;
+    const taskMinutes        = taskHour * 60 + taskMinute;
+    const diffMinutes        = nowMinutes - taskMinutes;
 
-    const taskTime = new Date(`${todayStr}T${String(taskHour).padStart(2,'0')}:${String(taskMinute).padStart(2,'0')}:00+07:00`);
+    if (diffMinutes < 60) continue;
 
-    const diffMs = now.getTime() - taskTime.getTime();
-    const diffMinutes = diffMs / (1000 * 60);
-
-    console.log(`   ⏱️ diffMinutes: ${diffMinutes.toFixed(1)}`);
-
-    // ✅ เทสใช้ 1 นาที — production เปลี่ยนเป็น diffMinutes < 60
-    if (diffMinutes < 1) {
-      console.log(`   ⏭️ skip: ยังไม่เลย 1 นาที`);
-      continue;
-    }
-
-    // เช็คว่ามี submission วันนี้ไหม
+    // check submission
     const submissionSnapshot = await submissionsCollection
       .where('taskId', '==', taskId)
       .where('submittedDate', '==', todayStr)
       .limit(1)
       .get();
 
-    if (!submissionSnapshot.empty) {
-      console.log(`   ⏭️ skip: มี submission แล้ว`);
-      continue;
-    }
+    if (!submissionSnapshot.empty) continue;
 
-    // เช็ค duplicate missed event
+    // [FIX 1] check duplicate โดยใช้ taskId field ตรงๆ แทน referenceId
+    // เพราะ referenceId ใน completed events เป็น submissionId ไม่ใช่ taskId
     const existingEvent = await eventsCollection
-      .where('referenceId', '==', taskId)
+      .where('taskId', '==', taskId)
       .where('date', '==', todayStr)
       .where('status', '==', 'missed')
       .limit(1)
       .get();
 
-    if (!existingEvent.empty) {
-      console.log(`   ⏭️ skip: มี missed event แล้ว`);
-      continue;
-    }
+    if (!existingEvent.empty) continue;
 
-    // สร้าง missed event
+    // [FIX 2] ดึง elderlyId จาก family collection แทนการใช้ task.assignTo
+    const elderlyId = await getElderlyIdByFamilyId(task.familyId ?? '');
+
     await eventsCollection.add({
       date:                todayStr,
-      elderlyId:           task.assignTo ?? '',
-      familyId:            task.familyId,
+      elderlyId:           elderlyId,           // ✅ ได้ค่าจริงแล้ว
+      familyId:            task.familyId ?? '',
+      taskId:              taskId,              // ✅ เพิ่ม field นี้เพื่อ check duplicate ได้ถูกต้อง
       referenceId:         taskId,
-      referenceCollection: 'task_submissions',
-      displayTitle:        task.title,
+      referenceCollection: 'tasks',
+      displayTitle:        task.title ?? '',
       displaySubtitle:     'ไม่ได้ทำ',
       thumbnailUrl:        null,
       type:                'task',
@@ -95,8 +115,8 @@ export const checkMissingTasks = async (): Promise<void> => {
       createdAt:           new Date().toISOString(),
     });
 
-    console.log(`❌ Marked missed: ${task.title} (${taskId}) on ${todayStr}`);
+    console.log(`Marked missed: ${task.title} (${taskId}) on ${todayStr} | elder: ${elderlyId}`);
   }
 
-  console.log('✅ checkMissingTasks done');
+  console.log('checkMissingTasks done');
 };

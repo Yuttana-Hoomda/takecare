@@ -5,6 +5,7 @@ import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
 
 import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
+import 'package:takecare/features/caregiver_home/providers/caregiver_home_provider.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 
 import 'package:takecare/features/task/screens/task_screen.dart';
@@ -13,10 +14,6 @@ import 'package:takecare/features/history/screens/history_screen.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
 
 import '../../../test_food_alarm.dart';
-
-// 👇 ถ้ามีจริงค่อย import
-// import 'package:takecare/features/calendar/screens/caregiver_calendar_screen.dart';
-// import 'package:takecare/features/calendar/screens/elderly_calendar_screen.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -39,7 +36,6 @@ class _MainWrapperState extends State<MainWrapper> {
     final auth = context.read<AuthProvider>();
     final user = auth.user;
 
-    // ✅ โหลด task สำหรับ elder เพื่อใช้ alarm
     if (!_taskLoaded && user?.role == Role.elder && user?.familyId != null) {
       _taskLoaded = true;
 
@@ -56,7 +52,7 @@ class _MainWrapperState extends State<MainWrapper> {
     _pages = [
       const CaregiverHomeScreen(),
       const TaskScreen(),
-      const HistoryScreen(), // หรือ CaregiverCalendarScreen()
+      const HistoryScreen(),
     ];
 
     _navItems = const [
@@ -81,7 +77,7 @@ class _MainWrapperState extends State<MainWrapper> {
   void _setupElderView() {
     _pages = [
       const ElderlyHomeScreen(),
-      const HistoryScreen(), // หรือ ElderlyCalendarScreen()
+      const HistoryScreen(),
       const TestFoodAlarmApp(),
       const Placeholder(),
     ];
@@ -110,18 +106,7 @@ class _MainWrapperState extends State<MainWrapper> {
     ];
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user;
-    final isCaregiver = user?.role == Role.caregiver;
-
-    // ✅ setup view ตาม role
-    if (isCaregiver) {
-      _setupCaregiverView();
-    } else {
-      _setupElderView();
-    }
-
+  Widget _buildScaffold() {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: Container(
@@ -144,5 +129,28 @@ class _MainWrapperState extends State<MainWrapper> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final isCaregiver = user?.role == Role.caregiver;
+
+    if (isCaregiver) {
+      _setupCaregiverView();
+    } else {
+      _setupElderView();
+    }
+
+    // [FIX] ไม่ใช้ MultiProvider เพราะถ้า providers list ว่าง (elder) จะ crash
+    // ใช้ ChangeNotifierProvider เดี่ยวเฉพาะ caregiver แทน
+    if (isCaregiver) {
+      return ChangeNotifierProvider(
+        create: (_) => CaregiverHomeProvider(),
+        child: _buildScaffold(),
+      );
+    }
+
+    return _buildScaffold();
   }
 }
