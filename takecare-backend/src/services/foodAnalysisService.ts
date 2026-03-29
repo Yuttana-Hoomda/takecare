@@ -17,7 +17,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-const uploadImageToCloudinary = async (base64Image: string): Promise<string> => {
+export const uploadImageToCloudinary = async (base64Image: string): Promise<string> => {
     const dataUri = base64Image.startsWith('data:')
         ? base64Image
         : `data:image/jpeg;base64,${base64Image}`;

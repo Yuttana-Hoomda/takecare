@@ -1,26 +1,39 @@
 import type { Request, Response } from 'express';
-import * as submissionService from '../missing-task/taskSubmissionService.js';
+import { createTaskSubmission } from '../missing-task/taskSubmissionService.js';
 
-export const createSubmission = async (req: Request, res: Response): Promise<void> => {
+export const submitTaskController = async (req: Request, res: Response) => {
   try {
-    const { taskId, elderlyId, familyId, proofImgUrl, taskTitle } = req.body;
+    const { taskId, elderlyId, familyId, proofImgUrl, displayTitle, displaySubtitle } = req.body;
 
-    if (!taskId || !elderlyId || !familyId || !taskTitle) {
-      res.status(400).json({ success: false, message: 'taskId, elderlyId, familyId, taskTitle are required' });
-      return;
+    if (!taskId || !elderlyId || !familyId || !displayTitle) {
+      return res.status(400).json({
+        success: false,
+        message: "taskId, elderlyId, familyId, and displayTitle are required."
+      });
     }
 
-    const submission = await submissionService.createSubmission({
+    // Pass all data to the updated service
+    const submissionResult = await createTaskSubmission({
       taskId,
       elderlyId,
       familyId,
-      proofImgUrl: proofImgUrl ?? null,
-      taskTitle,
+      proofImgUrl: proofImgUrl || null,
+      displayTitle,
+      displaySubtitle
     });
 
-    res.status(201).json(submission);
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(201).json({
+      success: true,
+      message: "Task submission and event recorded successfully.",
+      data: submissionResult
+    });
+
+  } catch (error) {
+    console.error("Error creating task submission:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error while submitting task."
+    });
   }
 };
 
@@ -34,7 +47,7 @@ export const getSubmissionsByFamily = async (req: Request, res: Response): Promi
       return;
     }
 
-    const submissions = await submissionService.getSubmissionsByFamily(
+    const submissions = await getSubmissionsByFamily(
       familyId,
       date as string | undefined,
     );
