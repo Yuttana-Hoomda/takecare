@@ -4,7 +4,6 @@ import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'package:takecare/features/auth/screens/select_ncd_screen.dart';
-import 'package:takecare/features/caregiver_home/screens/caregiver_home_screen.dart';
 
 class SelectRoleScreen extends StatefulWidget {
   const SelectRoleScreen({super.key});
@@ -26,65 +25,61 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('เลือกบท')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(child:
-                  Column(
-                    children: [
-                      Column(
-                        children: [
-                          Text('คุณคือใคร', style: textTheme.titleLarge),
-                          Text(
-                            'คุณคือใคร? เลือกบทบาทเพื่อเริ่มต้นใช้งานได้เลย',
-                            style: TextStyle(color: AppTheme.subtitle),
-                          ),
-                        ],
+              // Header — fixed height
+              Text('คุณคือใคร', style: textTheme.titleLarge),
+              const SizedBox(height: 10),
+              Text(
+                'คุณคือใคร? เลือกบทบาทเพื่อเริ่มต้นใช้งานได้เลย',
+                style: TextStyle(color: AppTheme.subtitle),
+              ),
+              const SizedBox(height: 32),
+
+              // Cards — fill remaining space
+              Expanded(
+                child: Column(
+                  children: [
+                    Flexible( // ✅ Flexible not Expanded — avoids layout crash
+                      child: _roleCard(
+                        img: 'assets/elderly.png',
+                        role: 'ผู้สูงอายุ',
+                        description: 'รับการแจ้งเตือนจากลูกหลาน และถ่ายรูปอาหารเพื่อให้ AI วิเคราะห์ความเหมาะสมกับสุขภาพ',
+                        isSelected: _selectedIndex == 0,
+                        onTap: () => _onTap(0),
                       ),
-                      SizedBox(height: 24,),
-                      Column(
-                        children: [
-                          _roleCard(
-                            img: 'assets/elderly.png',
-                            role: 'ผู้สูงอายุ',
-                            description: 'I want to receive care and medication reminders.',
-                            isSelected: _selectedIndex == 0,
-                            onTap: () => _onTap(0),
-                          ),
-                          const SizedBox(height: 24),
-                          _roleCard(
-                            img: 'assets/caregiver.png',
-                            role: 'ลูกหลาน',
-                            description: 'I want to manage medication and nutrition for others.',
-                            isSelected: _selectedIndex == 1,
-                            onTap: () => _onTap(1),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(height: 24),
+                    Flexible( // ✅ Flexible not Expanded
+                      child: _roleCard(
+                        img: 'assets/caregiver.png',
+                        role: 'ลูกหลาน',
+                        description: 'สร้างการแจ้งเตือนและติดตามดูแลการกินอาหารของผู้สูงอายุได้จากระยะไกล',
+                        isSelected: _selectedIndex == 1,
+                        onTap: () => _onTap(1),
                       ),
-                    ],
-                  )
+                    ),
+                  ],
+                ),
               ),
 
-              // ── Continue Button ──────────────────────────────────────────
+              const SizedBox(height: 32),
+
+              // Button — fixed at bottom
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  // ปิดปุ่มไว้ (ส่งค่า null) ถ้ายังไม่ได้เลือกอะไรเลย
                   onPressed: _selectedIndex != null
                       ? () async {
-                    // กรณีที่ 1: เลือก Caregiver (_selectedIndex == 1)
                     if (_selectedIndex == 1) {
                       final success = await authProvider.updateRoleToCaregiver();
-
                       if (success && context.mounted) {
-                        // ถ้าอัปเดตสำเร็จ พาไปหน้า AuthWrapper
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -93,14 +88,13 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                               (route) => false,
                         );
                       } else if (context.mounted) {
-                        // (เสริมให้) ถ้าอัปเดต "ไม่สำเร็จ" ควรแจ้งเตือน ไม่ใช่พาไปหน้า Elder
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(authProvider.errorMessage ?? 'เกิดข้อผิดพลาด')),
+                          SnackBar(
+                            content: Text(authProvider.errorMessage ?? 'เกิดข้อผิดพลาด'),
+                          ),
                         );
                       }
-                    }
-                    // กรณีที่ 2: เลือก Elder (_selectedIndex ไม่ใช่ 1)
-                    else {
+                    } else {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -108,8 +102,8 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                         ),
                       );
                     }
-                  } // 👈 เพิ่มปีกกาปิดของฟังก์ชัน () async ไว้ตรงนี้!
-                      : null, // 👈 ถ้า _selectedIndex == null ปุ่มจะกดไม่ได้ (Disable)
+                  }
+                      : null,
                   child: Text(
                     'ถัดไป',
                     style: textTheme.labelLarge?.copyWith(
@@ -140,7 +134,8 @@ Widget _roleCard({
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      constraints: const BoxConstraints(minHeight: 160),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -159,11 +154,12 @@ Widget _roleCard({
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 44,
             backgroundImage: AssetImage(img),
-            onBackgroundImageError: (_, _) {},
+            onBackgroundImageError: (_, __) {}, // ✅ fixed: __ for unused param
           ),
           const SizedBox(height: 14),
           Text(
