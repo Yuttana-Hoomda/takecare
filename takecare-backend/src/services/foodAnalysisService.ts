@@ -352,15 +352,28 @@ export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: stri
         createdAt: FieldValue.serverTimestamp(),
     });
 
+    // 3. Update the Event Calendar Summary
     const calendarDocId = `${data.elderlyId}_${dateString}`;
+    const calendarRef = db.collection('event_calendar').doc(calendarDocId);
+    const calendarSnap = await calendarRef.get();
 
-    await db.collection('event_calendar').doc(calendarDocId).set({
-        Date: dateString,
-        elderlyId: data.elderlyId,
-        familyId: data.familyId,
-        completedCount: FieldValue.increment(1),
-        totalCount: FieldValue.increment(1)
-    }, { merge: true });
+    if (!calendarSnap.exists) {
+        await calendarRef.set({
+            date: dateString,
+            elderlyId: data.elderlyId,
+            familyId: data.familyId,
+            completedCount: 1,
+            totalCount: 1,
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    } else {
+        await calendarRef.update({
+            completedCount: FieldValue.increment(1),
+            totalCount: FieldValue.increment(1),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
 
     return { foodId: foodDocRef.id, eventId: eventDocRef.id };
 };
