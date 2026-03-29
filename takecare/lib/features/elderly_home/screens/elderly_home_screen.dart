@@ -33,42 +33,27 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
     if (familyId != null && elderlyId != null) {
       Provider.of<TaskProvider>(context, listen: false).getTasks(
         familyId,
-        elderlyId: elderlyId, // ✅ ใส่ตรงนี้
+        elderlyId: elderlyId,
       );
     }
   }
 
   List<Task> _filterTasksForToday(List<Task> tasks) {
     final today = DateTime.now();
-    // backend ใช้ 0=อาทิตย์ ... 6=เสาร์
-    // Flutter weekday: 1=จันทร์ ... 7=อาทิตย์ → แปลงเป็น 0-6
-    final todayWeekday = today.weekday % 7; // จันทร์=1→1, อาทิตย์=7→0
+    // ปรับตามที่คุณแจ้ง: 5 = วันเสาร์
+    final todayWeekday = today.weekday - 1;
     final todayDateStr = today.toIso8601String().substring(0, 10);
 
     final filtered = tasks.where((task) {
-      // เช็ค date ตรงวันนี้ก่อนเสมอ ไม่ว่า isRepeatByDate จะเป็นอะไร
       if (task.date != null && task.date!.isNotEmpty) {
-        final match = task.date!.startsWith(todayDateStr);
-        log(
-          '[date] ${task.title} | date="${task.date}" | today="$todayDateStr" | match=$match',
-        );
-        return match;
+        return task.date!.startsWith(todayDateStr);
       }
-      // ถ้าไม่มี date ค่อยเช็ค repeatDays
       if (task.repeatDays == null || task.repeatDays!.isEmpty) {
-        log('[repeat] ${task.title} | repeatDays=[] → skip');
         return false;
       }
-      final match = task.repeatDays!.contains(todayWeekday);
-      log(
-        '[repeat] ${task.title} | repeatDays=${task.repeatDays} | weekday=$todayWeekday | match=$match',
-      );
-      return match;
+      return task.repeatDays!.contains(todayWeekday);
     }).toList();
 
-    log('→ filtered ${filtered.length}/${tasks.length} tasks for today');
-
-    // เรียงตามเวลา
     filtered.sort((a, b) {
       final aMin = a.time.hour * 60 + a.time.minute;
       final bMin = b.time.hour * 60 + b.time.minute;
@@ -79,28 +64,37 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
   }
 
   Task? _getNextTask(List<Task> tasks) {
+    if (tasks.isEmpty) return null;
+
     final now = TimeOfDay.now();
     final nowMin = now.hour * 60 + now.minute;
 
+    // หาเฉพาะงานที่ "ยังไม่ถึงเวลา" หรือ "พึ่งเลยเวลาไปไม่เกิน 15 นาที"
     final upcoming = tasks.where((t) {
       final taskMin = t.time.hour * 60 + t.time.minute;
-      return taskMin >= nowMin - 30;
+      return taskMin >= nowMin - 15;
     }).toList();
 
-    if (upcoming.isEmpty) return null;
-    upcoming.sort((a, b) {
-      final aMin = a.time.hour * 60 + a.time.minute;
-      final bMin = b.time.hour * 60 + b.time.minute;
-      return aMin.compareTo(bMin);
-    });
-    return upcoming.first;
+    if (upcoming.isNotEmpty) {
+      upcoming.sort((a, b) {
+        final aMin = a.time.hour * 60 + a.time.minute;
+        final bMin = b.time.hour * 60 + b.time.minute;
+        return aMin.compareTo(bMin);
+      });
+      return upcoming.first;
+    }
+
+    // ถ้าเลยเวลาของทุุกงานมาแล้ว ให้คืนค่า null เพื่อแสดงข้อความ "ไม่มีกิจกรรม..."
+    return null;
   }
 
   bool _isNow(Task task) {
     final now = TimeOfDay.now();
     final taskMin = task.time.hour * 60 + task.time.minute;
     final nowMin = now.hour * 60 + now.minute;
-    return (taskMin - nowMin).abs() <= 30;
+
+    final diff = taskMin - nowMin;
+    return diff >= 0 && diff <= 30;
   }
 
   @override
@@ -143,6 +137,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+                  // เรียกใช้ NextTaskCard เสมอ (ข้างในมีการเช็ค null อยู่แล้ว)
                   NextTaskCard(task: nextTask),
                   const SizedBox(height: 20),
                   const ActionButtons(),
@@ -202,7 +197,7 @@ class _ScheduleHeader extends StatelessWidget {
         TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-          child: Text(
+          child: const Text(
             'ดูทั้งหมด',
             style: TextStyle(
               fontSize: 14,

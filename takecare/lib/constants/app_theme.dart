@@ -10,7 +10,7 @@ class AppTheme {
   //สำหรับปฎิทิน
   static const Color error = Color.fromARGB(255, 227,38 , 54);
   static const Color success =  Color.fromARGB (255,34,197,94);
-  static const Color warning = Color.fromARGB (255,234,88,12);
+  static const Color warning = Color.fromARGB (255,250,88,12);
 
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
