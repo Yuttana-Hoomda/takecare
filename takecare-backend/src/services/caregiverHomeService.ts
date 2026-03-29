@@ -162,6 +162,6 @@ export const getRecentEvents = async (familyId: string, date: string, limit = 10
 
   // 3. รวม sort desc limit
   const allItems = [...doneItems, ...pendingItems];
-  allItems.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  allItems.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   return allItems.slice(0, limit);
 };
