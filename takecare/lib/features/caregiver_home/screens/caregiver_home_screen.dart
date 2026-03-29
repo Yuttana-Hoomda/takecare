@@ -13,9 +13,6 @@ class CaregiverHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // [FIX 4] ใช้ Provider จาก parent แทน ChangeNotifierProvider ใหม่
-    // เพื่อไม่ให้ data หายทุกครั้งที่ rebuild
-    // → ต้องลงทะเบียน CaregiverHomeProvider ไว้ใน MultiProvider ที่ main.dart หรือ main_wrapper.dart
     return const _CaregiverHomeView();
   }
 }
@@ -36,8 +33,6 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
 
   Future<void> _load() async {
     final familyId = context.read<AuthProvider>().user?.familyId;
-
-    // [FIX 2] แจ้ง user เมื่อยังไม่ได้ link family แทนที่จะเงียบ
     if (familyId == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,15 +43,13 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
       );
       return;
     }
-
     await context.read<CaregiverHomeProvider>().loadTodayData(familyId);
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CaregiverHomeProvider>();
-    final authProvider = context.watch<AuthProvider>();
-    final user = authProvider.user;
+    final user = context.watch<AuthProvider>().user;
     final textTheme = Theme.of(context).textTheme;
     final summary = provider.summary;
 
@@ -71,7 +64,6 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
         },
         child: CustomScrollView(
           slivers: [
-            // sticky header
             SliverAppBar(
               pinned: true,
               floating: false,
@@ -101,17 +93,15 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
 
                   const SizedBox(height: 28),
 
-                  // [FIX 5] แสดง error message ถ้าโหลดไม่สำเร็จ
                   if (provider.errorMessage != null)
                     _ErrorBanner(
                       message: provider.errorMessage!,
                       onRetry: _load,
                     ),
 
-                  Text("Today's Progress", style: textTheme.titleMedium),
+                  Text('ความคืบหน้าวันนี้', style: textTheme.titleMedium),
                   const SizedBox(height: 14),
 
-                  // progress cards
                   provider.isLoading
                       ? const Center(
                           child: Padding(
@@ -150,13 +140,7 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
 
                   const SizedBox(height: 28),
 
-                  // recent activity
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Recent Activity', style: textTheme.titleMedium),
-                    ],
-                  ),
+                  Text('กิจกรรมล่าสุด', style: textTheme.titleMedium),
                   const SizedBox(height: 12),
 
                   if (provider.isLoading)
@@ -190,10 +174,8 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
                           endIndent: 16,
                           color: AppTheme.secondary,
                         ),
-                        itemBuilder: (_, i) {
-                          final event = provider.recentEvents[i];
-                          return _EventTile(event: event);
-                        },
+                        itemBuilder: (_, i) =>
+                            _EventTile(event: provider.recentEvents[i]),
                       ),
                     ),
 
@@ -208,7 +190,6 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
   }
 }
 
-// [FIX 5] Widget แสดง error พร้อมปุ่ม retry
 class _ErrorBanner extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -254,19 +235,23 @@ class _EventTile extends StatelessWidget {
 
     Color statusColor;
     IconData statusIcon;
+    String statusLabel;
 
     switch (event.status) {
       case 'completed':
         statusColor = const Color(0xFF2E7D32);
         statusIcon = Icons.check_circle_outline;
+        statusLabel = 'เสร็จแล้ว';
         break;
       case 'missed':
         statusColor = const Color(0xFFE44040);
         statusIcon = Icons.cancel_outlined;
+        statusLabel = 'พลาด';
         break;
       default:
         statusColor = const Color(0xFFE07B00);
         statusIcon = Icons.pending_outlined;
+        statusLabel = 'รอดำเนินการ';
     }
 
     return Padding(
@@ -306,7 +291,6 @@ class _EventTile extends StatelessWidget {
               ],
             ),
           ),
-          // status badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -314,11 +298,7 @@ class _EventTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              event.status == 'completed'
-                  ? 'เสร็จ'
-                  : event.status == 'missed'
-                  ? 'พลาด'
-                  : 'รอ',
+              statusLabel,
               style: textTheme.labelSmall?.copyWith(
                 color: statusColor,
                 fontWeight: FontWeight.w600,
