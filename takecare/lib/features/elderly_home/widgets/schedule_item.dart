@@ -8,7 +8,7 @@ class ScheduleItem extends StatelessWidget {
   final Task task;
   final bool isNow;
   final bool isLast;
-  final bool isCompleted; // รับค่ามาจากหน้า Home
+  final bool isCompleted;
 
   const ScheduleItem({
     super.key,
@@ -32,8 +32,6 @@ class ScheduleItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final timeStr = task.time.format(context);
     final colors = _getColors();
-
-    // 🔥 สลับสีตามสถานะ: ถ้าเสร็จแล้วใช้สีเขียว
     final bgColor = isCompleted ? Colors.green[50]! : colors.$1;
     final iconColor = isCompleted ? Colors.green : colors.$2;
     final dotColor = isCompleted ? Colors.green : (isNow ? AppTheme.primaryColor : const Color(0xFFCCCCCC));

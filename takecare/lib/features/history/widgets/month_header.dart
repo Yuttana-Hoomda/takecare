@@ -28,14 +28,14 @@ class MonthHeader extends StatelessWidget {
             '${_thaiMonths[selectedDate.month]} $buddhistYear',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 24, // ✅ เพิ่มขนาดเป็น 24
+              fontSize: 20, // ✅ ลดลงจาก 24 เป็น 20
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.calendar_today_outlined,
               color: Theme.of(context).colorScheme.primary,
-              size: 28, // ✅ เพิ่มขนาด icon
+              size: 24,
             ),
             onPressed: onCalendarTap,
           ),

@@ -49,8 +49,6 @@ class NextTaskCard extends StatelessWidget {
     }
 
     final timeStr = task!.time.format(context);
-
-    /// 🔥 เช็คสถานะ
     final isCompleted = _isCompletedToday(context, task!);
 
     return ClipRRect(
@@ -63,7 +61,6 @@ class NextTaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              /// 🔹 HEADER
               Row(
                 children: [
                   Container(
@@ -120,12 +117,12 @@ class NextTaskCard extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              /// 🔹 FOOTER
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
 
-                  /// ⏰ TIME
+
                   Row(
                     children: [
                       const Icon(
@@ -145,10 +142,10 @@ class NextTaskCard extends StatelessWidget {
                     ],
                   ),
 
-                  /// ✅ BUTTON (Disable ถ้าทำแล้ว)
+
                   ElevatedButton(
                     onPressed: isCompleted
-                        ? null // 🔥 disable เลย
+                        ? null
                         : () async {
                       final result = await Navigator.push(
                         context,

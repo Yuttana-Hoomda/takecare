@@ -17,14 +17,14 @@ class HomeHeader extends StatelessWidget {
               backgroundImage: url.isNotEmpty ? NetworkImage(url) : null,
               child: url.isEmpty ? const Icon(Icons.person, size: 26) : null,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 20),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${GreetingHelper.getGreeting()},',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     color: Colors.grey[600],
                   ),
                 ),
@@ -32,7 +32,7 @@ class HomeHeader extends StatelessWidget {
                   auth.user?.displayName ?? '',
                   style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],

@@ -107,7 +107,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
     final dayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
 
     return SizedBox(
-      height: 120, // ✅ เพิ่มความสูงจาก 105 เป็น 120
+      height: 110,
       child: PageView.builder(
         controller: _pageController,
         onPageChanged: _loadMonthForIndex,
@@ -116,7 +116,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
           final dates =
               List.generate(7, (i) => weekStart.add(Duration(days: i)));
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0), // ลด padding เพื่อให้ตัวเลขที่ใหญ่ขึ้นไม่เบียดกัน
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: dates.asMap().entries.map((e) {
@@ -137,7 +137,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                         Text(
                           dayLabels[i],
                           style: TextStyle(
-                            fontSize: 16, // ✅ เพิ่มจาก 12 เป็น 16
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: isSelected
                                 ? AppTheme.primaryColor
@@ -147,8 +147,8 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                         const SizedBox(height: 8),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 48, // ✅ เพิ่มความกว้างเล็กน้อย
-                          height: 75, // ✅ เพิ่มความสูงเล็กน้อย
+                          width: 44,
+                          height: 68,
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppTheme.primaryColor
@@ -156,7 +156,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                             borderRadius: BorderRadius.circular(12),
                             border: isToday && !isSelected
                                 ? Border.all(
-                                    color: AppTheme.primaryColor, width: 2) // หนาขึ้น
+                                    color: AppTheme.primaryColor, width: 1.5)
                                 : null,
                             boxShadow: [
                               BoxShadow(
@@ -174,7 +174,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                               Text(
                                 '${date.day}',
                                 style: TextStyle(
-                                  fontSize: 24, // ✅ เพิ่มจาก 18 เป็น 24
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w800,
                                   color:
                                       isSelected ? Colors.white : Colors.black87,
@@ -183,8 +183,8 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                               const SizedBox(height: 4),
                               if (!isFuture)
                                 Container(
-                                  width: 8, // ✅ ใหญ่ขึ้นเล็กน้อย
-                                  height: 8,
+                                  width: 6,
+                                  height: 6,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: status != null 
@@ -193,7 +193,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                                   ),
                                 )
                               else
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
                             ],
                           ),
                         ),

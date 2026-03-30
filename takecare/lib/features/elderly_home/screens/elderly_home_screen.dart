@@ -61,13 +61,13 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> with RouteAware {
     await Provider.of<TaskSubmissionProvider>(context, listen: false)
         .loadByFamily(familyId: familyId, token: token);
   }
-  // ✅ ฟังก์ชันเช็กว่าทำเสร็จหรือยัง (ส่งค่าไปให้ ScheduleItem)
+  //  ฟังก์ชันเช็กว่าทำเสร็จหรือยัง (ส่งค่าไปให้ ScheduleItem)
   bool _isTaskCompletedToday(Task task) {
     final submissionProvider = Provider.of<TaskSubmissionProvider>(context, listen: false);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // 🔴 เพิ่ม Print เพื่อ Debug
+    // เพิ่ม Print เพื่อ Debug
     print("--- กำลังเช็ก Task: ${task.title} (ID: ${task.taskId}) ---");
     print("จำนวน Submission ทั้งหมดที่โหลดมา: ${submissionProvider.submissions.length}");
 
@@ -84,7 +84,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> with RouteAware {
       return isMatch;
     });
   }
-  // ✅ กรองเฉพาะ Task ที่ต้องแสดงวันนี้ (โชว์ทั้งหมด ไม่ตัดอันที่ทำแล้วทิ้ง)
+  //  กรองเฉพาะ Task ที่ต้องแสดงวันนี้ (โชว์ทั้งหมด ไม่ตัดอันที่ทำแล้วทิ้ง)
   List<Task> _filterTasksForToday(List<Task> tasks) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -110,7 +110,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> with RouteAware {
     return filtered;
   }
 
-  // ✅ Next Task: เอาอันถัดไปที่ "ยังไม่ได้ทำ"
+  //  Next Task: เอาอันถัดไปที่ "ยังไม่ได้ทำ"
   Task? _getNextTask(List<Task> tasks) {
     final remainingTasks = tasks.where((t) => !_isTaskCompletedToday(t)).toList();
     if (remainingTasks.isEmpty) return null;
@@ -168,7 +168,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> with RouteAware {
                   task: task,
                   isNow: _isNow(task),
                   isLast: e.key == todayTasks.length - 1,
-                  isCompleted: _isTaskCompletedToday(task), // 🔥 ส่งค่าไปที่นี่
+                  isCompleted: _isTaskCompletedToday(task),
                 );
               }),
             const SizedBox(height: 30),

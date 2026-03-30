@@ -30,8 +30,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
-  // --- Logic สำหรับการแสดงสถานะภาพรวม (Badge) ---
-
   String _getSummaryText(List<Event> events) {
     if (events.isEmpty) return "ไม่มีกิจกรรม";
     final completedCount = events.where((e) => e.isCompleted || e.status == 'completed').length;
@@ -45,9 +43,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (events.isEmpty) return Colors.grey;
     final completedCount = events.where((e) => e.isCompleted || e.status == 'completed').length;
 
-    if (completedCount == 0) return AppTheme.error;    // สีแดง
-    if (completedCount < events.length) return AppTheme.warning; // สีเหลือง
-    return AppTheme.success;  // สีเขียว
+    if (completedCount == 0) return AppTheme.error;
+    if (completedCount < events.length) return AppTheme.warning;
+    return AppTheme.success;
   }
 
   IconData _getSummaryIcon(String text) {
@@ -60,8 +58,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Icons.not_interested;
     }
   }
-
-  // ------------------------------------------
 
   void _loadMonth(DateTime date, {bool force = false}) {
     final familyId = Provider.of<AuthProvider>(context, listen: false).user?.familyId;
@@ -102,8 +98,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
     final events = provider.dayEvents;
-
-    // คำนวณค่าสถานะล่วงหน้า
     final summaryText = _getSummaryText(events);
     final summaryColor = _getSummaryColor(events);
 
@@ -112,7 +106,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text(
           'ประวัติกิจกรรม',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22), // ✅ เพิ่มจาก 18 เป็น 22
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -146,7 +140,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         },
                       ),
                       const SizedBox(height: 10),
-                      // --- ส่วน Timeline + Status Badge ---
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
@@ -154,12 +147,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           children: [
                             Text(
                               "สรุปผลกิจกรรม", 
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold), // ✅ ปรับเป็น titleLarge
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
                             ),
-                            // แสดง Badge เฉพาะเมื่อมีข้อมูล
                             if (events.isNotEmpty)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // ✅ เพิ่ม padding
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: summaryColor.withOpacity(0.08),
                                   borderRadius: BorderRadius.circular(20),
@@ -172,14 +167,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       summaryText,
                                       style: TextStyle(
                                         color: summaryColor,
-                                        fontSize: 20,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 4),
                                     Icon(
                                       _getSummaryIcon(summaryText),
-                                      size: 18,
+                                      size: 16,
                                       color: summaryColor,
                                     ),
                                   ],
@@ -227,7 +222,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
 
@@ -241,7 +235,7 @@ class _EmptyState extends StatelessWidget {
             child: Text(
               'ไม่มีรายการในวันนี้',
               style: TextStyle(
-                  fontSize: 20, // ✅ เพิ่มขนาดตัวอักษร
+                  fontSize: 18,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
@@ -263,16 +257,16 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 60, color: cs.error), // ✅ เพิ่มขนาด icon
+          Icon(Icons.error_outline, size: 50, color: cs.error),
           const SizedBox(height: 12),
           Text(message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant)), // ✅ เพิ่มขนาดตัวอักษร
+              style: TextStyle(fontSize: 16, color: cs.onSurfaceVariant)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('ลองใหม่', style: TextStyle(fontSize: 18)), // ✅ เพิ่มขนาดตัวอักษรปุ่ม
+            label: const Text('ลองใหม่', style: TextStyle(fontSize: 16)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
