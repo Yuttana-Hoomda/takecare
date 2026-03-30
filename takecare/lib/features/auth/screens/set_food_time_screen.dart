@@ -133,9 +133,17 @@ class SetFoodTimeScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     final success = await authProvider.updateElderProfile(
-                        ncdConditions: boardingProvider.diseases,
-                        foodTime: boardingProvider.currentFoodTime
+                      ncdConditions: boardingProvider.diseases,
+                      foodTime: boardingProvider.currentFoodTime,
                     );
+
+                    if (success && authProvider.user!.familyId != null) {
+                      await boardingProvider.createFoodTime(
+                        boardingProvider.currentFoodTime,
+                        authProvider.user!.uid,
+                        authProvider.user!.familyId!,
+                      );
+                    }
 
                     if (success && context.mounted) {
                       Navigator.pushAndRemoveUntil(
@@ -145,7 +153,6 @@ class SetFoodTimeScreen extends StatelessWidget {
                         ),
                             (route) => false,
                       );
-
                     } else if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(authProvider.errorMessage ?? 'เกิดข้อผิดพลาด')),
