@@ -18,6 +18,10 @@ const String kPayloadTime = 'scheduledTime';
 const String kPayloadNote = 'note';
 const String kPayloadRepeatDays = 'repeatDays'; // ✅ เพิ่ม
 
+const String kFoodChannelId = 'takecare_food';
+const String kFoodChannelName = 'Food Alarms';
+const String kPayloadFoodType = 'foodType';
+
 class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
@@ -72,6 +76,16 @@ class NotificationService {
         >();
     await androidPlugin?.createNotificationChannel(alarm);
     await androidPlugin?.createNotificationChannel(reminder);
+
+    const food = AndroidNotificationChannel(
+      kFoodChannelId,
+      kFoodChannelName,
+      description: 'Reminders for meal times',
+      importance: Importance.high,
+      playSound: true,
+      enableVibration: true,
+    );
+    await androidPlugin?.createNotificationChannel(food);
   }
 
   // ─────────────────────────────────────────
@@ -430,6 +444,69 @@ class NotificationService {
       return details?.notificationResponse?.payload;
     }
     return null;
+  }
+
+  // schedule food notification ตาม foodTime ของ elder
+  Future<void> scheduleFoodNotification({
+    required String mealType, // breakfast | lunch | dinner
+    required TimeOfDay time,
+    required String elderlyId,
+    required String familyId,
+  }) async {
+    final mealNames = {
+      'breakfast': 'มื้อเช้า',
+      'lunch': 'มื้อกลางวัน',
+      'dinner': 'มื้อเย็น',
+    };
+    final mealName = mealNames[mealType] ?? mealType;
+    final id = '${elderlyId}_$mealType'.hashCode.abs() % 100000;
+
+    final payload = jsonEncode({
+      kPayloadTaskId: '${elderlyId}_$mealType',
+      kPayloadTaskTitle: mealName,
+      kPayloadRequirePhoto: false,
+      kPayloadElderlyId: elderlyId,
+      kPayloadFamilyId: familyId,
+      kPayloadTime:
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+      kPayloadNote: '',
+      kPayloadFoodType: mealType,
+    });
+
+    final androidDetails = const AndroidNotificationDetails(
+      kFoodChannelId,
+      kFoodChannelName,
+      importance: Importance.high,
+      priority: Priority.high,
+      category: AndroidNotificationCategory.reminder,
+    );
+
+    final scheduledDate = _nextInstanceOfTime(time, [0, 1, 2, 3, 4, 5, 6]);
+
+    await _plugin.zonedSchedule(
+      id,
+      mealName,
+      'ถึงเวลา$mealNameแล้ว กรุณาถ่ายรูปอาหาร',
+      scheduledDate,
+      NotificationDetails(android: androidDetails),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: payload,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    debugPrint(
+      'Scheduled food: $mealName id=$id at ${scheduledDate.toLocal()}',
+    );
+  }
+
+  Future<void> cancelFoodNotifications(String elderlyId) async {
+    for (final meal in ['breakfast', 'lunch', 'dinner']) {
+      final id = '${elderlyId}_$meal'.hashCode.abs() % 100000;
+      await _plugin.cancel(id);
+    }
+    debugPrint('Cancelled food notifications for $elderlyId');
   }
 
   Future<void> cancelTaskNotification(String taskId) async {

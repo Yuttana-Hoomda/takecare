@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { createFamily, linkFamily } from '../controllers/familyController.js';
-import { getElderInfoByFamilyId } from '../services/familyService.js';
+import { getElderInfoByFamilyId, getElderInfoByFamilyIdSafe } from '../services/familyService.js';
 import { verifyToken } from '../middlewares/middleware.js';
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get('/families/elder-info', async (req: Request, res: Response) => {
       res.status(400).json({ error: 'familyId is required' });
       return;
     }
-    const elder = await getElderInfoByFamilyId(familyId);
+    const elder = await getElderInfoByFamilyIdSafe(familyId);
     res.status(200).json(elder);
   } catch (error: any) {
     console.error('getElderInfo error:', error);

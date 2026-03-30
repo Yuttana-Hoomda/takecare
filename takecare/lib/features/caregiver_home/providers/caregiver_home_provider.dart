@@ -29,17 +29,16 @@ class CaregiverHomeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final summary = await _service.getDailySummary(
-        familyId: familyId,
-        date: todayStr,
-      );
-      final events = await _service.getRecentEvents(
-        familyId: familyId,
-        date: todayStr,
-      );
+      // ✅ ยิง 3 requests พร้อมกันเลย ไม่ต้อง await ทีละอัน
+      final results = await Future.wait([
+        _service.getDailySummary(familyId: familyId, date: todayStr),
+        _service.getRecentEvents(familyId: familyId, date: todayStr),
+        _service.getElderInfo(familyId: familyId),
+      ]);
 
-      _summary = summary;
-      _recentEvents = events;
+      _summary      = results[0] as DailySummary;
+      _recentEvents = results[1] as List<RecentEventItem>;
+      _elderInfo    = results[2] as ElderInfo;
     } catch (e) {
       _errorMessage = 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่';
       log('CaregiverHomeProvider error: $e');

@@ -82,10 +82,10 @@ export const getRecentEvents = async (familyId: string, date: string, limit = 10
     };
   });
 
-  // [FIX] สร้าง Set ของ taskId ที่มี event แล้ว
-  // รองรับทั้ง schema ใหม่ (taskId field) และเก่า (referenceId = taskId สำหรับ missed)
-  // สำหรับ completed event เก่าที่ referenceId = submissionId → ดึง taskId จาก task_submissions
+  // สร้าง Set ของ taskId ที่มี event แล้ว
+  // รองรับทั้ง schema ใหม่ (taskId field) และเก่า (referenceId)
   const doneTaskIds = new Set<string>();
+  const submissionLookupIds: string[] = [];
 
   for (const doc of eventSnapshot.docs) {
     const data = doc.data();
@@ -102,20 +102,23 @@ export const getRecentEvents = async (familyId: string, date: string, limit = 10
       continue;
     }
 
-    // schema เก่า completed: referenceCollection = 'task_submissions'
-    // → ต้อง lookup submission เพื่อเอา taskId
+    // schema เก่า completed: เก็บ referenceId ไว้ lookup พร้อมกันทีเดียว (N+1 fix)
     if (data.referenceCollection === 'task_submissions' && data.referenceId) {
-      try {
-        const submissionDoc = await db
-          .collection('task_submissions')
-          .doc(data.referenceId as string)
-          .get();
-        if (submissionDoc.exists) {
-          const taskId = submissionDoc.data()?.taskId as string | undefined;
-          if (taskId) doneTaskIds.add(taskId);
-        }
-      } catch (_) {
-        // ถ้า lookup ไม่ได้ก็ข้ามไป — task จะแสดงเป็น pending (false positive ดีกว่า miss)
+      submissionLookupIds.push(data.referenceId as string);
+    }
+  }
+
+  // ✅ ยิง Firestore lookups พร้อมกัน แทนที่จะ await ทีละอัน (N+1 fix)
+  if (submissionLookupIds.length > 0) {
+    const lookupResults = await Promise.all(
+      submissionLookupIds.map(id =>
+        db.collection('task_submissions').doc(id).get().catch(() => null)
+      )
+    );
+    for (const snap of lookupResults) {
+      if (snap?.exists) {
+        const taskId = snap.data()?.taskId as string | undefined;
+        if (taskId) doneTaskIds.add(taskId);
       }
     }
   }

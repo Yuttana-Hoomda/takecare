@@ -57,6 +57,27 @@ class AutomatedAlarmProvider extends ChangeNotifier {
     }
   }
 
+  // photo-required task: รับรูปจาก CameraScreen แล้ว submit
+  Future<void> onDoneWithPhoto({
+    required String imagePath,
+    required String imgBase64,
+  }) async {
+    try {
+      _capturedPhotoPath = imagePath;
+      _setState(AlarmActionState.submitting, 'กำลังบันทึก...');
+      await _service.submitTask(
+        taskId:    currentAlarm.id,
+        taskTitle: currentAlarm.title,
+        elderlyId: elderlyId,
+        familyId:  familyId,
+      );
+      _setState(AlarmActionState.completed, '');
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setState(AlarmActionState.error, '');
+    }
+  }
+
   // ─────────────────────────────────────────
   // Normal task: กด "เสร็จสิ้น" โดยไม่ต้องถ่ายรูป
   // ─────────────────────────────────────────
