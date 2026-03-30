@@ -4,11 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/task/models/task_model.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
+import 'package:takecare/features/task_submission/providers/task_submission_provider.dart';
 import '../widgets/home_header.dart';
 import '../widgets/next_task_card.dart';
 import '../widgets/action_card.dart';
 import '../widgets/schedule_item.dart';
 import '/constants/app_theme.dart';
+
+final RouteObserver<ModalRoute> elderlyHomeRouteObserver =
+RouteObserver<ModalRoute>();
 
 class ElderlyHomeScreen extends StatefulWidget {
   const ElderlyHomeScreen({super.key});
@@ -17,58 +21,85 @@ class ElderlyHomeScreen extends StatefulWidget {
   State<ElderlyHomeScreen> createState() => _ElderlyHomeScreenState();
 }
 
-class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
+class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
+    with RouteAware {
+
+  static final RouteObserver<ModalRoute> routeObserver =
+      elderlyHomeRouteObserver;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchTasks());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _init());
   }
 
-  void _fetchTasks() {
-    final user = Provider.of<AuthProvider>(context, listen: false).user;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
 
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    log('didPopNext called');
+    _init();
+  }
+
+  Future<void> _init() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final user = auth.user;
     final familyId = user?.familyId;
-    final elderlyId = user?.uid;
+    final elderlyId = user?.uid ?? '';
+    final token = auth.firebaseToken ?? '';
 
-    if (familyId != null && elderlyId != null) {
-      Provider.of<TaskProvider>(context, listen: false).getTasks(
-        familyId,
-        elderlyId: elderlyId, // ✅ ใส่ตรงนี้
-      );
-    }
+    if (familyId == null) return;
+
+    // โหลด tasks
+    await Provider.of<TaskProvider>(context, listen: false)
+        .getTasks(familyId, elderlyId: elderlyId);
+
+    // โหลด submissions วันนี้
+    await Provider.of<TaskSubmissionProvider>(context, listen: false)
+        .loadByFamily(familyId: familyId, token: token);
+  }
+
+  // ✅ helper: เช็คว่า task นี้ "ทำแล้ววันนี้"
+  bool _isTaskCompletedToday(Task task) {
+    final submissionProvider =
+    Provider.of<TaskSubmissionProvider>(context, listen: false);
+
+    final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+
+    return submissionProvider.submissions.any((s) =>
+    s.taskId == task.taskId &&
+        s.createdAt.toIso8601String().startsWith(todayStr));
   }
 
   List<Task> _filterTasksForToday(List<Task> tasks) {
     final today = DateTime.now();
-    // backend ใช้ 0=อาทิตย์ ... 6=เสาร์
-    // Flutter weekday: 1=จันทร์ ... 7=อาทิตย์ → แปลงเป็น 0-6
-    final todayWeekday = today.weekday % 7; // จันทร์=1→1, อาทิตย์=7→0
+    final todayWeekday = today.weekday;
     final todayDateStr = today.toIso8601String().substring(0, 10);
 
     final filtered = tasks.where((task) {
-      // เช็ค date ตรงวันนี้ก่อนเสมอ ไม่ว่า isRepeatByDate จะเป็นอะไร
+      // fixed date
       if (task.date != null && task.date!.isNotEmpty) {
-        final match = task.date!.startsWith(todayDateStr);
-        log(
-          '[date] ${task.title} | date="${task.date}" | today="$todayDateStr" | match=$match',
-        );
-        return match;
+        return task.date!.startsWith(todayDateStr);
       }
-      // ถ้าไม่มี date ค่อยเช็ค repeatDays
+
+      // repeat
       if (task.repeatDays == null || task.repeatDays!.isEmpty) {
-        log('[repeat] ${task.title} | repeatDays=[] → skip');
         return false;
       }
-      final match = task.repeatDays!.contains(todayWeekday);
-      log(
-        '[repeat] ${task.title} | repeatDays=${task.repeatDays} | weekday=$todayWeekday | match=$match',
-      );
-      return match;
+
+      return task.repeatDays!.contains(todayWeekday);
     }).toList();
 
-    log('→ filtered ${filtered.length}/${tasks.length} tasks for today');
-
-    // เรียงตามเวลา
     filtered.sort((a, b) {
       final aMin = a.time.hour * 60 + a.time.minute;
       final bMin = b.time.hour * 60 + b.time.minute;
@@ -83,16 +114,23 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
     final nowMin = now.hour * 60 + now.minute;
 
     final upcoming = tasks.where((t) {
+      // ✅ ข้ามถ้าทำแล้ว "วันนี้"
+      if (_isTaskCompletedToday(t)) return false;
+
       final taskMin = t.time.hour * 60 + t.time.minute;
-      return taskMin >= nowMin - 30;
+
+      // ❌ ข้ามถ้าเลยเวลาแล้ว (ถือว่า miss)
+      return taskMin >= nowMin;
     }).toList();
 
     if (upcoming.isEmpty) return null;
+
     upcoming.sort((a, b) {
       final aMin = a.time.hour * 60 + a.time.minute;
       final bMin = b.time.hour * 60 + b.time.minute;
       return aMin.compareTo(bMin);
     });
+
     return upcoming.first;
   }
 
@@ -106,17 +144,20 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskProvider>(context);
+    final submissionProvider = Provider.of<TaskSubmissionProvider>(context);
+
     final allTasks = taskProvider.tasks ?? [];
     final todayTasks = _filterTasksForToday(allTasks);
     final nextTask = _getNextTask(todayTasks);
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode
-          ? AppTheme.bgColorDark
-          : AppTheme.bgColorLight,
+      backgroundColor:
+      isDarkMode ? AppTheme.bgColorDark : AppTheme.bgColorLight,
       appBar: AppBar(
-        backgroundColor: isDarkMode ? AppTheme.bgColorDark : Colors.white,
+        backgroundColor:
+        isDarkMode ? AppTheme.bgColorDark : Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
@@ -127,60 +168,50 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> {
       body: taskProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () async => _fetchTasks(),
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 15,
-                  horizontal: 20,
-                ),
-                children: [
-                  Text(
-                    'กิจกรรมที่กำลังจะมาถึง',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  NextTaskCard(task: nextTask),
-                  const SizedBox(height: 20),
-                  const ActionButtons(),
-                  const SizedBox(height: 24),
-                  _ScheduleHeader(),
-                  const SizedBox(height: 12),
-                  if (todayTasks.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.event_busy,
-                              size: 48,
-                              color: Colors.grey.withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'ไม่มีกิจกรรมสำหรับวันนี้',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    ...todayTasks.asMap().entries.map(
-                      (e) => ScheduleItem(
-                        task: e.value,
-                        isNow: _isNow(e.value),
-                        isLast: e.key == todayTasks.length - 1,
-                      ),
-                    ),
-                  const SizedBox(height: 30),
-                ],
+        onRefresh: () async => _init(),
+        child: ListView(
+          padding:
+          const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          children: [
+            Text(
+              'กิจกรรมที่กำลังจะมาถึง',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
+            const SizedBox(height: 12),
+            NextTaskCard(
+              task: nextTask,
+              onComplete: () async {
+                await _init();
+              },
+            ),
+            const SizedBox(height: 20),
+            const ActionButtons(),
+            const SizedBox(height: 24),
+            _ScheduleHeader(),
+            const SizedBox(height: 12),
+
+            if (todayTasks.isEmpty)
+              const Center(child: Text("ไม่มีกิจกรรมวันนี้"))
+            else
+              ...todayTasks.asMap().entries.map((e) {
+                final task = e.value;
+
+                return ScheduleItem(
+                  task: task,
+                  isNow: _isNow(task),
+                  isLast: e.key == todayTasks.length - 1,
+                  isCompleted: _isTaskCompletedToday(task), // ✅ เพิ่ม
+                );
+              }),
+
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -201,12 +232,9 @@ class _ScheduleHeader extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {},
-          style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
           child: Text(
             'ดูทั้งหมด',
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
               color: AppTheme.primaryColor,
             ),
           ),

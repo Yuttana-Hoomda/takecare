@@ -13,128 +13,137 @@ class FoodAnalysisScreen extends StatelessWidget {
     super.key,
     required this.analysisResult,
     required this.img,
+    this.showShareButton = true, // เพิ่มตัวแปรเพื่อเลือกว่าจะโชว์ปุ่มแชร์ไหม
   });
 
   final AiAnalysisResult analysisResult;
   final File img;
+  final bool showShareButton;
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
     return Scaffold(
-      appBar: AppBar(title: Text('วิเคราะห์อาหาร'), centerTitle: true),
+      appBar: AppBar(title: const Text('วิเคราะห์อาหาร'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
           children: [
             Expanded(
-              child: Column(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(24),
-                    child: Image.file(
-                      img,
-                      width: double.infinity,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _healthLevelBuild(analysisResult.healthLevel, context),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+              child: SingleChildScrollView( // ป้องกัน overflow
+                child: Column(
+                  children: [
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.black12),
+                      child: Image.file(
+                        img,
+                        width: double.infinity,
+                        height: 250,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: Text(
-                      analysisResult.analysisResult,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    const SizedBox(height: 24),
+                    _healthLevelBuild(analysisResult.healthLevel, context),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.black12),
+                      ),
+                      child: Text(
+                        analysisResult.analysisResult,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _nutrientInfo(
-                          'น้ำตาล (กรัม)',
-                          analysisResult.sugar,
-                          Icons.cookie_outlined,
-                          'sugar',
-                          'Hypertension',
-                          context,
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _nutrientInfo(
+                            'น้ำตาล (กรัม)',
+                            analysisResult.sugar,
+                            Icons.cookie_outlined,
+                            'sugar',
+                            'Hypertension',
+                            context,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _nutrientInfo(
-                          'โซเดี่ยม (มิลลิกรัม)',
-                          analysisResult.sodium,
-                          Icons.cookie_outlined,
-                          'sodium',
-                          'Hypertension',
-                          context,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _nutrientInfo(
+                            'โซเดี่ยม (มิลลิกรัม)',
+                            analysisResult.sodium,
+                            Icons.cookie_outlined,
+                            'sodium',
+                            'Hypertension',
+                            context,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.info_outline, size: 16, color: Colors.black45),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Ai อาจจะแสดงข้อมูลผิดพลาดได้',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.black45),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.info_outline, size: 16, color: Colors.black45),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Ai อาจจะแสดงข้อมูลผิดพลาดได้',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.black45),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final test = await context
-                      .read<FoodAnalysisProvider>()
-                      .saveFoodAnalysis(
-                        elderlyId: user!.uid,
-                        familyId: user.familyId!,
-                        displayTitle: 'test',
-                        analysisResult: analysisResult,
-                        imageBase64: base64Encode(img.readAsBytesSync()),
-                      );
-                  if (!context.mounted) return;
-                  debugPrint(test.toString());
-
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => ElderlyHomeScreen()),
-                        (route) => false,
-                  );
-                },
-                child: Text(
-                  'แชร์ให้ครอบครัว',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
+            // แสดงปุ่มแชร์เฉพาะเมื่อ showShareButton เป็น true
+            if (showShareButton)
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (user == null) return;
+                    
+                    final test = await context
+                        .read<FoodAnalysisProvider>()
+                        .saveFoodAnalysis(
+                          elderlyId: user.uid,
+                          familyId: user.familyId ?? '',
+                          displayTitle: 'รายการอาหารที่บันทึก',
+                          analysisResult: analysisResult,
+                          imageBase64: base64Encode(img.readAsBytesSync()),
+                        );
+                    if (!context.mounted) return;
+                    debugPrint(test.toString());
+
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ElderlyHomeScreen()),
+                          (route) => false,
+                    );
+                  },
+                  child: Text(
+                    'แชร์ให้ครอบครัว',
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

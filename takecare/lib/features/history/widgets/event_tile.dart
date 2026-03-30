@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:takecare/features/history/models/event_model.dart';
+import 'package:takecare/features/history/screens/event_detail_screen.dart';
 import 'package:takecare/constants/app_theme.dart';
 
 enum _EventStatus { finished, missed, now, next }
@@ -12,19 +13,30 @@ class EventTile extends StatelessWidget {
   const EventTile({super.key, required this.event, required this.isLast});
 
   _EventStatus get _status {
-    if (event.isCompleted || event.status == 'completed') return _EventStatus.finished;
+    if (event.isCompleted) return _EventStatus.finished;
     if (event.status == 'missed') return _EventStatus.missed;
 
     final now = DateTime.now();
-    final eventTime = event.createdAt;
-    final diff = eventTime.difference(now).inMinutes;
-
+    final diff = event.createdAt.difference(now).inMinutes;
     if (diff < -30) return _EventStatus.missed;
     if (diff.abs() <= 30) return _EventStatus.now;
     return _EventStatus.next;
   }
 
-  Color _dotColor(BuildContext context) {
+  IconData _statusIcon() {
+    switch (_status) {
+      case _EventStatus.finished:
+        return Icons.check_circle;
+      case _EventStatus.missed:
+        return Icons.cancel;
+      case _EventStatus.now:
+        return Icons.access_time_filled;
+      case _EventStatus.next:
+        return Icons.schedule;
+    }
+  }
+
+  Color _statusColor(BuildContext context) {
     switch (_status) {
       case _EventStatus.finished:
         return AppTheme.success;
@@ -33,20 +45,7 @@ class EventTile extends StatelessWidget {
       case _EventStatus.now:
         return Theme.of(context).colorScheme.primary;
       case _EventStatus.next:
-        return Theme.of(context).colorScheme.outlineVariant;
-    }
-  }
-
-  Color _leftBorderColor() {
-    switch (_status) {
-      case _EventStatus.finished:
-        return AppTheme.success;
-      case _EventStatus.missed:
-        return AppTheme.error;
-      case _EventStatus.now:
-        return Colors.transparent;
-      case _EventStatus.next:
-        return const Color(0xFFCCCCCC);
+        return AppTheme.warning;
     }
   }
 
@@ -63,43 +62,28 @@ class EventTile extends StatelessWidget {
     }
   }
 
-  Color _statusLabelColor(BuildContext context) {
-    switch (_status) {
-      case _EventStatus.finished:
-        return AppTheme.success;
-      case _EventStatus.missed:
-        return AppTheme.error;
-      case _EventStatus.now:
-        return Theme.of(context).colorScheme.primary;
-      case _EventStatus.next:
-        return AppTheme.warning;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isCurrent = _status == _EventStatus.now;
-    final Color cardBg = Colors.white;
-    final Color titleColor = isCurrent ? cs.primary : cs.onSurface;
-    final Color subtitleColor = cs.onSurfaceVariant;
+    final statusColor = _statusColor(context);
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Timeline dot + line
+          // Timeline
           SizedBox(
             width: 20,
             child: Column(
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 Container(
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _dotColor(context),
+                    color: statusColor,
                   ),
                 ),
                 if (!isLast)
@@ -115,117 +99,114 @@ class EventTile extends StatelessWidget {
           const SizedBox(width: 12),
           // Card
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(16),
-                border: Border(
-                    left: BorderSide(
-                        color: _leftBorderColor(), width: 4)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  )
-                ],
+            child: GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EventDetailScreen(event: event),
+                ),
               ),
-              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // status label + type badge
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _statusLabel(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: _statusLabelColor(context),
-                        ),
-                      ),
-                      if (event.isFoodAnalysis)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE8F8EE),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
+                  if (event.isFoodAnalysis)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          Icon(Icons.restaurant, size: 14, color: const Color(0xFF4DB887)),
+                          const SizedBox(width: 4),
+                          Text(
                             'วิเคราะห์อาหาร',
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: const TextStyle(
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF4DB887),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  // icon + title
-                  Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        margin: const EdgeInsets.only(right: 10),
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            event.icon,
-                            width: 20,
-                            height: 20,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          event.displayTitle,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: titleColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  // subtitle (note)
-                  if (event.displaySubtitle != null &&
-                      event.displaySubtitle!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        event.displaySubtitle!,
-                        style: TextStyle(
-                            fontSize: 13, color: subtitleColor),
+                        ],
                       ),
                     ),
-                  // View Details button
-                  if (isCurrent)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: cs.primary,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Text('ดูรายละเอียด'),
-                        ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border(
+                        left: BorderSide(color: statusColor, width: 5),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Icon
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  event.icon,
+                                  width: 28,
+                                  height: 28,
+                                  colorFilter: ColorFilter.mode(statusColor, BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Title
+                            Expanded(
+                              child: Text(
+                                event.displayTitle,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCurrent ? cs.primary : Colors.black87,
+                                ),
+                              ),
+                            ),
+                            // Status badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(_statusIcon(), size: 15, color: statusColor),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _statusLabel(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

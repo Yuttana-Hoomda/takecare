@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { createSubmission, getSubmissionsByFamily } from '../controllers/taskSubmissionController.js';
+import { submitTaskController, getSubmissionsByFamily } from '../controllers/taskSubmissionController.js';
 
 const router = Router();
 
 // POST /api/task-submissions
-router.post('/task-submissions', createSubmission);
+router.post('/task-submissions', submitTaskController);
 
 // GET /api/task-submissions/family/:familyId?date=YYYY-MM-DD
 router.get('/task-submissions/family/:familyId', getSubmissionsByFamily);

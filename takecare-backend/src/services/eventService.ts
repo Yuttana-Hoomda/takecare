@@ -1,6 +1,7 @@
 import { db } from "../config/firebase.js";
 
 const eventsCollection = db.collection('events');
+const tasksCollection = db.collection('tasks');
 
 // GET /api/event?date=2026-03-15&familyId=xxx
 export const getEventsByDate = async (date: string, familyId: string) => {
@@ -10,9 +11,46 @@ export const getEventsByDate = async (date: string, familyId: string) => {
 
     if (snapshot.empty) return [];
 
-    return snapshot.docs
+    const events = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(data => data.date === date);
+        .filter((data: any) => data.date === date);
+
+    // dedup ด้วย referenceId — เก็บแค่อันล่าสุดของแต่ละ task
+    const dedupMap = new Map<string, any>();
+    for (const event of events) {
+        const key = (event as any).referenceId ?? (event as any).id;
+        const existing = dedupMap.get(key);
+        if (!existing || (event as any).createdAt > existing.createdAt) {
+            dedupMap.set(key, event);
+        }
+    }
+    const dedupedEvents = Array.from(dedupMap.values());
+
+    // ดึง isRequiredPhoto จาก tasks collection มาแนบกับแต่ละ event
+    const eventsWithPhoto = await Promise.all(
+        dedupedEvents.map(async (event: any) => {
+            if (event.type === 'task' && event.referenceId) {
+                try {
+                    const taskDoc = await tasksCollection.doc(event.referenceId).get();
+                    if (taskDoc.exists) {
+                        const taskData = taskDoc.data();
+                        return {
+                            ...event,
+                            isRequiredPhoto: taskData?.isRequiredPhoto ?? false,
+                        };
+                    }
+                } catch (e) {
+                    console.error(`Failed to fetch task ${event.referenceId}:`, e);
+                }
+            }
+            return {
+                ...event,
+                isRequiredPhoto: false,
+            };
+        })
+    );
+
+    return eventsWithPhoto;
 };
 
 // GET /api/event-calendar?month=03&year=2026&familyId=xxx
@@ -24,7 +62,6 @@ export const getEventCalendarByMonth = async (month: string, year: string, famil
         return [];
     }
 
-    // ตรวจสอบว่า month มีเลข 0 นำหน้าหรือไม่ (เช่น "03")
     const paddedMonth = month.toString().padStart(2, '0');
     const prefix = `${year}-${paddedMonth}`;
     console.log(`🔍 Backend: Searching for dates starting with "${prefix}"`);

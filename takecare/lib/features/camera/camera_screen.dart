@@ -4,13 +4,18 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../components/loading_overlay.dart';
 import 'camera_provider.dart';
 
 class CameraScreen extends StatelessWidget {
   final void Function(String imgBase64, String imageFilePath) onSubmit;
   final bool isLoading;
 
-  const CameraScreen({super.key, required this.onSubmit, this.isLoading = false});
+  const CameraScreen({
+    super.key,
+    required this.onSubmit,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +23,8 @@ class CameraScreen extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) =>
-          CameraProvider(camera: context.read<CameraDescription>())
-            ..initialize(),
+              CameraProvider(camera: context.read<CameraDescription>())
+                ..initialize(),
         ),
       ],
       child: _CameraScreenBody(onSubmit, isLoading),
@@ -107,11 +112,15 @@ class _CameraScreenBody extends StatelessWidget {
               top: 16,
               left: 16,
               child: IconButton(
-                onPressed: () {},
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black26,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: IconButton.styleFrom(backgroundColor: Colors.black26),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 32,
                 ),
-                icon: Icon(Icons.close_rounded, color: Colors.white, size: 32),
               ),
             ),
           ],
@@ -121,9 +130,12 @@ class _CameraScreenBody extends StatelessWidget {
   }
 
   Widget _buildPreview(BuildContext context, CameraProvider cameraProvider) {
-
-    return Scaffold(
-      body: SafeArea(
+    // ✅ LoadingOverlay wraps Scaffold — replaces manual isLoading Stack
+    return LoadingOverlay(
+      isLoading: isLoading,
+      message: 'กำลังวิเคราะห์รูปภาพ...',
+      child: Scaffold(
+        body: SafeArea(
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -132,105 +144,127 @@ class _CameraScreenBody extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: double.infinity,
               ),
-              if (isLoading)
-                Container(
-                  color: Colors.black.withAlpha(50),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 16),
-                        Text(
-                          'กำลังโหลด...',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 40,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () => cameraProvider.retake(),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withAlpha(70),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(
+
+              // Bottom buttons
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => cameraProvider.retake(),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(70),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(
+                                  Icons.refresh_rounded,
                                   color: Colors.white,
-                                  width: 1.5,
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.refresh_rounded, color: Colors.white),
-                                  const SizedBox(width: 6),
-                                  Text('ถ่ายใหม่', style: TextStyle(color: Colors.white, fontSize: 18)),
-                                ],
-                              ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'ถ่ายใหม่',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48),
-                      SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                    ),
+                    const SizedBox(width: 48),
+                    SizedBox(
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        // ✅ Disable button while loading
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                final imageFilePath =
+                                    cameraProvider.capturedImage!.path;
+                                final bytes = await XFile(
+                                  imageFilePath,
+                                ).readAsBytes();
+                                final imgBase64 = base64Encode(bytes);
+                                onSubmit(imgBase64, imageFilePath);
+                              },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.send_rounded),
+                            SizedBox(width: 6),
+                            Text(
+                              'ส่งภาพ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
                             ),
-                            onPressed: () async {
-                              final imageFilePath = cameraProvider.capturedImage!.path;
-                              final bytes = await XFile(imageFilePath).readAsBytes();
-                              final imgBase64 = base64Encode(bytes);
-
-                              onSubmit(imgBase64, imageFilePath);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.send_rounded),
-                                const SizedBox(width: 6,),
-                                Text('ส่งภาพ', style: TextStyle(color: Colors.white, fontSize: 18))
-                              ],
-                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+
+              // Top title
               Positioned(
                 top: 16,
                 left: 0,
                 right: 0,
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: Colors.black26
+                      color: Colors.black26,
                     ),
-                    child: Text('ตรวจสอบรูปภาพ', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),),
+                    child: Text(
+                      'ตรวจสอบรูปภาพ',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-      )
+        ),
+      ),
     );
   }
 }

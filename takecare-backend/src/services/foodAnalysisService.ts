@@ -17,7 +17,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-const uploadImageToCloudinary = async (base64Image: string): Promise<string> => {
+export const uploadImageToCloudinary = async (base64Image: string): Promise<string> => {
     const dataUri = base64Image.startsWith('data:')
         ? base64Image
         : `data:image/jpeg;base64,${base64Image}`;
@@ -119,7 +119,6 @@ const getNutrientsMap = (): Map<string, NutrientData> => {
 
     nutrientsMap = new Map<string, NutrientData>();
 
-    // fix #7: use explicit counter instead of map.size / 2
     let entryCount = 0;
 
     for (const row of records) {
@@ -325,6 +324,8 @@ export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: stri
     console.log('[Cloudinary] Uploading image...');
     const imageUrl = await uploadImageToCloudinary(data.imageBase64);
     console.log('[Cloudinary] Upload success:', imageUrl)
+
+    const dateString = new Date().toISOString().slice(0, 10);
     
     const foodDocRef = await db.collection('food_analyses').add({
         elderlyId: data.elderlyId,
@@ -350,6 +351,29 @@ export const saveAnalysis = async (data: SaveAnalysisRequest, displayTitle: stri
         status: 'completed',
         createdAt: FieldValue.serverTimestamp(),
     });
+
+    // 3. Update the Event Calendar Summary
+    const calendarDocId = `${data.elderlyId}_${dateString}`;
+    const calendarRef = db.collection('event_calendar').doc(calendarDocId);
+    const calendarSnap = await calendarRef.get();
+
+    if (!calendarSnap.exists) {
+        await calendarRef.set({
+            date: dateString,
+            elderlyId: data.elderlyId,
+            familyId: data.familyId,
+            completedCount: 1,
+            totalCount: 1,
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    } else {
+        await calendarRef.update({
+            completedCount: FieldValue.increment(1),
+            totalCount: FieldValue.increment(1),
+            updatedAt: FieldValue.serverTimestamp(),
+        });
+    }
 
     return { foodId: foodDocRef.id, eventId: eventDocRef.id };
 };

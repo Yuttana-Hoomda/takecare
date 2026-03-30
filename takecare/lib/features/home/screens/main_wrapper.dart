@@ -12,6 +12,7 @@ import 'package:takecare/features/task/screens/task_screen.dart';
 import 'package:takecare/features/history/screens/history_screen.dart';
 
 import 'package:takecare/features/task/providers/task_provider.dart';
+import 'package:takecare/test_task_alarm.dart';
 
 import '../../../test_food_alarm.dart';
 
@@ -79,7 +80,7 @@ class _MainWrapperState extends State<MainWrapper> {
       const ElderlyHomeScreen(),
       const HistoryScreen(),
       const TestFoodAlarmApp(),
-      const Placeholder(),
+      const TestTaskAlarmApp(),
     ];
 
     _navItems = const [

@@ -6,12 +6,14 @@ import 'package:takecare/features/food_alarm/providers/food_analysis_provider.da
 import 'package:takecare/features/automated_alarm/services/alarm_scheduler.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
 import 'package:takecare/features/link_family/providers/link_family_provider.dart';
+import 'package:takecare/features/task_submission/providers/task_submission_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/providers/history_provider.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -38,6 +40,7 @@ class Main extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (_) => OnBoardingProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
+        ChangeNotifierProvider(create: (_) => TaskSubmissionProvider()),
         ChangeNotifierProvider(create: (_) => LinkFamilyProvider()),
         ChangeNotifierProvider(create: (_) => FoodAnalysisProvider()),
         Provider<CameraDescription?>.value(
@@ -50,7 +53,8 @@ class Main extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        navigatorKey: navigatorKey,
+        navigatorKey: navigatorKey, // ✅ ผูก key
+        navigatorObservers:[elderlyHomeRouteObserver],
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

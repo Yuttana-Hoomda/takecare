@@ -6,6 +6,7 @@ import 'package:takecare/features/history/widgets/month_header.dart';
 import 'package:takecare/features/history/widgets/date_picker.dart';
 import 'package:takecare/features/history/widgets/infinite_calendar_screen.dart';
 import 'package:takecare/features/history/widgets/event_tile.dart';
+import 'package:takecare/features/history/models/event_model.dart'; // ตรวจสอบ path model ของคุณ
 import '/constants/app_theme.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -29,24 +30,53 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
+  // --- Logic สำหรับการแสดงสถานะภาพรวม (Badge) ---
+
+  String _getSummaryText(List<Event> events) {
+    if (events.isEmpty) return "ไม่มีกิจกรรม";
+    final completedCount = events.where((e) => e.isCompleted || e.status == 'completed').length;
+
+    if (completedCount == 0) return "ไม่ได้ทำ";
+    if (completedCount < events.length) return "ทำบางส่วน";
+    return "ทำทั้งหมด";
+  }
+
+  Color _getSummaryColor(List<Event> events) {
+    if (events.isEmpty) return Colors.grey;
+    final completedCount = events.where((e) => e.isCompleted || e.status == 'completed').length;
+
+    if (completedCount == 0) return AppTheme.error;    // สีแดง
+    if (completedCount < events.length) return AppTheme.warning; // สีเหลือง
+    return AppTheme.success;  // สีเขียว
+  }
+
+  IconData _getSummaryIcon(String text) {
+    switch (text) {
+      case "ทำทั้งหมด":
+        return Icons.check_circle;
+      case "ทำบางส่วน":
+        return Icons.adjust;
+      default:
+        return Icons.not_interested;
+    }
+  }
+
+  // ------------------------------------------
+
   void _loadMonth(DateTime date, {bool force = false}) {
-    final familyId =
-        Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+    final familyId = Provider.of<AuthProvider>(context, listen: false).user?.familyId;
     if (familyId == null || familyId.isEmpty) return;
-    Provider.of<HistoryProvider>(context, listen: false)
-        .loadMonth(
-          month: date.month, 
-          year: date.year, 
-          familyId: familyId,
-          force: force,
-        );
+    Provider.of<HistoryProvider>(context, listen: false).loadMonth(
+      month: date.month,
+      year: date.year,
+      familyId: familyId,
+      force: force,
+    );
   }
 
   void _loadDay(DateTime date, {bool force = false}) {
-    final dateStr =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    final familyId =
-        Provider.of<AuthProvider>(context, listen: false).user?.familyId;
+    final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final familyId = Provider.of<AuthProvider>(context, listen: false).user?.familyId;
     if (familyId == null || familyId.isEmpty) return;
     Provider.of<HistoryProvider>(context, listen: false).loadDay(dateStr, familyId, force: force);
   }
@@ -60,9 +90,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _openCalendar() async {
     final result = await Navigator.push<DateTime>(
       context,
-      MaterialPageRoute(
-        builder: (_) => const InfiniteCalendarScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const InfiniteCalendarScreen()),
     );
     if (result != null) {
       setState(() => _selectedDate = result);
@@ -74,6 +102,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
     final events = provider.dayEvents;
+
+    // คำนวณค่าสถานะล่วงหน้า
+    final summaryText = _getSummaryText(events);
+    final summaryColor = _getSummaryColor(events);
+
     return Scaffold(
       backgroundColor: AppTheme.bgColorLight,
       appBar: AppBar(
@@ -96,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Container(
-                  color: AppTheme.bgColorLight, 
+                  color: AppTheme.bgColorLight,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,11 +142,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         onDateSelected: (date) {
                           setState(() => _selectedDate = date);
                           _loadDay(date);
-                          _loadMonth(date); 
+                          _loadMonth(date);
                         },
                       ),
                       const SizedBox(height: 10),
-                      Text("Timeline")
+                      // --- ส่วน Timeline + Status Badge ---
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Timeline", style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            // แสดง Badge เฉพาะเมื่อมีข้อมูล
+                            if (events.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: summaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: summaryColor.withOpacity(0.5), width: 1),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      summaryText,
+                                      style: TextStyle(
+                                        color: summaryColor,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _getSummaryIcon(summaryText),
+                                      size: 14,
+                                      color: summaryColor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
@@ -133,7 +207,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   const SliverFillRemaining(child: _EmptyState())
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                             (context, index) => EventTile(
@@ -152,6 +226,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
+// ... _EmptyState และ _ErrorView คงเดิม ...
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
 

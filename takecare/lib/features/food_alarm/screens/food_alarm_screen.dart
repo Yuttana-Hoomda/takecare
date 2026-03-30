@@ -115,35 +115,38 @@ class FoodAlarmScreen extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CameraScreen(
-                              isLoading: false,
-                              onSubmit: (imgBase64, imageFilePath) async {
-                                final user = context.read<AuthProvider>().user;
-                                final diseases = user is ElderUser ? user.ncdConditions ?? <Diseases>[] : <Diseases>[];
+                            builder: (context) {
+                              final isLoading = context.watch<FoodAnalysisProvider>().isLoading;
+                              return CameraScreen(
+                                isLoading: isLoading,
+                                onSubmit: (imgBase64, imageFilePath) async {
+                                  final user = context.read<AuthProvider>().user;
+                                  final diseases = user is ElderUser ? user.ncdConditions ?? <Diseases>[] : <Diseases>[];
 
-                                await context.read<FoodAnalysisProvider>().analysisFood(
-                                  imgBase64,
-                                  imageFilePath,
-                                  diseases,
-                                );
-
-                                if (!context.mounted) return;
-
-                                final provider = context.read<FoodAnalysisProvider>();
-                                if (provider.result != null) {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FoodAnalysisScreen(
-                                        analysisResult: provider.result!,
-                                        img: File(imageFilePath),
-                                      ),
-                                    ),
-                                        (route) => false,
+                                  await context.read<FoodAnalysisProvider>().analysisFood(
+                                    imgBase64,
+                                    imageFilePath,
+                                    diseases,
                                   );
-                                }
-                              },
-                            ),
+
+                                  if (!context.mounted) return;
+
+                                  final provider = context.read<FoodAnalysisProvider>();
+                                  if (provider.result != null) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FoodAnalysisScreen(
+                                          analysisResult: provider.result!,
+                                          img: File(imageFilePath),
+                                        ),
+                                      ),
+                                          (route) => false,
+                                    );
+                                  }
+                                },
+                              );
+                            }
                           ),
                         );
                       },

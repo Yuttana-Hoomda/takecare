@@ -11,6 +11,7 @@ class Event {
   final String? thumbnailUrl;
   final String icon;
   final String status;              // "completed" | "missed"
+  final bool isRequiredPhoto;
   final DateTime createdAt;
 
   const Event({
@@ -25,6 +26,7 @@ class Event {
     this.thumbnailUrl,
     required this.icon,
     required this.status,
+    this.isRequiredPhoto = false,
     required this.createdAt,
   });
 
@@ -44,6 +46,7 @@ class Event {
       thumbnailUrl: json['thumbnailUrl'] as String?,
       icon: json['icon'] as String? ?? 'assets/task.svg',
       status: json['status'] as String,
+      isRequiredPhoto: json['isRequiredPhoto'] as bool? ?? false,
       createdAt: json['createdAt'] is String
           ? DateTime.parse(json['createdAt'])
           : DateTime.fromMillisecondsSinceEpoch(

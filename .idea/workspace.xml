@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="67a95df0-1896-4a07-b017-7d9283c6c4d9" name="Changes" comment="screens structure for calendar and elderly home">
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/services/eventService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/services/eventService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/action_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/action_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_analysis_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_analysis_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/models/event_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/models/event_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/screens/event_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/screens/event_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/main.dart" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+        <option value="Dart File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Pull.Settings">
+    <option name="OPTIONS">
+      <set>
+        <option value="REBASE" />
+      </set>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Duangkamon13&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Yuttana-Hoomda/takecare.git&quot;,
+    &quot;accountId&quot;: &quot;7ffa2b51-0be7-4822-914c-967141dfdcbd&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="39Z0ZmKzJZl59c49ueQtm84HIbk" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Flutter.beer_main.executor&quot;: &quot;Run&quot;,
+    &quot;Flutter.main.executor&quot;: &quot;Run&quot;,
+    &quot;Flutter.main_beer.executor&quot;: &quot;Run&quot;,
+    &quot;Flutter.main_link_family_screen.dart.executor&quot;: &quot;Run&quot;,
+    &quot;Flutter.main_test.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/history-page-and-event-api&quot;,
+    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/duangjai/duangkamon_project_takecare/takecare/lib/features/home/screens&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.android.studio.ml.bot.mainConfigurable&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/takecare/lib/features/home/screens" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/takecare/lib/features/elderly_history/components" />
+      <recent name="$PROJECT_DIR$/takecare/lib/features/elderly_history/screens" />
+      <recent name="$PROJECT_DIR$/takecare/lib/features/elderly_history" />
+      <recent name="$PROJECT_DIR$/takecare/lib/features/elderly_home/components" />
+      <recent name="$PROJECT_DIR$/takecare/lib/features/elderly_home" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Flutter.main">
+    <configuration name="main" type="FlutterRunConfigurationType" factoryName="Flutter">
+      <option name="filePath" value="$PROJECT_DIR$/takecare/lib/main.dart" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main_link_family_screen.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
+      <option name="filePath" value="$PROJECT_DIR$/takecare/lib/main_link_family_screen.dart" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Flutter.main" />
+      <item itemvalue="Flutter.main_link_family_screen.dart" />
+    </list>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="67a95df0-1896-4a07-b017-7d9283c6c4d9" name="Changes" comment="" />
+      <created>1764141535846</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1764141535846</updated>
+    </task>
+    <task id="LOCAL-00001" summary="screens structure for calendar and elderly home">
+      <option name="closed" value="true" />
+      <created>1770892271100</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770892271100</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="screens structure for calendar and elderly home" />
+    <option name="LAST_COMMIT_MESSAGE" value="screens structure for calendar and elderly home" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/takecare/test/widget_test.dart</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
