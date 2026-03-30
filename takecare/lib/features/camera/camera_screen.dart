@@ -11,7 +11,11 @@ class CameraScreen extends StatelessWidget {
   final void Function(String imgBase64, String imageFilePath) onSubmit;
   final bool isLoading;
 
-  const CameraScreen({super.key, required this.onSubmit, this.isLoading = false});
+  const CameraScreen({
+    super.key,
+    required this.onSubmit,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +23,8 @@ class CameraScreen extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) =>
-          CameraProvider(camera: context.read<CameraDescription>())
-            ..initialize(),
+              CameraProvider(camera: context.read<CameraDescription>())
+                ..initialize(),
         ),
       ],
       child: _CameraScreenBody(onSubmit, isLoading),
@@ -111,10 +115,12 @@ class _CameraScreenBody extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.black26,
+                style: IconButton.styleFrom(backgroundColor: Colors.black26),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 32,
                 ),
-                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 32),
               ),
             ),
           ],
@@ -124,7 +130,7 @@ class _CameraScreenBody extends StatelessWidget {
   }
 
   Widget _buildPreview(BuildContext context, CameraProvider cameraProvider) {
-    // ✅ Wrap Scaffold with LoadingOverlay — replaces manual isLoading Stack
+    // ✅ LoadingOverlay wraps Scaffold — replaces manual isLoading Stack
     return LoadingOverlay(
       isLoading: isLoading,
       message: 'กำลังวิเคราะห์รูปภาพ...',
@@ -155,7 +161,9 @@ class _CameraScreenBody extends StatelessWidget {
                           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withAlpha(70),
                               borderRadius: BorderRadius.circular(24),
@@ -164,14 +172,20 @@ class _CameraScreenBody extends StatelessWidget {
                                 width: 1.5,
                               ),
                             ),
-                            child: Row(
+                            child: const Row(
                               children: [
-                                const Icon(Icons.refresh_rounded,
-                                    color: Colors.white),
-                                const SizedBox(width: 6),
-                                const Text('ถ่ายใหม่',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18)),
+                                Icon(
+                                  Icons.refresh_rounded,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'ถ่ายใหม่',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -184,30 +198,37 @@ class _CameraScreenBody extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 28, vertical: 10),
+                            horizontal: 28,
+                            vertical: 10,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                           ),
                         ),
-                        // ✅ disable button while loading
+                        // ✅ Disable button while loading
                         onPressed: isLoading
                             ? null
                             : () async {
-                          final imageFilePath =
-                              cameraProvider.capturedImage!.path;
-                          final bytes =
-                          await XFile(imageFilePath).readAsBytes();
-                          final imgBase64 = base64Encode(bytes);
-                          onSubmit(imgBase64, imageFilePath);
-                        },
-                        child: Row(
+                                final imageFilePath =
+                                    cameraProvider.capturedImage!.path;
+                                final bytes = await XFile(
+                                  imageFilePath,
+                                ).readAsBytes();
+                                final imgBase64 = base64Encode(bytes);
+                                onSubmit(imgBase64, imageFilePath);
+                              },
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.send_rounded),
-                            const SizedBox(width: 6),
-                            const Text('ส่งภาพ',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18)),
+                            Icon(Icons.send_rounded),
+                            SizedBox(width: 6),
+                            Text(
+                              'ส่งภาพ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -224,17 +245,18 @@ class _CameraScreenBody extends StatelessWidget {
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 28, vertical: 16),
+                      horizontal: 28,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
                       color: Colors.black26,
                     ),
                     child: Text(
                       'ตรวจสอบรูปภาพ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: Colors.white),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(color: Colors.white),
                     ),
                   ),
                 ),
