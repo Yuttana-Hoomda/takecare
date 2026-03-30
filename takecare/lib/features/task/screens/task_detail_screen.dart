@@ -107,7 +107,7 @@ class TaskDetailScreen extends StatelessWidget {
                                 : Format().repeatedDay(task.repeatDays),
                           ),
 
-                          if (task.requirePhoto == true) ...[
+                          if (task.isRequirePhoto == true) ...[
                             const SizedBox(height: 28),
                             _infoSection(
                               context,

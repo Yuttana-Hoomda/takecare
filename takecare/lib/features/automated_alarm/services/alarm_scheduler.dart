@@ -86,7 +86,7 @@ class AlarmScheduler {
         taskTitle: task.title,
         time: task.time,
         repeatDays: task.repeatDays ?? [],
-        requirePhoto: task.requirePhoto ?? false,
+        requirePhoto: task.isRequirePhoto ?? false,
         elderlyId: elderlyId,
         familyId: familyId,
         note: task.note,
