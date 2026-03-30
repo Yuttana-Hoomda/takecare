@@ -41,50 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDEhapjIuLKO4QGh71J-YYJa3CPKz6VuQw',
-    appId: '1:718246493368:web:48d26acfc98363ddb4484d',
-    messagingSenderId: '718246493368',
-    projectId: 'takecare-9b3c0',
-    authDomain: 'takecare-9b3c0.firebaseapp.com',
-    storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    measurementId: 'G-H698H3R73P',
+    apiKey: 'AIzaSyA2gfcCblso7uvnimUlq9XhMJ2q22wKKwY',
+    appId: '1:15492338636:web:8a3ffac583c7e7dbd44369',
+    messagingSenderId: '15492338636',
+    projectId: 'takecare-01',
+    authDomain: 'takecare-01.firebaseapp.com',
+    storageBucket: 'takecare-01.firebasestorage.app',
+    measurementId: 'G-S939WTGCG2',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA9sWM-uV4k2Kr2mUqLd0xvmiKaPmobJGY',
-    appId: '1:718246493368:android:938e5932b03b68deb4484d',
-    messagingSenderId: '718246493368',
-    projectId: 'takecare-9b3c0',
-    storageBucket: 'takecare-9b3c0.firebasestorage.app',
+    apiKey: 'AIzaSyARMHRAeu6GFhOBfnPikEysePppfIRI9dw',
+    appId: '1:15492338636:android:41c5e4e5dc037df3d44369',
+    messagingSenderId: '15492338636',
+    projectId: 'takecare-01',
+    storageBucket: 'takecare-01.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBrkxa_WixC3qzzbYHBIUZg_obar3_S88U',
-    appId: '1:718246493368:ios:486a8761eed6ae63b4484d',
-    messagingSenderId: '718246493368',
-    projectId: 'takecare-9b3c0',
-    storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    iosClientId: '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAlvynXTI7UdZHe7PkUVEjlV09tru1sv4Q',
+    appId: '1:15492338636:ios:889d7d096ca669efd44369',
+    messagingSenderId: '15492338636',
+    projectId: 'takecare-01',
+    storageBucket: 'takecare-01.firebasestorage.app',
     iosBundleId: 'com.example.takecare',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBrkxa_WixC3qzzbYHBIUZg_obar3_S88U',
-    appId: '1:718246493368:ios:486a8761eed6ae63b4484d',
-    messagingSenderId: '718246493368',
-    projectId: 'takecare-9b3c0',
-    storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    iosClientId: '718246493368-8eas5und4qt5ie9sv17bqg3n50udkefk.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAlvynXTI7UdZHe7PkUVEjlV09tru1sv4Q',
+    appId: '1:15492338636:ios:889d7d096ca669efd44369',
+    messagingSenderId: '15492338636',
+    projectId: 'takecare-01',
+    storageBucket: 'takecare-01.firebasestorage.app',
     iosBundleId: 'com.example.takecare',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDEhapjIuLKO4QGh71J-YYJa3CPKz6VuQw',
-    appId: '1:718246493368:web:d660e0f4f157505cb4484d',
-    messagingSenderId: '718246493368',
-    projectId: 'takecare-9b3c0',
-    authDomain: 'takecare-9b3c0.firebaseapp.com',
-    storageBucket: 'takecare-9b3c0.firebasestorage.app',
-    measurementId: 'G-E7WHKJK5ZF',
+    apiKey: 'AIzaSyA2gfcCblso7uvnimUlq9XhMJ2q22wKKwY',
+    appId: '1:15492338636:web:f17d67d1abe7d639d44369',
+    messagingSenderId: '15492338636',
+    projectId: 'takecare-01',
+    authDomain: 'takecare-01.firebaseapp.com',
+    storageBucket: 'takecare-01.firebasestorage.app',
+    measurementId: 'G-S7PZKFM73J',
   );
 }

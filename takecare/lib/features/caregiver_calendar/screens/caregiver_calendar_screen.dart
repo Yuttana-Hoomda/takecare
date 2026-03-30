@@ -65,7 +65,6 @@ class _CaregiverCalendarScreenState extends State<CaregiverCalendarScreen> {
               title: const CaregiverHeader(
                 name: 'Mom',
                 avatarUrl: 'https://hilight.thaicdn.net/img_cms2/user/thachapol/tah/ee1226.jpg',
-                isOnline: true,
               ),
             ),
             SliverToBoxAdapter(

@@ -85,8 +85,6 @@ class _MainWrapperState extends State<MainWrapper> {
     _pages = [
       const ElderlyHomeScreen(),
       const HistoryScreen(),
-      const TestFoodAlarmApp(),
-      const TestTaskAlarmApp(),
     ];
 
     _navItems = const [
@@ -99,16 +97,6 @@ class _MainWrapperState extends State<MainWrapper> {
         icon: Icon(Icons.calendar_month_outlined),
         selectedIcon: Icon(Icons.calendar_month),
         label: 'ประวัติ',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.punch_clock_outlined),
-        selectedIcon: Icon(Icons.punch_clock),
-        label: 'test alarm',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: 'โปรไฟล์',
       ),
     ];
   }

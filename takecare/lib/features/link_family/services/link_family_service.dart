@@ -5,10 +5,10 @@ import 'package:takecare/features/link_family/models/elder_model.dart';
 import 'dart:io';
 
 class LinkFamilyService {
-  //final String baseUrl = "http://10.0.2.2:3000/api";
+  //final String baseUrl = "https://takecare-taupe.vercel.app//api";
   final String baseUrl = Platform.isAndroid
-      ? "http://10.0.2.2:3000/api"
-      : "http://localhost:3000/api";
+      ? "https://takecare-taupe.vercel.app/api"
+      : "https://takecare-taupe.vercel.app/api";
 
   /// ค้นหา elder จากเบอร์โทร
   Future<ElderModel> searchElderByPhone(String phone, String token) async {
