@@ -79,3 +79,30 @@ class RecentEventItem {
     );
   }
 }
+
+class ElderInfo {
+  final String uid;
+  final String displayName;
+  final String phoneNumber;
+  final String profileImgUrl;
+
+  const ElderInfo({
+    required this.uid,
+    required this.displayName,
+    required this.phoneNumber,
+    required this.profileImgUrl,
+  });
+
+  factory ElderInfo.fromJson(Map<String, dynamic> json) {
+    return ElderInfo(
+      uid:           json['uid']           as String? ?? '',
+      displayName:   json['displayName']   as String? ?? 'ผู้สูงอายุ',
+      phoneNumber:   json['phoneNumber']   as String? ?? '',
+      profileImgUrl: json['profileImgUrl'] as String? ?? '',
+    );
+  }
+
+  factory ElderInfo.empty() => const ElderInfo(
+    uid: '', displayName: '', phoneNumber: '', profileImgUrl: '',
+  );
+}

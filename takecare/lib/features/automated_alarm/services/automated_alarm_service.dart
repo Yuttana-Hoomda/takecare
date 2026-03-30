@@ -1,11 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class AutomatedAlarmService {
   final ImagePicker _picker = ImagePicker();
-  static const String _baseUrl = 'http://10.0.2.2:3000/api';
+
+  String get _baseUrl => Platform.isAndroid
+      ? 'http://10.0.2.2:3000/api'
+      : 'http://localhost:3000/api';
 
   Future<String?> takePhoto() async {
     final XFile? photo = await _picker.pickImage(
@@ -15,12 +19,14 @@ class AutomatedAlarmService {
     return photo?.path;
   }
 
-  // ✅ POST /api/task-submissions (ไม่มีรูปก่อนในการเทส)
+  // ✅ POST /api/task-submissions
   Future<void> submitTask({
     required String taskId,
-    required String taskTitle,
+    required String taskTitle, // ใช้เป็น displayTitle ที่ส่งไป backend
     required String elderlyId,
     required String familyId,
+    String? token,
+    String? proofImgUrl,
   }) async {
     final uri = Uri.parse('$_baseUrl/task-submissions');
 
@@ -28,20 +34,26 @@ class AutomatedAlarmService {
 
     final response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
       body: jsonEncode({
-        'taskId':     taskId,
-        'taskTitle':  taskTitle,
-        'elderlyId':  elderlyId,
-        'familyId':   familyId,
-        'proofImgUrl': null,
+        'taskId': taskId,
+        'displayTitle':
+            taskTitle, // ✅ แก้จาก taskTitle → displayTitle ให้ตรงกับ backend
+        'elderlyId': elderlyId,
+        'familyId': familyId,
+        'proofImgUrl': proofImgUrl,
       }),
     );
 
     if (response.statusCode == 201) {
       debugPrint('✅ submitTask success');
     } else {
-      debugPrint('❌ submitTask error [${response.statusCode}]: ${response.body}');
+      debugPrint(
+        '❌ submitTask error [${response.statusCode}]: ${response.body}',
+      );
       throw Exception('Submit failed: ${response.statusCode}');
     }
   }

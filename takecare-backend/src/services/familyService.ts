@@ -75,3 +75,63 @@ export const linkCaregiverByElderUid = async (
         await createFamily(elderUid, caregiverUid);
     }
 };
+// ดึงข้อมูล elder จาก familyId สำหรับ caregiver home
+export const getElderInfoByFamilyId = async (familyId: string) => {
+  const familySnapshot = await familiesCollection.doc(familyId).get();
+  if (!familySnapshot.exists) throw new Error('Family not found');
+
+  const family = familySnapshot.data();
+  const elderId = family?.['elder'] as string | undefined;
+  if (!elderId) throw new Error('Elder not found in family');
+
+  const elderSnapshot = await usersCollection
+    .where('uid', '==', elderId)
+    .limit(1)
+    .get();
+
+  if (elderSnapshot.empty) throw new Error('Elder user not found');
+
+  const elder = elderSnapshot.docs[0].data();
+  return {
+    uid:          elder['uid']          ?? '',
+    displayName:  elder['displayName']  ?? 'ผู้สูงอายุ',
+    phoneNumber:  elder['phoneNumber']  ?? '',
+    profileImgUrl: elder['profileImgUrl'] ?? '',
+  };
+};
+
+// version ที่ดีกว่า: ดึงข้อมูล elder แบบ efficient
+// รองรับกรณีที่ document ID ไม่ตรงกับ familyId field
+export const getElderInfoByFamilyIdSafe = async (familyId: string) => {
+  // ลอง doc(familyId) ก่อน
+  let familyDoc = await familiesCollection.doc(familyId).get();
+
+  // ถ้าไม่เจอ ลอง query
+  if (!familyDoc.exists) {
+    const snap = await familiesCollection
+      .where('familyId', '==', familyId)
+      .limit(1)
+      .get();
+    if (snap.empty) throw new Error('Family not found');
+    familyDoc = snap.docs[0];
+  }
+
+  const family = familyDoc.data();
+  const elderId = family?.['elder'] as string | undefined;
+  if (!elderId) throw new Error('Elder not found in family');
+
+  const elderSnapshot = await usersCollection
+    .where('uid', '==', elderId)
+    .limit(1)
+    .get();
+
+  if (elderSnapshot.empty) throw new Error('Elder user not found');
+
+  const elder = elderSnapshot.docs[0].data();
+  return {
+    uid:           elder['uid']          ?? '',
+    displayName:   elder['displayName']  ?? 'ผู้สูงอายุ',
+    phoneNumber:   elder['phoneNumber']  ?? '',
+    profileImgUrl: elder['profileImgUrl'] ?? '',
+  };
+};

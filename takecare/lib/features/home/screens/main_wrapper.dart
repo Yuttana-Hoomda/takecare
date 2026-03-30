@@ -12,6 +12,8 @@ import 'package:takecare/features/task/screens/task_screen.dart';
 import 'package:takecare/features/history/screens/history_screen.dart';
 
 import 'package:takecare/features/task/providers/task_provider.dart';
+import 'package:takecare/features/automated_alarm/services/alarm_scheduler.dart';
+import 'package:takecare/features/auth/models/user_model.dart';
 import 'package:takecare/test_task_alarm.dart';
 
 import '../../../test_food_alarm.dart';
@@ -45,6 +47,10 @@ class _MainWrapperState extends State<MainWrapper> {
           user!.familyId!,
           elderlyId: user.uid,
         );
+        // schedule food alarms ตาม foodTime ของ elder
+        if (user is ElderUser) {
+          AlarmScheduler.instance.scheduleFoodAlarms(user);
+        }
       });
     }
   }

@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:takecare/features/automated_alarm/models/automated_alarm_model.dart';
 import 'package:takecare/features/automated_alarm/screens/automated_alarm_screen.dart';
+import 'package:takecare/features/food_alarm/screens/food_alarm_screen.dart';
+import 'package:takecare/constants/enum.dart';
 import 'package:takecare/features/automated_alarm/services/notification_service.dart';
 import 'package:takecare/features/task/models/task_model.dart';
+import 'package:takecare/features/auth/models/user_model.dart';
 
 class AlarmScheduler {
   static AlarmScheduler? _instance;
@@ -15,6 +18,7 @@ class AlarmScheduler {
   String _elderlyId = '';
   String _familyId = '';
   bool _scheduled = false;
+  bool _isHandling = false;
 
   String get elderlyId => _elderlyId;
   String get familyId => _familyId;
@@ -97,6 +101,30 @@ class AlarmScheduler {
     debugPrint('AlarmScheduler: scheduled=$scheduled skipped=$skipped');
   }
 
+  // schedule food alarms ตาม foodTime ของ elder
+  Future<void> scheduleFoodAlarms(ElderUser elder) async {
+    await NotificationService.instance.cancelFoodNotifications(elder.uid);
+
+    final meals = {
+      'breakfast': elder.foodTime.breakfast,
+      'lunch': elder.foodTime.lunch,
+      'dinner': elder.foodTime.dinner,
+    };
+
+    for (final entry in meals.entries) {
+      await NotificationService.instance.scheduleFoodNotification(
+        mealType: entry.key,
+        time: entry.value,
+        elderlyId: elder.uid,
+        familyId: elder.familyId ?? '',
+      );
+    }
+
+    debugPrint(
+      'AlarmScheduler: food alarms scheduled for ${elder.displayName}',
+    );
+  }
+
   Future<void> rescheduleAll(
     List<Task> tasks, {
     required String elderlyId,
@@ -121,6 +149,24 @@ class AlarmScheduler {
   // ─────────────────────────────────────────
 
   void _handleNotificationTap(String payload) {
+    // guard: ป้องกัน push screen ซ้ำจาก retry หรือ double callback
+    if (_isHandling) {
+      debugPrint('AlarmScheduler: already handling notification, skip');
+      return;
+    }
+
+    final navigator = _navigatorKey?.currentState;
+    if (navigator == null) {
+      // retry เมื่อ navigator พร้อม แต่จำกัดครั้ง
+      debugPrint('AlarmScheduler: navigator not ready, retry in 800ms');
+      Future.delayed(const Duration(milliseconds: 800), () {
+        _handleNotificationTap(payload);
+      });
+      return;
+    }
+
+    _isHandling = true;
+
     try {
       final data = jsonDecode(payload) as Map<String, dynamic>;
       final alarm = AutomatedAlarmModel(
@@ -133,22 +179,30 @@ class AlarmScheduler {
         requirePhoto: data[kPayloadRequirePhoto] as bool? ?? false,
       );
 
-      final navigator = _navigatorKey?.currentState;
-      if (navigator == null) {
-        debugPrint('AlarmScheduler: navigator not ready, retry in 500ms');
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _handleNotificationTap(payload);
-        });
-        return;
+      // ถ้ามี foodType → เปิด FoodAlarmScreen แทน AutomatedAlarmScreen
+      final foodType = data[kPayloadFoodType] as String?;
+      Widget screen;
+      if (foodType != null) {
+        final type = foodType == 'breakfast'
+            ? FoodAlarmType.breakfast
+            : foodType == 'lunch'
+            ? FoodAlarmType.lunch
+            : FoodAlarmType.dinner;
+        screen = FoodAlarmScreen(foodAlarmType: type);
+      } else {
+        screen = AutomatedAlarmScreen(alarm: alarm);
       }
 
-      navigator.push(
-        MaterialPageRoute(
-          fullscreenDialog: true,
-          builder: (_) => AutomatedAlarmScreen(alarm: alarm),
-        ),
-      );
+      navigator
+          .push(
+            MaterialPageRoute(fullscreenDialog: true, builder: (_) => screen),
+          )
+          .then((_) {
+            // reset guard เมื่อ screen ถูกปิด
+            _isHandling = false;
+          });
     } catch (e) {
+      _isHandling = false;
       debugPrint('AlarmScheduler._handleNotificationTap error: $e');
     }
   }
