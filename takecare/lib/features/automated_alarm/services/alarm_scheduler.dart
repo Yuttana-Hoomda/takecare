@@ -88,6 +88,7 @@ class AlarmScheduler {
       await NotificationService.instance.scheduleTaskNotification(
         taskId: task.taskId!,
         taskTitle: task.title,
+        taskType: task.type,
         time: task.time,
         repeatDays: task.repeatDays ?? [],
         requirePhoto: task.isRequirePhoto ?? false,
@@ -181,13 +182,13 @@ class AlarmScheduler {
 
       // ถ้ามี foodType → เปิด FoodAlarmScreen แทน AutomatedAlarmScreen
       final foodType = data[kPayloadFoodType] as String?;
+      final taskType = data[kPayloadTaskType] as String?;
       Widget screen;
-      if (foodType != null) {
-        final type = foodType == 'breakfast'
-            ? FoodAlarmType.breakfast
-            : foodType == 'lunch'
-            ? FoodAlarmType.lunch
-            : FoodAlarmType.dinner;
+      if (foodType != null || taskType == 'foodTime') {
+        final type = _resolveFoodAlarmType(
+          foodType: foodType,
+          taskTitle: data[kPayloadTaskTitle] as String? ?? '',
+        );
         screen = FoodAlarmScreen(foodAlarmType: type);
       } else {
         screen = AutomatedAlarmScreen(alarm: alarm);
@@ -205,5 +206,26 @@ class AlarmScheduler {
       _isHandling = false;
       debugPrint('AlarmScheduler._handleNotificationTap error: $e');
     }
+  }
+
+  FoodAlarmType _resolveFoodAlarmType({
+    required String? foodType,
+    required String taskTitle,
+  }) {
+    if (foodType == 'breakfast') return FoodAlarmType.breakfast;
+    if (foodType == 'lunch') return FoodAlarmType.lunch;
+    if (foodType == 'dinner') return FoodAlarmType.dinner;
+
+    final normalizedTitle = taskTitle.toLowerCase();
+    if (normalizedTitle.contains('เช้า') ||
+        normalizedTitle.contains('breakfast')) {
+      return FoodAlarmType.breakfast;
+    }
+    if (normalizedTitle.contains('กลางวัน') ||
+        normalizedTitle.contains('เที่ยง') ||
+        normalizedTitle.contains('lunch')) {
+      return FoodAlarmType.lunch;
+    }
+    return FoodAlarmType.dinner;
   }
 }

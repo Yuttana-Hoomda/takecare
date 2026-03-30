@@ -5,6 +5,7 @@ class Task {
   final String createdBy;
   final String familyId;
   final String title;
+  final String type;
   final String icon;
   final String? date;
   final String? note;
@@ -19,6 +20,7 @@ class Task {
     required this.createdBy,
     required this.familyId,
     required this.title,
+    this.type = '',
     required this.time,
     this.repeatDays,
     this.isRequirePhoto,
@@ -35,6 +37,7 @@ class Task {
       createdBy: json['createdBy'] as String? ?? '',
       familyId: json['familyId'] as String? ?? '',
       title: json['title'] as String? ?? '',
+      type: json['type'] as String? ?? '',
       icon: json['icons'] as String? ?? 'assets/task.svg',
       isRequirePhoto:
           (json['requirePhoto'] ?? json['isRequiredPhoto']) as bool? ?? false,
@@ -62,6 +65,7 @@ class Task {
       'createdBy': createdBy,
       'familyId': familyId,
       'title': title,
+      'type': type,
       'icons': icon,
       'date': date,
       'note': note,

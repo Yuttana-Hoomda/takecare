@@ -5,14 +5,14 @@ import 'package:takecare/features/auth/models/user_model.dart';
 import '../../task/models/task_model.dart';
 import '../../task/services/task_service.dart';
 
-class OnBoardingProvider extends ChangeNotifier{
+class OnBoardingProvider extends ChangeNotifier {
   final TaskService _taskService = TaskService();
   List<Diseases> diseases = [];
   bool isHealthy = false;
 
-  TimeOfDay breakfastTime = TimeOfDay(hour: 7, minute: 00);
-  TimeOfDay lunchTime = TimeOfDay(hour: 12, minute: 00);
-  TimeOfDay dinnerTime = TimeOfDay(hour: 18, minute: 00);
+  TimeOfDay breakfastTime = const TimeOfDay(hour: 7, minute: 0);
+  TimeOfDay lunchTime = const TimeOfDay(hour: 12, minute: 0);
+  TimeOfDay dinnerTime = const TimeOfDay(hour: 18, minute: 0);
 
   MealSchedule get currentFoodTime {
     return MealSchedule(
@@ -38,7 +38,9 @@ class OnBoardingProvider extends ChangeNotifier{
   }
 
   void setFoodTime(MealSchedule foodTime) {
-    foodTime = foodTime;
+    breakfastTime = foodTime.breakfast;
+    lunchTime = foodTime.lunch;
+    dinnerTime = foodTime.dinner;
     notifyListeners();
   }
 
@@ -52,37 +54,50 @@ class OnBoardingProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> createFoodTime(MealSchedule foodTime, String userId, String familyId) async {
+  Future<void> createFoodTime(
+    MealSchedule foodTime,
+    String userId,
+    String familyId,
+  ) async {
     try {
       final now = DateTime.now();
       await Future.wait([
-        _taskService.createTask(Task(
-          createdBy: userId,
-          familyId: familyId,
-          title: 'มื้อเช้า',
-          icon: 'assets/task.svg',
-          repeatDays: [0,1,2,3,4,5,6],
-          time: foodTime.breakfast,
-          createdAt: now,
-        )),
-        _taskService.createTask(Task(
-          createdBy: userId,
-          familyId: familyId,
-          title: 'มื้อเที่ยง',
-          icon: 'assets/task.svg',
-          repeatDays: [0,1,2,3,4,5,6],
-          time: foodTime.lunch,
-          createdAt: now,
-        )),
-        _taskService.createTask(Task(
-          createdBy: userId,
-          familyId: familyId,
-          title: 'มื้อเย็น',
-          icon: 'assets/task.svg',
-          repeatDays: [0,1,2,3,4,5,6],
-          time: foodTime.dinner,
-          createdAt: now,
-        )),
+        _taskService.createTask(
+          Task(
+            createdBy: userId,
+            familyId: familyId,
+            title: 'มื้อเช้า',
+            type: 'foodTime',
+            icon: 'assets/task.svg',
+            repeatDays: const [0, 1, 2, 3, 4, 5, 6],
+            time: foodTime.breakfast,
+            createdAt: now,
+          ),
+        ),
+        _taskService.createTask(
+          Task(
+            createdBy: userId,
+            familyId: familyId,
+            title: 'มื้อเที่ยง',
+            type: 'foodTime',
+            icon: 'assets/task.svg',
+            repeatDays: const [0, 1, 2, 3, 4, 5, 6],
+            time: foodTime.lunch,
+            createdAt: now,
+          ),
+        ),
+        _taskService.createTask(
+          Task(
+            createdBy: userId,
+            familyId: familyId,
+            title: 'มื้อเย็น',
+            type: 'foodTime',
+            icon: 'assets/task.svg',
+            repeatDays: const [0, 1, 2, 3, 4, 5, 6],
+            time: foodTime.dinner,
+            createdAt: now,
+          ),
+        ),
       ]);
 
       notifyListeners();

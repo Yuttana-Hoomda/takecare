@@ -18,6 +18,8 @@ const String kPayloadTime = 'scheduledTime';
 const String kPayloadNote = 'note';
 const String kPayloadRepeatDays = 'repeatDays'; // ✅ เพิ่ม
 
+const String kPayloadTaskType = 'taskType';
+
 const String kFoodChannelId = 'takecare_food';
 const String kFoodChannelName = 'Food Alarms';
 const String kPayloadFoodType = 'foodType';
@@ -115,6 +117,7 @@ class NotificationService {
   Future<void> scheduleTaskNotification({
     required String taskId,
     required String taskTitle,
+    required String taskType,
     required TimeOfDay time,
     required List<int> repeatDays, // JS weekday: 0=Sun..6=Sat
     required bool requirePhoto,
@@ -126,6 +129,7 @@ class NotificationService {
     final payload = _buildPayload(
       taskId: taskId,
       taskTitle: taskTitle,
+      taskType: taskType,
       requirePhoto: requirePhoto,
       elderlyId: elderlyId,
       familyId: familyId,
@@ -266,6 +270,7 @@ class NotificationService {
   String _buildPayload({
     required String taskId,
     required String taskTitle,
+    required String taskType,
     required bool requirePhoto,
     required String elderlyId,
     required String familyId,
@@ -276,6 +281,7 @@ class NotificationService {
     return jsonEncode({
       kPayloadTaskId: taskId,
       kPayloadTaskTitle: taskTitle,
+      kPayloadTaskType: taskType,
       kPayloadRequirePhoto: requirePhoto,
       kPayloadElderlyId: elderlyId,
       kPayloadFamilyId: familyId,
@@ -422,6 +428,7 @@ class NotificationService {
       scheduleTaskNotification(
         taskId: '${data[kPayloadTaskId]}_snooze',
         taskTitle: data[kPayloadTaskTitle] as String,
+        taskType: data[kPayloadTaskType] as String? ?? '',
         time: TimeOfDay(hour: total ~/ 60 % 24, minute: total % 60),
         repeatDays: [], // snooze = one-shot
         requirePhoto: data[kPayloadRequirePhoto] as bool? ?? false,

@@ -129,6 +129,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             ? widget.taskToEdit!.familyId
             : (user.familyId ?? ''),
         title: _titleController.text.trim(),
+        type: isEditing ? widget.taskToEdit!.type : '',
         note: _noteController.text.trim(),
         time: selectedTime!,
         date: selectedDate.isNotEmpty ? selectedDate : null,
