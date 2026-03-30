@@ -6,6 +6,7 @@ import 'package:takecare/features/task/screens/frequency_setting.dart';
 import 'package:takecare/features/task/screens/task_icon_picker.dart';
 
 import '../../../components/build_text_field.dart';
+import '../../../components/loading_overlay.dart';
 import '../../../constants/app_theme.dart';
 import '../providers/task_provider.dart';
 
@@ -66,9 +67,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _toggleDaySelection(int index) {
@@ -95,7 +94,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     if (pickedDate != null) {
       setState(() {
         selectedDate =
-            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+        "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
         selectedDay.clear();
       });
     }
@@ -155,50 +154,57 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_rounded),
+    // 👇 listen: true so widget rebuilds when isLoading changes
+    final isLoading = context.watch<TaskProvider>().isLoading;
+
+    return LoadingOverlay(
+      isLoading: isLoading,
+      message: isEditing ? 'กำลังอัปเดต...' : 'กำลังสร้างรายการ...',
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_rounded),
+          ),
+          title: Text(isEditing ? 'แก้ไขรายการ' : 'สร้างรายการใหม่'),
         ),
-        title: Text(isEditing ? 'แก้ไขรายการ' : 'สร้างรายการใหม่'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionLabel('ไอคอน'),
-                _buildIconPicker(),
-                const SizedBox(height: 20),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionLabel('ไอคอน'),
+                  _buildIconPicker(),
+                  const SizedBox(height: 20),
 
-                _buildSectionLabel('ชื่อรายการ'),
-                BuildTextField(
-                  isRequired: true,
-                  controller: _titleController,
-                  hint: 'ชื่อรายการ',
-                ),
-                const SizedBox(height: 20),
+                  _buildSectionLabel('ชื่อรายการ'),
+                  BuildTextField(
+                    isRequired: true,
+                    controller: _titleController,
+                    hint: 'ชื่อรายการ',
+                  ),
+                  const SizedBox(height: 20),
 
-                _buildFrequencySettings(),
-                const SizedBox(height: 20),
+                  _buildFrequencySettings(),
+                  const SizedBox(height: 20),
 
-                _buildPhotoRequirementToggle(),
-                const SizedBox(height: 20),
+                  _buildPhotoRequirementToggle(),
+                  const SizedBox(height: 20),
 
-                _buildSectionLabel('หมายเหตุ'),
-                BuildTextField(
-                  controller: _noteController,
-                  hint: 'หมายเหตุ',
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 32),
+                  _buildSectionLabel('หมายเหตุ'),
+                  BuildTextField(
+                    controller: _noteController,
+                    hint: 'หมายเหตุ',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 32),
 
-                _buildSubmitButton(),
-              ],
+                  _buildSubmitButton(),
+                ],
+              ),
             ),
           ),
         ),
@@ -276,9 +282,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       onPressed: _saveTask,
       child: Text(
         isEditing ? 'อัปเดตรายการ' : 'สร้างรายการ',
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge?.copyWith(color: Colors.white, fontSize: 18),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: Colors.white,
+          fontSize: 18,
+        ),
       ),
     );
   }

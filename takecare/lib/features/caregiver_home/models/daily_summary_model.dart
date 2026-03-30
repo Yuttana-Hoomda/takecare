@@ -59,6 +59,15 @@ class RecentEventItem {
   });
 
   factory RecentEventItem.fromJson(Map<String, dynamic> json) {
+    String parseCreatedAt(dynamic value) {
+      if (value is String) return value;
+      if (value is Map) {
+        final seconds = value['_seconds'] as int? ?? 0;
+        return DateTime.fromMillisecondsSinceEpoch(seconds * 1000).toIso8601String();
+      }
+      return '';
+    }
+
     return RecentEventItem(
       id:              json['id'] as String? ?? '',
       displayTitle:    json['displayTitle'] as String? ?? '',
@@ -66,7 +75,7 @@ class RecentEventItem {
       status:          json['status'] as String? ?? 'pending',
       type:            json['type'] as String? ?? 'task',
       thumbnailUrl:    json['thumbnailUrl'] as String?,
-      createdAt:       json['createdAt'] as String? ?? '',
+      createdAt:       parseCreatedAt(json['createdAt'])
     );
   }
 }
