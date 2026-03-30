@@ -168,7 +168,7 @@ class NextTaskCard extends StatelessWidget {
                               title: task!.title,
                               description: task!.note ?? '',
                               color: AppTheme.primaryColor,
-                              isRequiredCamera: task!.requirePhoto ?? false,
+                              isRequiredCamera: task!.isRequirePhoto ?? false,
                             ),
                           ),
                         ).then((result) {

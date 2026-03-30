@@ -10,7 +10,7 @@ class Task {
   final String? note;
   final TimeOfDay time;
   final List<int>? repeatDays;
-  final bool? requirePhoto; // Firestore field "requirePhoto"
+  final bool? isRequirePhoto; // Firestore field "requirePhoto"
   final bool? isRepeatByDate;
   final DateTime createdAt;
 
@@ -21,7 +21,7 @@ class Task {
     required this.title,
     required this.time,
     this.repeatDays,
-    this.requirePhoto,
+    this.isRequirePhoto,
     this.isRepeatByDate,
     required this.createdAt,
     this.date,
@@ -36,7 +36,7 @@ class Task {
       familyId: json['familyId'] as String? ?? '',
       title: json['title'] as String? ?? '',
       icon: json['icons'] as String? ?? 'assets/task.svg',
-      requirePhoto:
+      isRequirePhoto:
           (json['requirePhoto'] ?? json['isRequiredPhoto']) as bool? ?? false,
       isRepeatByDate: json['isRepeatByDate'] as bool? ?? false,
       time: TimeOfDay(
@@ -67,8 +67,8 @@ class Task {
       'note': note,
       'time': {'hour': time.hour, 'minute': time.minute},
       'repeatDays': repeatDays,
-      'requirePhoto': requirePhoto,
-      'isRequiredPhoto': requirePhoto,
+      // 'requirePhoto': requirePhoto, delete feild
+      'isRequiredPhoto': isRequirePhoto,
       'isRepeatByDate': isRepeatByDate,
       'createdAt': createdAt.toIso8601String(),
     };

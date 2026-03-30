@@ -59,7 +59,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     selectedDay = List<int>.from(task.repeatDays ?? []);
     selectedDate = task.date ?? '';
     selectedTime = task.time;
-    requirePhoto = task.requirePhoto ?? false;
+    requirePhoto = task.isRequirePhoto ?? false;
 
     int iconIndex = icons.indexOf(task.icon);
     selectedIcon = iconIndex != -1 ? iconIndex : 0;
@@ -133,7 +133,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         time: selectedTime!,
         date: selectedDate.isNotEmpty ? selectedDate : null,
         repeatDays: selectedDay,
-        requirePhoto: requirePhoto,
+        isRequirePhoto: requirePhoto,
         icon: icons[selectedIcon],
         createdAt: isEditing ? widget.taskToEdit!.createdAt : DateTime.now(),
       );
