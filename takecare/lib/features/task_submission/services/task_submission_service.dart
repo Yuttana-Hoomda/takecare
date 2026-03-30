@@ -29,7 +29,6 @@ class TaskSubmissionService {
 
       debugPrint('=== SUBMIT TASK REQUEST ===');
       debugPrint('URL: $url/task-submissions');
-      debugPrint('Token: $token');
       debugPrint('Body: ${jsonEncode(body)}');
       debugPrint('===========================');
 
@@ -49,7 +48,9 @@ class TaskSubmissionService {
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> jsonData = jsonDecode(response.body);
-        debugPrint(jsonData.toString());
+        if (jsonData.containsKey('data')) {
+          return TaskSubmission.fromJson(jsonData['data']);
+        }
         return TaskSubmission.fromJson(jsonData);
       } else {
         throw Exception('Server error: ${response.statusCode} - ${response.body}');
@@ -59,14 +60,21 @@ class TaskSubmissionService {
     }
   }
 
-  // GET /task-submissions?familyId=
+  // GET /task-submissions/family/:familyId
   Future<List<TaskSubmission>> getByFamily({
     required String familyId,
     required String token,
   }) async {
     try {
+      // ✅ แก้ไขให้ตรงกับ Backend: /api/task-submissions/family/:familyId
+      final String requestUrl = '$url/task-submissions/family/$familyId';
+      
+      debugPrint('=== GET SUBMISSIONS REQUEST ===');
+      debugPrint('URL: $requestUrl');
+      debugPrint('===============================');
+
       final response = await http.get(
-        Uri.parse('$url/task-submissions?familyId=$familyId'),
+        Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -74,11 +82,19 @@ class TaskSubmissionService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> jsonData = jsonDecode(response.body);
-        debugPrint(jsonData.toString());
-        return jsonData
-            .map((item) => TaskSubmission.fromJson(item as Map<String, dynamic>))
-            .toList();
+        final dynamic jsonData = jsonDecode(response.body);
+        debugPrint('🟢 GET SUBMISSIONS SUCCESS: ${response.body}');
+        
+        if (jsonData is List) {
+          return jsonData
+              .map((item) => TaskSubmission.fromJson(item as Map<String, dynamic>))
+              .toList();
+        } else if (jsonData is Map && jsonData.containsKey('data') && jsonData['data'] is List) {
+          return (jsonData['data'] as List)
+              .map((item) => TaskSubmission.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+        return [];
       } else {
         throw Exception('Server error: ${response.statusCode} - ${response.body}');
       }

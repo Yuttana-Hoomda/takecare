@@ -54,7 +54,6 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
     _monthPageController = PageController(initialPage: _initialIndex);
     _yearPageController = PageController(initialPage: _initialIndex);
     
-    // โหลดเดือนปัจจุบันทันทีที่เปิดหน้าจอ
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAdjacentMonths(_initialIndex);
     });
@@ -67,11 +66,9 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
 
     final provider = Provider.of<HistoryProvider>(context, listen: false);
     
-    // โหลดเดือนปัจจุบัน
     final current = _monthAtIndex(index);
     provider.loadMonth(month: current.month, year: current.year, familyId: familyId);
     
-    // โหลดเดือนก่อนหน้าและถัดไป (Preload)
     final next = _monthAtIndex(index + 1);
     final prev = _monthAtIndex(index - 1);
     provider.loadMonth(month: next.month, year: next.year, familyId: familyId);
@@ -94,17 +91,17 @@ class _InfiniteCalendarScreenState extends State<InfiniteCalendarScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close, size: 28), // ✅ ใหญ่ขึ้น
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('เลือกวันที่',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)), // ✅ ใหญ่ขึ้นจาก 18 เป็น 22
         centerTitle: true,
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), // ✅ เพิ่ม vertical padding
             child: _ModeToggle(
               mode: _mode,
               onChanged: (m) => setState(() => _mode = m),
@@ -158,11 +155,11 @@ class _ModeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48, // เพิ่มความสูงให้ดูไม่อึดอัด
+      height: 56, // ✅ เพิ่มความสูงจาก 48 เป็น 56
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0xFFF0F0F5),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
@@ -198,7 +195,7 @@ class _ToggleBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: isActive ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             boxShadow: isActive
                 ? [
               BoxShadow(
@@ -212,7 +209,7 @@ class _ToggleBtn extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 18, // ✅ เพิ่มจาก 15 เป็น 18
                 fontWeight:
                 isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? AppTheme.primaryColor : Colors.grey[600],

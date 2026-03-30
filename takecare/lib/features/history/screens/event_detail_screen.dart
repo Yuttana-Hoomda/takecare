@@ -27,7 +27,6 @@ class EventDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final statusColor = _statusColor(context);
     final isFoodAnalysis = event.isFoodAnalysis;
 
@@ -51,7 +50,7 @@ class EventDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero section — รูปหรือ icon
+
             _HeroSection(event: event, statusColor: statusColor),
             const SizedBox(height: 20),
 

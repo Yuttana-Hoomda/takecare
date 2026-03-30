@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="67a95df0-1896-4a07-b017-7d9283c6c4d9" name="Changes" comment="screens structure for calendar and elderly home">
-      <change beforePath="$PROJECT_DIR$/takecare-backend/src/services/eventService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/services/eventService.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/action_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/action_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/home_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/home_header.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_analysis_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_analysis_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/models/event_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/models/event_model.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/screens/event_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/screens/event_detail_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/screens/history_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/screens/history_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/widgets/date_picker.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/widgets/date_picker.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/widgets/month_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/widgets/month_header.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,31 +65,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.beer_main.executor&quot;: &quot;Run&quot;,
-    &quot;Flutter.main.executor&quot;: &quot;Run&quot;,
-    &quot;Flutter.main_beer.executor&quot;: &quot;Run&quot;,
-    &quot;Flutter.main_link_family_screen.dart.executor&quot;: &quot;Run&quot;,
-    &quot;Flutter.main_test.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/history-page-and-event-api&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/duangjai/duangkamon_project_takecare/takecare/lib/features/home/screens&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.android.studio.ml.bot.mainConfigurable&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.beer_main.executor": "Run",
+    "Flutter.main.executor": "Run",
+    "Flutter.main_beer.executor": "Run",
+    "Flutter.main_link_family_screen.dart.executor": "Run",
+    "Flutter.main_test.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "feature/button-function2",
+    "io.flutter.reload.alreadyRun": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/duangjai/duangkamon_project_takecare/takecare/lib/features/home/screens",
+    "settings.editor.selected.configurable": "com.android.studio.ml.bot.mainConfigurable",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/takecare/lib/features/home/screens" />

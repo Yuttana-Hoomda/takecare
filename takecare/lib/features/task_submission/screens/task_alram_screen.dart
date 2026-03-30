@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/constants/enum.dart';
-import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'package:takecare/features/camera/camera_screen.dart';
 import 'package:takecare/features/auth/providers/auth_provider.dart';
-import 'package:takecare/features/home/screens/main_wrapper.dart';
 import 'package:takecare/features/task_submission/providers/task_submission_provider.dart';
 import '../../auth/models/user_model.dart';
 
@@ -76,9 +74,9 @@ class TaskAlarmScreen extends StatelessWidget {
                       child: Text(
                         description,
                         textAlign: TextAlign.center,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyLarge?.copyWith(color: Colors.black54),
+                        style: Theme.of(context)
+                            .textTheme.bodyLarge
+                            ?.copyWith(color: Colors.black54),
                       ),
                     ),
                   ],
@@ -86,7 +84,6 @@ class TaskAlarmScreen extends StatelessWidget {
               ),
             ),
 
-            // Bottom buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
@@ -114,7 +111,9 @@ class TaskAlarmScreen extends StatelessWidget {
                           const SizedBox(width: 10),
                           Text(
                             isRequiredCamera ? 'กินแล้ว (ถ่ายรูป)' : 'ทำแล้ว',
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(color: Colors.white),
                           ),
                         ],
@@ -123,7 +122,6 @@ class TaskAlarmScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Snooze button
                   SizedBox(
                     width: double.infinity,
                     height: 62,
@@ -132,16 +130,13 @@ class TaskAlarmScreen extends StatelessWidget {
                         backgroundColor: AppTheme.secondary,
                         foregroundColor: Colors.black87,
                       ),
-                      onPressed: () => _onSnooze(context),
+                      onPressed: () => Navigator.pop(context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.access_alarm_rounded, size: 25),
-                          const SizedBox(width: 10),
-                          Text(
-                            'เลื่อนออกไป 15 นาที',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
+                        children: const [
+                          Icon(Icons.access_alarm_rounded, size: 25),
+                          SizedBox(width: 10),
+                          Text('เลื่อนออกไป 15 นาที'),
                         ],
                       ),
                     ),
@@ -155,9 +150,9 @@ class TaskAlarmScreen extends StatelessWidget {
     );
   }
 
-  // ✅ Fixed: removed duplicate submit call, guard user type first
+  // ✅ CAMERA FLOW
   Future<void> _onTapCamera(BuildContext context) async {
-    Navigator.pushReplacement(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CameraScreen(
@@ -168,28 +163,27 @@ class TaskAlarmScreen extends StatelessWidget {
 
             if (user is! ElderUser) return;
 
-            // ✅ Send imgBase64 — backend uploads to Cloudinary itself
             final success = await _submitTask(
               context: context,
               user: user,
               token: token,
-              proofImgUrl: imgBase64, // 👈 base64 string, not file path
+              proofImgUrl: imgBase64,
             );
 
             if (!success || !context.mounted) return;
 
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const AuthWrapper()),
-                  (route) => false,
-            );
+            Navigator.pop(context, true);
           },
         ),
       ),
     );
+
+    if (result == true) {
+      Navigator.pop(context, true);
+    }
   }
 
-  // ✅ Fixed: guard already handled, clean flow
+  // ✅ NORMAL FLOW
   Future<void> _onDone(BuildContext context) async {
     final user = context.read<AuthProvider>().user;
     final token = context.read<AuthProvider>().firebaseToken ?? '';
@@ -204,57 +198,28 @@ class TaskAlarmScreen extends StatelessWidget {
     );
 
     if (success && context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const MainWrapper()),
-        (route) => false,
-      );
+      Navigator.pop(context, true); // 🔥 สำคัญที่สุด
     }
   }
 
-  // ✅ Single submit logic — used by both flows
+  // ✅ SUBMIT
   Future<bool> _submitTask({
+
     required BuildContext context,
     required ElderUser user,
     required String token,
     String? proofImgUrl,
   }) async {
-    if (user.familyId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ไม่พบข้อมูลครอบครัว กรุณาลองใหม่'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return false;
-    }
+    if (user.familyId == null) return false;
 
     final success = await context.read<TaskSubmissionProvider>().submit(
       taskId: taskId,
       elderlyId: user.uid,
       familyId: user.familyId!,
       displayTitle: title,
-      // 👈 already a field on TaskAlarmScreen
       token: token,
       proofImgUrl: proofImgUrl,
     );
-
-    if (!success && context.mounted) {
-      final error = context.read<TaskSubmissionProvider>().errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error ?? 'เกิดข้อผิดพลาด กรุณาลองใหม่'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
-
     return success;
-  }
-
-  void _onSnooze(BuildContext context) {
-    Navigator.pop(context);
   }
 }

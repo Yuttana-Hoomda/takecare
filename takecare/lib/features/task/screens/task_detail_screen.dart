@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:takecare/components/loading_overlay.dart';
 import 'package:takecare/components/show_icon.dart';
 import 'package:takecare/constants/app_theme.dart';
+import 'package:takecare/constants/enum.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/task/models/task_model.dart';
 import 'package:takecare/features/task/providers/task_provider.dart';
 import 'package:takecare/features/task/screens/task_form_screen.dart';
@@ -48,7 +50,12 @@ class TaskDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
+    final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.user;
+
+    // ค้นหา task จาก ID
     final task = taskProvider.tasks!.firstWhere((t) => t.taskId == taskId);
+    final bool isElder = user?.role == Role.elder;
 
     return LoadingOverlay(
       isLoading: taskProvider.isLoading,
@@ -57,127 +64,130 @@ class TaskDetailScreen extends StatelessWidget {
         appBar: AppBar(title: const Text('รายละเอียดรายการ')),
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        ShowIcon(
-                          icon: task.icon,
-                          iconColor: _iconColor(task).$2,
-                          bgColor: _iconColor(task).$1,
-                          size: 70,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ShowIcon(
+                              icon: task.icon,
+                              iconColor: _iconColor(task).$2,
+                              bgColor: _iconColor(task).$1,
+                              size: 70,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              task.title,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.copyWith(fontSize: 28),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 24),
-                        Text(
-                          task.title,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(fontSize: 28),
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _infoSection(
+                                context,
+                                Icons.schedule_outlined,
+                                'เวลา',
+                                Format().timeToString(task.time),
+                              ),
+                              const SizedBox(height: 28),
+                              _infoSection(
+                                context,
+                                Icons.update_outlined,
+                                'วันที่แจ้งเตือน',
+                                (task.date?.isNotEmpty == true)
+                                    ? Format().dateToString(task.date!)
+                                    : Format().repeatedDay(task.repeatDays),
+                              ),
+                              if (task.isRequirePhoto== true) ...[
+                                const SizedBox(height: 28),
+                                _infoSection(
+                                  context,
+                                  Icons.photo_camera_outlined,
+                                  'รูปถ่าย',
+                                  'ใช้รูปถ่าย',
+                                ),
+                              ],
+                              const SizedBox(height: 28),
+                              _infoSection(
+                                context,
+                                Icons.article_outlined,
+                                'หมายเหตุ',
+                                (task.note?.trim().isNotEmpty == true)
+                                    ? task.note!
+                                    : '-',
+                              ),
+                              const SizedBox(height: 28),
+                              const Divider(),
+                              Text(Format().createAtToString(task.createdAt)),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _infoSection(
-                            context,
-                            Icons.schedule_outlined,
-                            'เวลา',
-                            Format().timeToString(task.time),
-                          ),
-                          const SizedBox(height: 28),
-                          _infoSection(
-                            context,
-                            Icons.update_outlined,
-                            'วันที่แจ้งเตือน',
-                            (task.date?.isNotEmpty == true)
-                                ? Format().dateToString(task.date!)
-                                : Format().repeatedDay(task.repeatDays),
-                          ),
+                  ),
+                ),
 
-                          if (task.isRequirePhoto == true) ...[
-                            const SizedBox(height: 28),
-                            _infoSection(
-                              context,
-                              Icons.photo_camera_outlined,
-                              'รูปถ่าย',
-                              'ใช้รูปถ่าย',
+                // ✅ แสดงปุ่มแก้ไขและลบ เฉพาะผู้ที่ไม่ได้มี Role เป็น Elder
+                if (!isElder)
+                  Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TaskFormScreen(taskToEdit: task),
                             ),
-                          ],
-
-                          const SizedBox(height: 28),
-                          _infoSection(
-                            context,
-                            Icons.article_outlined,
-                            'หมายเหตุ',
-                            (task.note?.trim().isNotEmpty == true)
-                                ? task.note!
-                                : '-',
-                          ),
-                          const SizedBox(height: 28),
-                          const Divider(),
-                          Text(Format().createAtToString(task.createdAt)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                Column(
-                  children: [
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                TaskFormScreen(taskToEdit: task),
-                          ),
-                        );
-                      },
-                      label: Text(
-                        'แก้ไข',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: 18,
+                          );
+                        },
+                        label: Text(
+                          'แก้ไข',
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(color: Colors.white, fontSize: 18),
                         ),
+                        icon: const Icon(Icons.edit_outlined),
                       ),
-                      icon: Icon(Icons.edit_outlined),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.red,
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      onPressed: () => _showDialog(context, task),
-                      label: Text(
-                        'ลบ',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Colors.red,
-                          fontSize: 18,
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red),
+                          minimumSize: const Size(double.infinity, 50),
                         ),
+                        onPressed: () => _showDialog(context, task),
+                        label: Text(
+                          'ลบ',
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(color: Colors.red, fontSize: 18),
+                        ),
+                        icon: const Icon(Icons.delete_outlined),
                       ),
-                      icon: Icon(Icons.delete_outlined),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -197,11 +207,11 @@ class TaskDetailScreen extends StatelessWidget {
   }
 
   Widget _infoSection(
-      BuildContext context,
-      IconData icon,
-      String label,
-      String? content,
-      ) {
+    BuildContext context,
+    IconData icon,
+    String label,
+    String? content,
+  ) {
     return Row(
       children: [
         ShowIcon(
