@@ -35,7 +35,7 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
               const SizedBox(height: 10),
               Text(
                 'คุณคือใคร? เลือกบทบาทเพื่อเริ่มต้นใช้งานได้เลย',
-                style: TextStyle(color: AppTheme.subtitle),
+                style: TextStyle(color: Colors.black87),
               ),
               const SizedBox(height: 32),
 
@@ -175,8 +175,8 @@ Widget _roleCard({
             description,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black45,
+              fontSize: 16,
+              color: Colors.black87,
               height: 1.5,
             ),
           ),

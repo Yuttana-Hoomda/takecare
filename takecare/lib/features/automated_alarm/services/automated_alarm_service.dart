@@ -8,8 +8,8 @@ class AutomatedAlarmService {
   final ImagePicker _picker = ImagePicker();
 
   String get _baseUrl => Platform.isAndroid
-      ? 'http://10.0.2.2:3000/api'
-      : 'http://localhost:3000/api';
+      ? 'https://takecare-taupe.vercel.app/api'
+      : 'https://takecare-taupe.vercel.app/api';
 
   Future<String?> takePhoto() async {
     final XFile? photo = await _picker.pickImage(

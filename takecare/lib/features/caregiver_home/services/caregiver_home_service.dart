@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/daily_summary_model.dart';
 
 class CaregiverHomeService {
-  static const String _baseUrl = 'http://10.0.2.2:3000/api';
+  static const String _baseUrl = 'https://takecare-taupe.vercel.app/api';
 
   Future<DailySummary> getDailySummary({
     required String familyId,

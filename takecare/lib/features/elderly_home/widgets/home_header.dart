@@ -13,21 +13,27 @@ class HomeHeader extends StatelessWidget {
         return Row(
           children: [
             CircleAvatar(
-              radius: 22,
+              radius: 24,
               backgroundImage: url.isNotEmpty ? NetworkImage(url) : null,
-              child: url.isEmpty ? const Icon(Icons.person) : null,
+              child: url.isEmpty ? const Icon(Icons.person, size: 26) : null,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 20),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${GreetingHelper.getGreeting()},',
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                  ),
                 ),
                 Text(
                   auth.user?.displayName ?? '',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),

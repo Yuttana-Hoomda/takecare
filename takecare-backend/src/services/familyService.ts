@@ -1,4 +1,4 @@
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, DocumentSnapshot, type DocumentData } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
 const familiesCollection = db.collection('family'); //   ตรงกับ Firestore จริง
@@ -64,7 +64,11 @@ export const linkCaregiverByElderUid = async (
         throw new Error('Elder not found');
     }
 
-    const elderData = elderSnapshot.docs[0]!.data();
+    // FIX 1: guard the array access explicitly instead of relying on non-null assertion
+    const elderDoc = elderSnapshot.docs[0];
+    if (!elderDoc) throw new Error('Elder not found');
+
+    const elderData = elderDoc.data();
     const existingFamilyId = elderData['familyId'] as string | undefined;
 
     if (existingFamilyId) {
@@ -75,6 +79,7 @@ export const linkCaregiverByElderUid = async (
         await createFamily(elderUid, caregiverUid);
     }
 };
+
 // ดึงข้อมูล elder จาก familyId สำหรับ caregiver home
 export const getElderInfoByFamilyId = async (familyId: string) => {
   const familySnapshot = await familiesCollection.doc(familyId).get();
@@ -91,7 +96,10 @@ export const getElderInfoByFamilyId = async (familyId: string) => {
 
   if (elderSnapshot.empty) throw new Error('Elder user not found');
 
-  const elder = elderSnapshot.docs[0].data();
+  const elderDoc = elderSnapshot.docs[0];
+  if (!elderDoc) throw new Error('Elder user not found');
+
+  const elder = elderDoc.data();
   return {
     uid:          elder['uid']          ?? '',
     displayName:  elder['displayName']  ?? 'ผู้สูงอายุ',
@@ -104,7 +112,8 @@ export const getElderInfoByFamilyId = async (familyId: string) => {
 // รองรับกรณีที่ document ID ไม่ตรงกับ familyId field
 export const getElderInfoByFamilyIdSafe = async (familyId: string) => {
   // ลอง doc(familyId) ก่อน
-  let familyDoc = await familiesCollection.doc(familyId).get();
+  // FIX 2: use a typed variable that accepts both DocumentSnapshot and QueryDocumentSnapshot
+  let familyDoc: DocumentSnapshot<DocumentData> = await familiesCollection.doc(familyId).get();
 
   // ถ้าไม่เจอ ลอง query
   if (!familyDoc.exists) {
@@ -113,7 +122,11 @@ export const getElderInfoByFamilyIdSafe = async (familyId: string) => {
       .limit(1)
       .get();
     if (snap.empty) throw new Error('Family not found');
-    familyDoc = snap.docs[0];
+
+    // FIX 3: guard the array access explicitly
+    const snapDoc = snap.docs[0];
+    if (!snapDoc) throw new Error('Family not found');
+    familyDoc = snapDoc; // QueryDocumentSnapshot is assignable to DocumentSnapshot when typed correctly
   }
 
   const family = familyDoc.data();
@@ -127,7 +140,10 @@ export const getElderInfoByFamilyIdSafe = async (familyId: string) => {
 
   if (elderSnapshot.empty) throw new Error('Elder user not found');
 
-  const elder = elderSnapshot.docs[0].data();
+  const elderDoc2 = elderSnapshot.docs[0];
+  if (!elderDoc2) throw new Error('Elder user not found');
+
+  const elder = elderDoc2.data();
   return {
     uid:           elder['uid']          ?? '',
     displayName:   elder['displayName']  ?? 'ผู้สูงอายุ',

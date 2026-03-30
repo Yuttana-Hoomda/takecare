@@ -16,15 +16,28 @@ class TaskSubmission {
   });
 
   factory TaskSubmission.fromJson(Map<String, dynamic> json) {
+    DateTime parsedDate;
+    
+    // จัดการกับ createdAt ที่อาจมาเป็น String หรือ Map (Firestore Timestamp)
+    var createdAtData = json['createdAt'];
+    
+    if (createdAtData is String) {
+      parsedDate = DateTime.parse(createdAtData);
+    } else if (createdAtData is Map && createdAtData.containsKey('_seconds')) {
+      // กรณีมาเป็น { _seconds: ..., _nanoseconds: ... } จาก Firestore
+      int seconds = createdAtData['_seconds'] as int;
+      parsedDate = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+    } else {
+      parsedDate = DateTime.now();
+    }
+
     return TaskSubmission(
-      id: json['id'] as String? ?? '',           // ✅ null safe
+      id: json['id'] as String? ?? '',
       taskId: json['taskId'] as String? ?? '',
       elderlyId: json['elderlyId'] as String? ?? '',
       familyId: json['familyId'] as String? ?? '',
-      proofImgUrl: json['proofImgUrl'] as String?, // already nullable
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),                        // ✅ fallback if null
+      proofImgUrl: json['proofImgUrl'] as String?,
+      createdAt: parsedDate,
     );
   }
 

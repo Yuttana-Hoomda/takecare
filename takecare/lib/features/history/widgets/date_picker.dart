@@ -107,7 +107,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
     final dayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
 
     return SizedBox(
-      height: 105,
+      height: 110,
       child: PageView.builder(
         controller: _pageController,
         onPageChanged: _loadMonthForIndex,
@@ -116,7 +116,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
           final dates =
               List.generate(7, (i) => weekStart.add(Duration(days: i)));
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: dates.asMap().entries.map((e) {
@@ -137,20 +137,19 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                         Text(
                           dayLabels[i],
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: isSelected
                                 ? AppTheme.primaryColor
                                 : Colors.grey[500],
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 45,
-                          height: 70,
+                          width: 44,
+                          height: 68,
                           decoration: BoxDecoration(
-                            // เปลี่ยนจาก Colors.transparent เป็น Colors.white เมื่อไม่ได้ถูกเลือก
                             color: isSelected
                                 ? AppTheme.primaryColor
                                 : Colors.white,
@@ -175,13 +174,13 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                               Text(
                                 '${date.day}',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w800,
                                   color:
                                       isSelected ? Colors.white : Colors.black87,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               if (!isFuture)
                                 Container(
                                   width: 6,

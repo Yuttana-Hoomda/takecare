@@ -11,7 +11,6 @@ class CaregiverTopBar extends StatelessWidget {
         name: 'Mom',
         avatarUrl:
         'https://hilight.thaicdn.net/img_cms2/user/thachapol/tah/ee1226.jpg',
-        isOnline: true,
     );
   }
 }

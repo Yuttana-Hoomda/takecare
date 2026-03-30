@@ -9,10 +9,10 @@ import '../models/food_analysis.dart';
 import '../models/save_analysis_food_model.dart';
 
 class FoodAnalysisService {
-  //final String url = "http://10.0.2.2:3000/api";
+  //final String url = "https://takecare-taupe.vercel.app//api";
   final String url = Platform.isAndroid
-      ? "http://10.0.2.2:3000/api"
-      : "http://localhost:3000/api";
+      ? "https://takecare-taupe.vercel.app/api"
+      : "https://takecare-taupe.vercel.app/api";
 
   Future<AiAnalysisResult> analysisFood(String imgBase64, List<Diseases> disease) async {
     try{

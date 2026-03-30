@@ -39,13 +39,22 @@ class _TaskScreenState extends State<TaskScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('รายการที่สร้าง')),
-      body: Padding(
+      body: tasks == null || tasks.isEmpty
+          ? Center(
+        child: Text(
+          'ยังไม่มีรายการ',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.grey,
+          ),
+        ),
+      )
+          : Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18),
         child: ListView.separated(
-          itemCount: tasks?.length ?? 0,
+          itemCount: tasks.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final task = tasks?[index];
+            final task = tasks[index];
             if (task == null) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -72,7 +81,7 @@ class _TaskScreenState extends State<TaskScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => TaskFormScreen()),
+            MaterialPageRoute(builder: (context) => const TaskFormScreen()),
           );
         },
         child: const Icon(Icons.add),

@@ -20,9 +20,9 @@ class ActionButtons extends StatelessWidget {
       children: [
         Expanded(
           child: ProgressCard(
-            label: 'Progress',
+            label: 'ความคืบหน้า',
             valueText: '50%',
-            sublabel: '4/5 doses taken',
+            sublabel: '1/2 ทำแล้ว',
             progress: 0.5,
             color: AppTheme.primaryColor,
           ),

@@ -71,6 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       isLoading: isLoading,
       message: 'กำลังสร้างบัญชี...',
       child: Scaffold(
+        resizeToAvoidBottomInset: false, // Prevents the keyboard from pushing the UI up
         appBar: AppBar(title: const Text('สร้างบัญชี')),
         body: SafeArea(
           child: Padding(
