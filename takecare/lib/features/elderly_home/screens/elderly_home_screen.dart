@@ -11,8 +11,7 @@ import '../widgets/action_card.dart';
 import '../widgets/schedule_item.dart';
 import '/constants/app_theme.dart';
 
-final RouteObserver<ModalRoute> elderlyHomeRouteObserver =
-RouteObserver<ModalRoute>();
+final RouteObserver<ModalRoute> elderlyHomeRouteObserver = RouteObserver<ModalRoute>();
 
 class ElderlyHomeScreen extends StatefulWidget {
   const ElderlyHomeScreen({super.key});
@@ -21,11 +20,8 @@ class ElderlyHomeScreen extends StatefulWidget {
   State<ElderlyHomeScreen> createState() => _ElderlyHomeScreenState();
 }
 
-class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
-    with RouteAware {
-
-  static final RouteObserver<ModalRoute> routeObserver =
-      elderlyHomeRouteObserver;
+class _ElderlyHomeScreenState extends State<ElderlyHomeScreen> with RouteAware {
+  static final RouteObserver<ModalRoute> routeObserver = elderlyHomeRouteObserver;
 
   @override
   void initState() {
@@ -47,7 +43,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
 
   @override
   void didPopNext() {
-    log('didPopNext called');
+    log('กลับมาที่หน้า Home: รีโหลดข้อมูล');
     _init();
   }
 
@@ -59,45 +55,50 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final token = auth.firebaseToken ?? '';
 
     if (familyId == null) return;
-
-    // โหลด tasks
+    // โหลดข้อมูล Task และ Submission
     await Provider.of<TaskProvider>(context, listen: false)
         .getTasks(familyId, elderlyId: elderlyId);
-
-    // โหลด submissions วันนี้
     await Provider.of<TaskSubmissionProvider>(context, listen: false)
         .loadByFamily(familyId: familyId, token: token);
   }
-
-  // ✅ helper: เช็คว่า task นี้ "ทำแล้ววันนี้"
+  // ✅ ฟังก์ชันเช็กว่าทำเสร็จหรือยัง (ส่งค่าไปให้ ScheduleItem)
   bool _isTaskCompletedToday(Task task) {
-    final submissionProvider =
-    Provider.of<TaskSubmissionProvider>(context, listen: false);
+    final submissionProvider = Provider.of<TaskSubmissionProvider>(context, listen: false);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
-    final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+    // 🔴 เพิ่ม Print เพื่อ Debug
+    print("--- กำลังเช็ก Task: ${task.title} (ID: ${task.taskId}) ---");
+    print("จำนวน Submission ทั้งหมดที่โหลดมา: ${submissionProvider.submissions.length}");
 
-    return submissionProvider.submissions.any((s) =>
-    s.taskId == task.taskId &&
-        s.createdAt.toIso8601String().startsWith(todayStr));
+    return submissionProvider.submissions.any((s) {
+      final sDate = s.createdAt.toLocal();
+      final submissionDay = DateTime(sDate.year, sDate.month, sDate.day);
+
+      bool isMatch = s.taskId == task.taskId && submissionDay.isAtSameMomentAs(today);
+
+      if (s.taskId == task.taskId) {
+        print("เจอ ID ตรงกัน! แต่วันที่ตรงไหม? -> ${submissionDay.isAtSameMomentAs(today)} (Submission Date: $submissionDay | Today: $today)");
+      }
+
+      return isMatch;
+    });
   }
-
+  // ✅ กรองเฉพาะ Task ที่ต้องแสดงวันนี้ (โชว์ทั้งหมด ไม่ตัดอันที่ทำแล้วทิ้ง)
   List<Task> _filterTasksForToday(List<Task> tasks) {
-    final today = DateTime.now();
-    final todayWeekday = today.weekday;
-    final todayDateStr = today.toIso8601String().substring(0, 10);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayWeekday = now.weekday;
+    final todayDateStr = now.toIso8601String().substring(0, 10);
 
     final filtered = tasks.where((task) {
-      // fixed date
       if (task.date != null && task.date!.isNotEmpty) {
         return task.date!.startsWith(todayDateStr);
       }
-
-      // repeat
-      if (task.repeatDays == null || task.repeatDays!.isEmpty) {
-        return false;
+      if (task.repeatDays != null && task.repeatDays!.isNotEmpty) {
+        return task.repeatDays!.contains(todayWeekday);
       }
-
-      return task.repeatDays!.contains(todayWeekday);
+      return false;
     }).toList();
 
     filtered.sort((a, b) {
@@ -109,29 +110,11 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     return filtered;
   }
 
+  // ✅ Next Task: เอาอันถัดไปที่ "ยังไม่ได้ทำ"
   Task? _getNextTask(List<Task> tasks) {
-    final now = TimeOfDay.now();
-    final nowMin = now.hour * 60 + now.minute;
-
-    final upcoming = tasks.where((t) {
-      // ✅ ข้ามถ้าทำแล้ว "วันนี้"
-      if (_isTaskCompletedToday(t)) return false;
-
-      final taskMin = t.time.hour * 60 + t.time.minute;
-
-      // ❌ ข้ามถ้าเลยเวลาแล้ว (ถือว่า miss)
-      return taskMin >= nowMin;
-    }).toList();
-
-    if (upcoming.isEmpty) return null;
-
-    upcoming.sort((a, b) {
-      final aMin = a.time.hour * 60 + a.time.minute;
-      final bMin = b.time.hour * 60 + b.time.minute;
-      return aMin.compareTo(bMin);
-    });
-
-    return upcoming.first;
+    final remainingTasks = tasks.where((t) => !_isTaskCompletedToday(t)).toList();
+    if (remainingTasks.isEmpty) return null;
+    return remainingTasks.first;
   }
 
   bool _isNow(Task task) {
@@ -144,8 +127,6 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
   @override
   Widget build(BuildContext context) {
     final taskProvider = Provider.of<TaskProvider>(context);
-    final submissionProvider = Provider.of<TaskSubmissionProvider>(context);
-
     final allTasks = taskProvider.tasks ?? [];
     final todayTasks = _filterTasksForToday(allTasks);
     final nextTask = _getNextTask(todayTasks);
@@ -153,16 +134,11 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-      isDarkMode ? AppTheme.bgColorDark : AppTheme.bgColorLight,
+      backgroundColor: isDarkMode ? AppTheme.bgColorDark : AppTheme.bgColorLight,
       appBar: AppBar(
-        backgroundColor:
-        isDarkMode ? AppTheme.bgColorDark : Colors.white,
+        backgroundColor: isDarkMode ? AppTheme.bgColorDark : Colors.white,
         elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
         toolbarHeight: 90,
-        titleSpacing: 20,
         title: const HomeHeader(),
       ),
       body: taskProvider.isLoading
@@ -170,44 +146,31 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
           : RefreshIndicator(
         onRefresh: () async => _init(),
         child: ListView(
-          padding:
-          const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           children: [
-            Text(
-              'กิจกรรมที่กำลังจะมาถึง',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
+            const Text('กิจกรรมที่กำลังจะมาถึง', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             NextTaskCard(
               task: nextTask,
-              onComplete: () async {
-                await _init();
-              },
+              onComplete: () async => _init(),
             ),
             const SizedBox(height: 20),
             const ActionButtons(),
             const SizedBox(height: 24),
             _ScheduleHeader(),
             const SizedBox(height: 12),
-
             if (todayTasks.isEmpty)
               const Center(child: Text("ไม่มีกิจกรรมวันนี้"))
             else
               ...todayTasks.asMap().entries.map((e) {
                 final task = e.value;
-
                 return ScheduleItem(
                   task: task,
                   isNow: _isNow(task),
                   isLast: e.key == todayTasks.length - 1,
-                  isCompleted: _isTaskCompletedToday(task), // ✅ เพิ่ม
+                  isCompleted: _isTaskCompletedToday(task), // 🔥 ส่งค่าไปที่นี่
                 );
               }),
-
             const SizedBox(height: 30),
           ],
         ),
@@ -215,7 +178,6 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
     );
   }
 }
-
 class _ScheduleHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
