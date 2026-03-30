@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:takecare/constants/enum.dart';
+import 'package:takecare/features/auth/models/user_model.dart';
+import 'package:takecare/features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/models/event_model.dart';
+import 'package:takecare/features/task_submission/providers/task_submission_provider.dart';
 import 'package:takecare/constants/app_theme.dart';
 
 class EventDetailScreen extends StatelessWidget {
@@ -151,6 +156,91 @@ class EventDetailScreen extends StatelessWidget {
                   : 'บันทึกกิจกรรม',
               icon: Icons.folder_outlined,
             ),
+
+            // ปุ่มทำเครื่องหมายว่าเสร็จสิ้น (เฉพาะ task ที่ยังไม่เสร็จ)
+            if (!isFoodAnalysis && !event.isCompleted) ...[
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () async {
+                    final user = context.read<AuthProvider>().user;
+                    final token = context.read<AuthProvider>().firebaseToken ?? '';
+
+                    if (user is! ElderUser) return;
+
+                    if (user.familyId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('ไม่พบข้อมูลครอบครัว กรุณาลองใหม่'),
+                          backgroundColor: Colors.redAccent,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return;
+                    }
+
+                    final success = await context
+                        .read<TaskSubmissionProvider>()
+                        .submit(
+                      taskId: event.referenceId,
+                      elderlyId: user.uid,
+                      familyId: user.familyId!,
+                      displayTitle: event.displayTitle,
+                      token: token,
+                      proofImgUrl: null,
+                    );
+
+                    if (!context.mounted) return;
+
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('บันทึกเสร็จสิ้นแล้ว'),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    } else {
+                      final error = context
+                          .read<TaskSubmissionProvider>()
+                          .errorMessage;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(error ?? 'เกิดข้อผิดพลาด กรุณาลองใหม่'),
+                          backgroundColor: Colors.redAccent,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle_rounded, size: 24),
+                      SizedBox(width: 10),
+                      Text(
+                        'ทำเครื่องหมายว่าเสร็จสิ้น',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
           ],
         ),
       ),

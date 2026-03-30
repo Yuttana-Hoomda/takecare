@@ -13,6 +13,7 @@ import 'package:takecare/constants/app_theme.dart';
 import 'package:takecare/features/auth/screens/AuthWrapper.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/providers/history_provider.dart';
+import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 
 //  navigatorKey สำหรับ push AlarmScreen จากนอก widget tree
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -54,6 +55,7 @@ class Main extends StatelessWidget {
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey, // ✅ ผูก key
+        navigatorObservers:[elderlyHomeRouteObserver],
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

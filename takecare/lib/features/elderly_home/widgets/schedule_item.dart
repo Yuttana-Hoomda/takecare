@@ -8,11 +8,14 @@ class ScheduleItem extends StatelessWidget {
   final Task task;
   final bool isNow;
   final bool isLast;
+  final bool isCompleted;
+
 
   const ScheduleItem({
     super.key,
     required this.task,
     required this.isNow,
+    this.isCompleted = false,
     this.isLast = false,
   });
 
