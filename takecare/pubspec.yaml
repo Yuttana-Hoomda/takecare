@@ -22,6 +22,8 @@ dependencies:
   path: ^1.9.1
   permission_handler: ^12.0.1
 
+  url_launcher: ^6.3.2
+
   # ✅ Production-grade notifications
   flutter_local_notifications: ^18.0.1
   android_alarm_manager_plus: ^4.0.0

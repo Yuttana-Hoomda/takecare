@@ -5,7 +5,6 @@ import '../models/daily_summary_model.dart';
 class CaregiverHomeService {
   static const String _baseUrl = 'http://10.0.2.2:3000/api';
 
-  // GET /api/home/summary?familyId=xxx&date=2026-03-28
   Future<DailySummary> getDailySummary({
     required String familyId,
     required String date,
@@ -23,7 +22,6 @@ class CaregiverHomeService {
     }
   }
 
-  // GET /api/home/recent-events?familyId=xxx&date=2026-03-28
   Future<List<RecentEventItem>> getRecentEvents({
     required String familyId,
     required String date,
@@ -39,6 +37,21 @@ class CaregiverHomeService {
       return data.map((e) => RecentEventItem.fromJson(e)).toList();
     } else {
       throw Exception('getRecentEvents failed: ${response.statusCode}');
+    }
+  }
+
+  // ✅ ย้ายเข้ามาใน class
+  Future<ElderInfo> getElderInfo({required String familyId}) async {
+    final uri = Uri.parse(
+      '$_baseUrl/families/elder-info',
+    ).replace(queryParameters: {'familyId': familyId});
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      return ElderInfo.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('getElderInfo failed: ${response.statusCode}');
     }
   }
 }

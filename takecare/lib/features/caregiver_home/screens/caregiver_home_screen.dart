@@ -48,10 +48,11 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<CaregiverHomeProvider>();
-    final user = context.watch<AuthProvider>().user;
+    final provider  = context.watch<CaregiverHomeProvider>();
+    final user      = context.watch<AuthProvider>().user;
     final textTheme = Theme.of(context).textTheme;
-    final summary = provider.summary;
+    final summary   = provider.summary;
+    final elder     = provider.elderInfo;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -73,9 +74,9 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
               toolbarHeight: 90,
               titleSpacing: 20,
               title: CaregiverHeader(
-                name: user?.displayName ?? '',
-                avatarUrl: user?.profilePictureUrl ?? '',
-                isOnline: true,
+                // แสดงชื่อและรูปของผู้สูงอายุ ไม่ใช่ caregiver
+                name: elder.displayName,
+                avatarUrl: elder.profileImgUrl,
               ),
             ),
 
@@ -85,11 +86,8 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
                 delegate: SliverChildListDelegate([
                   const SizedBox(height: 20),
 
-                  FastCallCard(
-                    title: 'โทรหาด่วน',
-                    subtitle: 'กดเพื่อโทรหาผู้สูงอายุ',
-                    onTap: () {},
-                  ),
+                  // fast call ใช้เบอร์ elder จาก provider
+                  FastCallCard(phoneNumber: elder.phoneNumber),
 
                   const SizedBox(height: 28),
 
@@ -117,8 +115,7 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
                                 valueText: summary.totalCount > 0
                                     ? '${(summary.completedRate * 100).round()}%'
                                     : '-',
-                                sublabel:
-                                    '${summary.completedCount}/${summary.totalCount} รายการ',
+                                sublabel: '${summary.completedCount}/${summary.totalCount} รายการ',
                                 progress: summary.completedRate,
                                 color: AppTheme.primaryColor,
                               ),
@@ -151,9 +148,8 @@ class _CaregiverHomeViewState extends State<_CaregiverHomeView> {
                         padding: const EdgeInsets.all(24),
                         child: Text(
                           'ยังไม่มีกิจกรรมวันนี้',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.subtitle,
-                          ),
+                          style: textTheme.bodyMedium
+                              ?.copyWith(color: AppTheme.subtitle),
                         ),
                       ),
                     )
@@ -213,9 +209,10 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: const Color(0xFFE44040)),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: const Color(0xFFE44040)),
             ),
           ),
           TextButton(onPressed: onRetry, child: const Text('ลองใหม่')),
@@ -240,17 +237,17 @@ class _EventTile extends StatelessWidget {
     switch (event.status) {
       case 'completed':
         statusColor = const Color(0xFF2E7D32);
-        statusIcon = Icons.check_circle_outline;
+        statusIcon  = Icons.check_circle_outline;
         statusLabel = 'เสร็จแล้ว';
         break;
       case 'missed':
         statusColor = const Color(0xFFE44040);
-        statusIcon = Icons.cancel_outlined;
+        statusIcon  = Icons.cancel_outlined;
         statusLabel = 'พลาด';
         break;
       default:
         statusColor = const Color(0xFFE07B00);
-        statusIcon = Icons.pending_outlined;
+        statusIcon  = Icons.pending_outlined;
         statusLabel = 'รอดำเนินการ';
     }
 
@@ -283,9 +280,8 @@ class _EventTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     event.displaySubtitle!,
-                    style: textTheme.titleSmall?.copyWith(
-                      color: AppTheme.subtitle,
-                    ),
+                    style: textTheme.titleSmall
+                        ?.copyWith(color: AppTheme.subtitle),
                   ),
                 ],
               ],

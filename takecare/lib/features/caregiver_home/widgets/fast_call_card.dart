@@ -1,25 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:takecare/constants/app_theme.dart';
 
-/// Card โทรหาด่วน (Fast Call)
+// กด fast call → เปิดแอพโทรของเครื่องพร้อมเบอร์ elder
 class FastCallCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
+  final String phoneNumber;
 
   const FastCallCard({
     super.key,
-    this.title = 'โทรหาด่วน',
-    this.subtitle = 'แตะเพื่อโทรหาผู้ดูแลทันที',
-    this.onTap,
+    required this.phoneNumber,
   });
+
+  Future<void> _call(BuildContext context) async {
+    if (phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ไม่พบเบอร์โทรของผู้สูงอายุ')),
+      );
+      return;
+    }
+
+    final uri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ไม่สามารถโทรออกได้')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => _call(context),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -36,12 +53,10 @@ class FastCallCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         child: Row(
           children: [
-            // ข้อความ
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -52,7 +67,7 @@ class FastCallCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'FAST CALL',
+                      'โทรด่วน',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -62,14 +77,22 @@ class FastCallCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(title, style: textTheme.titleLarge),
+                  Text('โทรหาผู้สูงอายุ', style: textTheme.titleLarge),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: textTheme.bodyMedium),
+                  Text(
+                    phoneNumber.isNotEmpty
+                        ? phoneNumber
+                        : 'ไม่พบเบอร์โทร',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: phoneNumber.isNotEmpty
+                          ? AppTheme.primaryColor
+                          : AppTheme.subtitle,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
-
-            // ไอคอนโทรศัพท์
             Container(
               width: 60,
               height: 60,
@@ -78,7 +101,7 @@ class FastCallCard extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.contact_phone_outlined,
+                Icons.phone_rounded,
                 color: AppTheme.primaryColor,
                 size: 30,
               ),

@@ -75,3 +75,27 @@ export const linkCaregiverByElderUid = async (
         await createFamily(elderUid, caregiverUid);
     }
 };
+// ดึงข้อมูล elder จาก familyId สำหรับ caregiver home
+export const getElderInfoByFamilyId = async (familyId: string) => {
+  const familySnapshot = await familiesCollection.doc(familyId).get();
+  if (!familySnapshot.exists) throw new Error('Family not found');
+
+  const family = familySnapshot.data();
+  const elderId = family?.['elder'] as string | undefined;
+  if (!elderId) throw new Error('Elder not found in family');
+
+  const elderSnapshot = await usersCollection
+    .where('uid', '==', elderId)
+    .limit(1)
+    .get();
+
+  if (elderSnapshot.empty) throw new Error('Elder user not found');
+
+  const elder = elderSnapshot.docs[0].data();
+  return {
+    uid:          elder['uid']          ?? '',
+    displayName:  elder['displayName']  ?? 'ผู้สูงอายุ',
+    phoneNumber:  elder['phoneNumber']  ?? '',
+    profileImgUrl: elder['profileImgUrl'] ?? '',
+  };
+};
