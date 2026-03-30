@@ -3,8 +3,9 @@ class AutomatedAlarmModel {
   final String title;
   final String scheduledTime;
   final String? notes;
-  final String elderlyId;  // ✅ เพิ่ม
-  final String familyId;   // ✅ เพิ่ม
+  final String elderlyId;
+  final String familyId;
+  final bool requirePhoto; // ✅ [NEW] แยก alarm screen ตาม field นี้
 
   const AutomatedAlarmModel({
     required this.id,
@@ -13,5 +14,6 @@ class AutomatedAlarmModel {
     required this.elderlyId,
     required this.familyId,
     this.notes,
+    this.requirePhoto = false,
   });
 }

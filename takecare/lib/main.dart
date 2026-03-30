@@ -15,7 +15,6 @@ import 'features/auth/providers/auth_provider.dart';
 import 'package:takecare/features/history/providers/history_provider.dart';
 import 'package:takecare/features/elderly_home/screens/elderly_home_screen.dart';
 
-//  navigatorKey สำหรับ push AlarmScreen จากนอก widget tree
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
@@ -23,8 +22,8 @@ void main() async {
   final cameras = await availableCameras();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // ✅ init AlarmScheduler ด้วย navigatorKey
-  AlarmScheduler.instance.init(navigatorKey);
+  // ✅ init AlarmScheduler (ซึ่งจะ init NotificationService + request permission ข้างใน)
+  await AlarmScheduler.instance.init(navigatorKey);
 
   runApp(Main(cameras: cameras));
 }

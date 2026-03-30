@@ -107,7 +107,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
     final dayLabels = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'];
 
     return SizedBox(
-      height: 105,
+      height: 120, // ✅ เพิ่มความสูงจาก 105 เป็น 120
       child: PageView.builder(
         controller: _pageController,
         onPageChanged: _loadMonthForIndex,
@@ -116,7 +116,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
           final dates =
               List.generate(7, (i) => weekStart.add(Duration(days: i)));
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10.0), // ลด padding เพื่อให้ตัวเลขที่ใหญ่ขึ้นไม่เบียดกัน
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: dates.asMap().entries.map((e) {
@@ -137,27 +137,26 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                         Text(
                           dayLabels[i],
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 16, // ✅ เพิ่มจาก 12 เป็น 16
                             fontWeight: FontWeight.w600,
                             color: isSelected
                                 ? AppTheme.primaryColor
                                 : Colors.grey[500],
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 45,
-                          height: 70,
+                          width: 48, // ✅ เพิ่มความกว้างเล็กน้อย
+                          height: 75, // ✅ เพิ่มความสูงเล็กน้อย
                           decoration: BoxDecoration(
-                            // เปลี่ยนจาก Colors.transparent เป็น Colors.white เมื่อไม่ได้ถูกเลือก
                             color: isSelected
                                 ? AppTheme.primaryColor
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: isToday && !isSelected
                                 ? Border.all(
-                                    color: AppTheme.primaryColor, width: 1.5)
+                                    color: AppTheme.primaryColor, width: 2) // หนาขึ้น
                                 : null,
                             boxShadow: [
                               BoxShadow(
@@ -175,17 +174,17 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                               Text(
                                 '${date.day}',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 24, // ✅ เพิ่มจาก 18 เป็น 24
                                   fontWeight: FontWeight.w800,
                                   color:
                                       isSelected ? Colors.white : Colors.black87,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               if (!isFuture)
                                 Container(
-                                  width: 6,
-                                  height: 6,
+                                  width: 8, // ✅ ใหญ่ขึ้นเล็กน้อย
+                                  height: 8,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: status != null 
@@ -194,7 +193,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
                                   ),
                                 )
                               else
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
                             ],
                           ),
                         ),

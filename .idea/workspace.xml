@@ -5,11 +5,52 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="67a95df0-1896-4a07-b017-7d9283c6c4d9" name="Changes" comment="screens structure for calendar and elderly home">
+      <change afterPath="$PROJECT_DIR$/takecare-backend/src/controllers/caregiverHomeController.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare-backend/src/routes/caregiverHomeRoutes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare-backend/src/services/caregiverHomeService.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare-backend/src/services/taskSubmissionService.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/android/pubspec.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/lib/components/loading_overlay.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/services/notification_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/lib/features/caregiver_home/models/daily_summary_model.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/lib/features/caregiver_home/providers/caregiver_home_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/takecare/lib/features/caregiver_home/services/caregiver_home_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/screens/elderly_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/next_task_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/schedule_item.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task_submission/screens/task_alram_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task_submission/screens/task_alram_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/controllers/taskSubmissionController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/controllers/taskSubmissionController.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/missing-task/missingTaskService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/missing-task/missingTaskService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/missing-task/taskSubmissionService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/missing-task/taskSubmissionService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/routes/taskSubmissionRoutes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/routes/taskSubmissionRoutes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/services/foodAnalysisService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/services/foodAnalysisService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare-backend/src/services/taskService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare-backend/src/services/taskService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/android/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/auth/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/auth/screens/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/auth/screens/register_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/auth/screens/register_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/auth/screens/select_role_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/auth/screens/select_role_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/models/automated_alarm_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/models/automated_alarm_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/providers/automated_alarm_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/providers/automated_alarm_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/screens/automated_alarm_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/screens/automated_alarm_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/services/alarm_scheduler.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/automated_alarm/services/alarm_scheduler.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/camera/camera_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/caregiver_home/screens/caregiver_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/caregiver_home/screens/caregiver_home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/home_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/elderly_home/widgets/home_header.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_alarm_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/food_alarm/screens/food_alarm_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/screens/history_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/screens/history_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/widgets/date_picker.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/widgets/date_picker.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/widgets/infinite_calendar_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/widgets/infinite_calendar_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/history/widgets/month_header.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/history/widgets/month_header.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/home/screens/main_wrapper.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/home/screens/main_wrapper.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task/providers/task_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task/providers/task_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task/screens/task_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task/screens/task_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task/screens/task_form_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task/screens/task_form_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task_submission/models/task_submission_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task_submission/models/task_submission_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/features/task_submission/services/task_submission_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/features/task_submission/services/task_submission_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/takecare/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/takecare/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +120,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature/button-function",
+    "git-widget-placeholder": "Merging feature/button-function2",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/duangjai/duangkamon_project_takecare/takecare/lib/features/home/screens",

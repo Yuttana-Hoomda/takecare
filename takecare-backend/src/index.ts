@@ -8,6 +8,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import devRoutes from "./routes/dev.routes.js";
 import { startMissingTaskJob } from "./missing-task/missingTaskJob.js";
 import taskSubmissionRoutes from "./routes/taskSubmissionRoutes.js";
+import caregiverHomeRoutes from "./routes/caregiverHomeRoutes.js";
 import eventRoutes from './routes/eventRoutes.js';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -70,6 +71,7 @@ app.get('/api/models', async (req, res) => {
 // test dev route
 app.use("/api/dev", devRoutes);
 app.use("/api", taskSubmissionRoutes);
+app.use("/api", caregiverHomeRoutes);
 
 // ✅ start missing task job
 startMissingTaskJob();

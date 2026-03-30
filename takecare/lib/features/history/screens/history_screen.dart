@@ -112,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text(
           'ประวัติกิจกรรม',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22), // ✅ เพิ่มจาก 18 เป็น 22
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -153,12 +153,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Timeline", style: Theme.of(context).textTheme.titleMedium,
-                              ),
+                              "สรุปผลกิจกรรม", 
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold), // ✅ ปรับเป็น titleLarge
+                            ),
                             // แสดง Badge เฉพาะเมื่อมีข้อมูล
                             if (events.isNotEmpty)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // ✅ เพิ่ม padding
                                 decoration: BoxDecoration(
                                   color: summaryColor.withOpacity(0.08),
                                   borderRadius: BorderRadius.circular(20),
@@ -171,14 +172,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       summaryText,
                                       style: TextStyle(
                                         color: summaryColor,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 4),
+                                    const SizedBox(width: 6),
                                     Icon(
                                       _getSummaryIcon(summaryText),
-                                      size: 14,
+                                      size: 18,
                                       color: summaryColor,
                                     ),
                                   ],
@@ -187,7 +188,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
@@ -226,7 +227,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-// ... _EmptyState และ _ErrorView คงเดิม ...
+
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
 
@@ -240,6 +241,7 @@ class _EmptyState extends StatelessWidget {
             child: Text(
               'ไม่มีรายการในวันนี้',
               style: TextStyle(
+                  fontSize: 20, // ✅ เพิ่มขนาดตัวอักษร
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
@@ -261,15 +263,19 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 48, color: cs.error),
+          Icon(Icons.error_outline, size: 60, color: cs.error), // ✅ เพิ่มขนาด icon
           const SizedBox(height: 12),
           Text(message,
-              style: TextStyle(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 16),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant)), // ✅ เพิ่มขนาดตัวอักษร
+          const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('ลองใหม่'),
+            label: const Text('ลองใหม่', style: TextStyle(fontSize: 18)), // ✅ เพิ่มขนาดตัวอักษรปุ่ม
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
           ),
         ],
       ),

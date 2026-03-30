@@ -15,6 +15,7 @@ class TaskProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   List<Task>? get tasks => _tasks;
 
+  // ✅ getTasks: schedule ครั้งแรกเท่านั้น (guard ใน AlarmScheduler)
   Future<void> getTasks(String familyId, {required String elderlyId}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -22,8 +23,7 @@ class TaskProvider extends ChangeNotifier {
 
     try {
       _tasks = await _taskService.getTasks(familyId);
-      // ✅ ส่ง elderlyId และ familyId ไปด้วย
-      AlarmScheduler.instance.scheduleTasks(
+      await AlarmScheduler.instance.scheduleTasks(
         _tasks ?? [],
         elderlyId: elderlyId,
         familyId: familyId,
@@ -37,6 +37,7 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  // ✅ create: rescheduleAll เพื่อรวม task ใหม่เข้าไป
   Future<void> createTask(Task task) async {
     _isLoading = true;
     _errorMessage = null;
@@ -44,19 +45,16 @@ class TaskProvider extends ChangeNotifier {
 
     try {
       final createdTask = await _taskService.createTask(task);
-      if (_tasks != null) {
-        _tasks!.insert(0, createdTask);
-      } else {
-        _tasks = [createdTask];
-      }
-      AlarmScheduler.instance.scheduleTasks(
-        _tasks ?? [],
+      _tasks = _tasks == null ? [createdTask] : [createdTask, ..._tasks!];
+
+      await AlarmScheduler.instance.rescheduleAll(
+        _tasks!,
         elderlyId: AlarmScheduler.instance.elderlyId,
         familyId: task.familyId,
       );
     } catch (err) {
       _errorMessage = 'Failed to create task';
-      log('Error in TaskProvider.createTask: ${err.toString()}');
+      log('Error in TaskProvider.createTask: $err');
       rethrow;
     } finally {
       _isLoading = false;
@@ -75,14 +73,15 @@ class TaskProvider extends ChangeNotifier {
         final index = _tasks!.indexWhere((t) => t.taskId == task.taskId);
         if (index != -1) _tasks![index] = updatedTask;
       }
-      AlarmScheduler.instance.scheduleTasks(
+
+      await AlarmScheduler.instance.rescheduleAll(
         _tasks ?? [],
         elderlyId: AlarmScheduler.instance.elderlyId,
         familyId: task.familyId,
       );
     } catch (err) {
       _errorMessage = 'Failed to update task';
-      log('Error in TaskProvider.update: ${err.toString()}');
+      log('Error in TaskProvider.updateTask: $err');
       rethrow;
     } finally {
       _isLoading = false;
@@ -98,14 +97,14 @@ class TaskProvider extends ChangeNotifier {
     try {
       await _taskService.deleteTask(task);
       _tasks?.removeWhere((t) => t.taskId == task.taskId);
-      AlarmScheduler.instance.scheduleTasks(
-        _tasks ?? [],
-        elderlyId: AlarmScheduler.instance.elderlyId,
-        familyId: task.familyId,
-      );
+
+      // cancel notification เฉพาะ task ที่ลบ ไม่ต้อง reschedule ทั้งหมด
+      if (task.taskId != null) {
+        await AlarmScheduler.instance.cancelTask(task.taskId!);
+      }
     } catch (err) {
       _errorMessage = 'Failed to delete task';
-      log('Error in TaskProvider.delete: ${err.toString()}');
+      log('Error in TaskProvider.deleteTask: $err');
       rethrow;
     } finally {
       _isLoading = false;

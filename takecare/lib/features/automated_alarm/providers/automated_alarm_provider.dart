@@ -22,14 +22,17 @@ class AutomatedAlarmProvider extends ChangeNotifier {
   String? _errorMessage;
   String _statusMessage = '';
 
-  AlarmActionState get actionState => _actionState;
-  String? get capturedPhotoPath => _capturedPhotoPath;
-  String? get errorMessage => _errorMessage;
-  String get statusMessage => _statusMessage;
+  AlarmActionState get actionState       => _actionState;
+  String? get capturedPhotoPath          => _capturedPhotoPath;
+  String? get errorMessage               => _errorMessage;
+  String get statusMessage               => _statusMessage;
+
+  // ─────────────────────────────────────────
+  // Photo-required task: ถ่ายรูป + submit
+  // ─────────────────────────────────────────
 
   Future<void> onDoneTakePhoto() async {
     try {
-      // Step 1: ถ่ายรูป
       _setState(AlarmActionState.loading, 'กำลังเปิดกล้อง...');
 
       final path = await _service.takePhoto();
@@ -39,7 +42,6 @@ class AutomatedAlarmProvider extends ChangeNotifier {
       }
       _capturedPhotoPath = path;
 
-      // Step 2: Submit task
       _setState(AlarmActionState.submitting, 'กำลังบันทึก...');
       await _service.submitTask(
         taskId:    currentAlarm.id,
@@ -55,13 +57,31 @@ class AutomatedAlarmProvider extends ChangeNotifier {
     }
   }
 
-  void onSnooze() {
-    _setState(AlarmActionState.snoozed, '');
+  // ─────────────────────────────────────────
+  // Normal task: กด "เสร็จสิ้น" โดยไม่ต้องถ่ายรูป
+  // ─────────────────────────────────────────
+
+  Future<void> onDoneWithoutPhoto() async {
+    try {
+      _setState(AlarmActionState.submitting, 'กำลังบันทึก...');
+      await _service.submitTask(
+        taskId:    currentAlarm.id,
+        taskTitle: currentAlarm.title,
+        elderlyId: elderlyId,
+        familyId:  familyId,
+      );
+      _setState(AlarmActionState.completed, '');
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setState(AlarmActionState.error, '');
+    }
   }
+
+  void onSnooze() => _setState(AlarmActionState.snoozed, '');
 
   void clearError() {
     if (_actionState == AlarmActionState.error) {
-      _actionState = AlarmActionState.idle;
+      _actionState  = AlarmActionState.idle;
       _errorMessage = null;
       _statusMessage = '';
       notifyListeners();
@@ -69,7 +89,7 @@ class AutomatedAlarmProvider extends ChangeNotifier {
   }
 
   void _setState(AlarmActionState state, String message) {
-    _actionState = state;
+    _actionState   = state;
     _statusMessage = message;
     notifyListeners();
   }
