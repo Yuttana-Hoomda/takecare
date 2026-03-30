@@ -28,13 +28,11 @@ class CaregiverHomeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final results = await Future.wait([
-        _service.getDailySummary(familyId: familyId, date: todayStr),
-        _service.getRecentEvents(familyId: familyId, date: todayStr),
-      ]);
+      final summary = await _service.getDailySummary(familyId: familyId, date: todayStr);
+      final events  = await _service.getRecentEvents(familyId: familyId, date: todayStr);
 
-      _summary      = results[0] as DailySummary;
-      _recentEvents = results[1] as List<RecentEventItem>;
+      _summary      = summary;
+      _recentEvents = events;
     } catch (e) {
       // [FIX 5] เก็บ error message ให้ UI แสดงได้
       _errorMessage = 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่';

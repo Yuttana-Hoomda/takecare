@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { createTaskSubmission } from '../missing-task/taskSubmissionService.js';
+import * as submissionService from '../missing-task/taskSubmissionService.js';
 
 export const submitTaskController = async (req: Request, res: Response) => {
     try {
@@ -36,4 +37,25 @@ export const submitTaskController = async (req: Request, res: Response) => {
             message: "Internal server error while submitting task."
         });
     }
+};
+
+export const getSubmissionsByFamily = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const familyId = req.params.familyId as string;
+    const { date } = req.query;
+
+    if (!familyId) {
+      res.status(400).json({ success: false, message: 'familyId is required' });
+      return;
+    }
+
+    const submissions = await submissionService.getSubmissionsByFamily(
+      familyId,
+      date as string | undefined,
+    );
+
+    res.status(200).json(submissions);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
