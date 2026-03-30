@@ -38,37 +38,76 @@ class ActionButtons extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CameraScreen(
-                    isLoading: false,
-                    onSubmit: (imgBase64, imageFilePath) async {
-                      final user = context.read<AuthProvider>().user;
-                      final diseases = user is ElderUser 
-                          ? user.ncdConditions ?? <Diseases>[] 
-                          : <Diseases>[];
+                  builder: (context) {
+                    // 1. Use StatefulBuilder to manage the loading state locally
+                    bool isAnalyzing = false;
 
-                      await context.read<FoodAnalysisProvider>().analysisFood(
-                        imgBase64,
-                        imageFilePath,
-                        diseases,
-                      );
-                      
-                      if (!context.mounted) return;
-                      
-                      final provider = context.read<FoodAnalysisProvider>();
-                      if (provider.result != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FoodAnalysisScreen(
-                              analysisResult: provider.result!,
-                              img: File(imageFilePath),
-                              showShareButton: false, // ซ่อนปุ่มแชร์เมื่อกดจากปุ่มเช็กอาหาร
-                            ),
-                          ),
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return CameraScreen(
+                          isLoading: isAnalyzing, // Pass the dynamic variable
+                          onSubmit: (imgBase64, imageFilePath) async {
+                            // 2. Start Loading
+                            setState(() {
+                              isAnalyzing = true;
+                            });
+
+                            try {
+                              final user = context.read<AuthProvider>().user;
+                              final diseases = user is ElderUser
+                                  ? user.ncdConditions ?? <Diseases>[]
+                                  : <Diseases>[];
+
+                              // Wait for API
+                              await context.read<FoodAnalysisProvider>().analysisFood(
+                                imgBase64,
+                                imageFilePath,
+                                diseases,
+                              );
+
+                              if (!context.mounted) return;
+
+                              final provider = context.read<FoodAnalysisProvider>();
+
+                              if (provider.result != null) {
+                                // 3. Use pushReplacement instead of push!
+                                // This prevents the user from going "back" to a dead camera preview
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FoodAnalysisScreen(
+                                      analysisResult: provider.result!,
+                                      img: File(imageFilePath),
+                                      showShareButton: false,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // 4. Handle Null Result
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('ไม่สามารถวิเคราะห์อาหารได้ กรุณาลองใหม่')),
+                                );
+                              }
+                            } catch (e) {
+                              // 5. Handle Network/API Errors
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                                );
+                              }
+                            } finally {
+                              // 6. Stop Loading (whether it succeeded or failed)
+                              if (context.mounted) {
+                                setState(() {
+                                  isAnalyzing = false;
+                                });
+                              }
+                            }
+                          },
                         );
-                      }
-                    },
-                  ),
+                      },
+                    );
+                  },
                 ),
               );
             },

@@ -8,6 +8,7 @@ import { db } from '../config/firebase.js';
 import type { AnalysisResult, NutrientData, SaveAnalysisRequest } from '../models/foodAnalysisModel.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { NCDisease } from '../models/userModel.js';
+import { fileURLToPath } from 'url';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -108,7 +109,17 @@ let nutrientsMap: Map<string, NutrientData> | null = null;
 const getNutrientsMap = (): Map<string, NutrientData> => {
     if (nutrientsMap) return nutrientsMap;
 
-    const csvPath = path.join(process.cwd(), 'src', 'data', 'Food-data.csv');
+    // Fix for ES Modules (Since you are using import/export)
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+
+    // Navigate from this current file's location to the data folder.
+    // NOTE: You may need to adjust the '../' depending on where this file 
+    // lives relative to the 'data' folder after TypeScript compiles it!
+    const csvPath = path.join(__dirname, '..', 'data', 'Food-data.csv');
+
+    console.log(`[Debug] Looking for CSV at: ${csvPath}`); // Helps debug in cloud logs
+
     const fileContent = fs.readFileSync(csvPath, 'utf-8');
 
     const records = csv.parse(fileContent, {

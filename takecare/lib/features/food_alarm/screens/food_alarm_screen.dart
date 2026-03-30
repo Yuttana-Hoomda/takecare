@@ -30,7 +30,7 @@ FoodAlarmData foodAlarmTypeData(FoodAlarmType foodAlarmType) {
         time: '07:00',
         title: 'มื้อเช้า',
         description:
-            'ถึงเวลากินอาหารเช้าแล้ว!\nเริ่มต้นวันใหม่ด้วยมื้อเช้าที่ดี',
+        'ถึงเวลากินอาหารเช้าแล้ว!\nเริ่มต้นวันใหม่ด้วยมื้อเช้าที่ดี',
       );
     case FoodAlarmType.lunch:
       return const FoodAlarmData(
@@ -116,45 +116,64 @@ class FoodAlarmScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              final isLoading = context.watch<FoodAnalysisProvider>().isLoading;
-                              return CameraScreen(
-                                isLoading: isLoading,
-                                onSubmit: (imgBase64, imageFilePath) async {
-                                  final user = context.read<AuthProvider>().user;
-                                  final diseases = user is ElderUser ? user.ncdConditions ?? <Diseases>[] : <Diseases>[];
+                              // Use Consumer here so ONLY CameraScreen rebuilds on state change
+                              return Consumer<FoodAnalysisProvider>(
+                                builder: (context, provider, child) {
+                                  return CameraScreen(
+                                    isLoading: provider.isLoading,
+                                    onSubmit: (imgBase64, imageFilePath) async {
+                                      final user = context.read<AuthProvider>().user;
+                                      final diseases = user is ElderUser
+                                          ? user.ncdConditions ?? <Diseases>[]
+                                          : <Diseases>[];
 
-                                  await context.read<FoodAnalysisProvider>().analysisFood(
-                                    imgBase64,
-                                    imageFilePath,
-                                    diseases,
+                                      // Call the analysis
+                                      await provider.analysisFood(
+                                        imgBase64,
+                                        imageFilePath,
+                                        diseases,
+                                      );
+
+                                      if (!context.mounted) return;
+
+                                      // Check if we got a valid result
+                                      if (provider.result != null) {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => FoodAnalysisScreen(
+                                              analysisResult: provider.result!,
+                                              img: File(imageFilePath),
+                                            ),
+                                          ),
+                                              (route) => false,
+                                        );
+                                      } else {
+                                        // 1. Print the actual error to the debug console
+                                        print('🔥 ANALYSIS FAILED: ${provider.error}');
+
+                                        // 2. Show the error to the user in the SnackBar
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('เกิดข้อผิดพลาด: ${provider.error ?? "ไม่สามารถวิเคราะห์ได้"}'),
+                                            backgroundColor: Colors.red,
+                                            duration: const Duration(seconds: 4),
+                                          ),
+                                        );
+                                      }
+                                    },
                                   );
-
-                                  if (!context.mounted) return;
-
-                                  final provider = context.read<FoodAnalysisProvider>();
-                                  if (provider.result != null) {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => FoodAnalysisScreen(
-                                          analysisResult: provider.result!,
-                                          img: File(imageFilePath),
-                                        ),
-                                      ),
-                                          (route) => false,
-                                    );
-                                  }
                                 },
                               );
-                            }
+                            },
                           ),
                         );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.photo_camera_rounded, size: 25),
-                          SizedBox(width: 10),
+                          const Icon(Icons.photo_camera_rounded, size: 25),
+                          const SizedBox(width: 10),
                           Text(
                             'กินแล้ว (ถ่ายรูป)',
                             style: Theme.of(context).textTheme.titleMedium
@@ -177,8 +196,8 @@ class FoodAlarmScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.access_alarm_rounded, size: 25),
-                          SizedBox(width: 10),
+                          const Icon(Icons.access_alarm_rounded, size: 25),
+                          const SizedBox(width: 10),
                           Text(
                             'เลื่อนออกไป 15 นาที',
                             style: Theme.of(context).textTheme.titleMedium,
